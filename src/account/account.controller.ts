@@ -1,12 +1,14 @@
-import { Controller, Get } from "@nestjs/common";
-import { AccountService } from "./account.service";
+import { Controller, Get } from '@nestjs/common';
+import { AccountService } from './account.service';
+import { Public } from 'src/auth/decorators/public.decorator';
 
-@Controller('a/account')
+@Controller('api/v1/account')
 export class AccountController {
-    constructor(private readonly accountService: AccountService) {}
+  constructor(private readonly accountService: AccountService) {}
 
-    @Get()
-    async getAccounts(){
-        return await this.accountService.getAccount(1);
-    }
+  @Public()
+  @Get('all')
+  async getAccounts() {
+    return await this.accountService.getAccount(1);
+  }
 }

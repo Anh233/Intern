@@ -1,7 +1,7 @@
 import { Controller, Get } from "@nestjs/common";
 import { AccountTokenService } from "./account_token.service";
 
-@Controller('a/accounttoken')
+@Controller('api/v1/accounttoken')
 export class AccountTokenController{
     constructor(private readonly accountTokenService: AccountTokenService){}
     @Get()
