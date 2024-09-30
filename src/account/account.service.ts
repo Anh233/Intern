@@ -23,7 +23,7 @@ export class AccountService {
 
   async findOneWithUserName(username: string) {
     return await this.accountRepository.findOne({
-      where: { email: username },
+      where: { username: username },
     });
   }
 }
