@@ -18,31 +18,27 @@ export class AccountTokenService {
     return account_token;
   }
 
-  // Phương thức để lưu token mới vào bảng account_token
   async saveToken(
-    account: AccountEntity, // Instance của AccountEntity
-    tokenKey: string, // JWT Token
-    createdby: number, // Ai đã tạo token
+    account: AccountEntity,
+    tokenKey: string,
+    createdby: number,
   ): Promise<AccountTokenEntity> {
-    // Tìm bản ghi hiện có của người dùng
     let accountToken = await this.accountTokenRepository.findOne({
       where: { account: { id: account.id } },
     });
 
     if (accountToken) {
-      // Nếu bản ghi đã tồn tại, cập nhật token và các thông tin khác
-      accountToken.tokenkey = tokenKey;
+      accountToken.tokenkey = tokenKey; // Sử dụng cùng một mã hóa UUID v4
       accountToken.isactive = 1;
       accountToken.updatedby = createdby;
       accountToken.updatedat = new Date();
     } else {
-      // Nếu bản ghi chưa tồn tại, tạo bản ghi mới
       accountToken = this.accountTokenRepository.create({
-        account, // Truyền instance của AccountEntity
-        tokenkey: tokenKey, // Sử dụng đúng tên thuộc tính
-        isactive: 1, // Sử dụng đúng tên thuộc tính
-        createdby: createdby, // Sử dụng đúng tên thuộc tính
-        createdat: new Date(), // Sử dụng đúng tên thuộc tính
+        account,
+        tokenkey: tokenKey, // Sử dụng cùng một mã hóa UUID v4
+        isactive: 1,
+        createdby: createdby,
+        createdat: new Date(),
       });
     }
 

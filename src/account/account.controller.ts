@@ -18,7 +18,7 @@ export class AccountController {
   @Get('profile')
   async getProfile(@Req() request: RequestWithUser) {
     const user = request.user;
-    const accountId = user.id; // Assuming user object has an id property
+    const accountId = user.id;
     return await this.accountService.getAccount(accountId);
   }
 }

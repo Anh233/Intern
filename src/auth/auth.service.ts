@@ -1,12 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AccountService } from 'src/account/account.service';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
 import { AccountTokenService } from 'src/account_token/account_token.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -34,11 +31,20 @@ export class AuthService {
     // Tạo UUID v4
     const uuid = uuidv4();
 
-    const payload = { username: user.username, sub: user.id, uuid };
+    // // Mã hóa UUID v4
+    // const encryptedUuid = crypto
+    //   .createHash('sha256')
+    //   .update(uuid)
+    //   .digest('hex');
+
+    const payload = {
+      username: user.username,
+      sub: user.id,
+      uuid: uuid,
+    };
     const accessToken = this.jwtService.sign(payload);
 
-    // Lưu token vào bảng account_token
-    await this.accountTokenService.saveToken(user, accessToken, user.id);
+    await this.accountTokenService.saveToken(user, uuid, user.id);
 
     return {
       access_token: accessToken,
