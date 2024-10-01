@@ -1,8 +1,7 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { Public } from 'src/auth/decorators/public.decorator';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RequestWithUser } from 'src/auth/interfaces/request-with-user.interface';
+import { RequestModel } from 'src/auth/models/request.model';
 
 @Controller('api/v1/account')
 export class AccountController {
@@ -14,11 +13,9 @@ export class AccountController {
     return await this.accountService.getAccount(1);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('profile')
-  async getProfile(@Req() request: RequestWithUser) {
-    const user = request.user;
-    const accountId = user.id; // Assuming user object has an id property
+  async getProfile(@Req() request: RequestModel) {
+    const accountId = request.user.accountId;
     return await this.accountService.getAccount(accountId);
   }
 }

@@ -3,10 +3,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountModule } from 'src/account/account.module';
-import { AccountTokenModule } from 'src/account_token/account_token.module';
 import { AuthModule } from 'src/auth/auth.module';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
+import app from 'src/config/app';
+import { AccountTokenModule } from 'src/account-token/account-token.module';
 
 @Module({
   imports: [
@@ -23,6 +25,9 @@ import { APP_GUARD } from '@nestjs/core';
     AccountModule,
     AccountTokenModule,
     AuthModule,
+    ConfigModule.forRoot({
+      load: [app],
+    }),
   ],
   controllers: [AppController],
   providers: [

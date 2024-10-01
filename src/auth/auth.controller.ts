@@ -1,24 +1,32 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AccountService } from 'src/account/account.service';
-import { LocalAuthGuard } from './local-auth.guard';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from './decorators/public.decorator';
+import { LoginBodyDto } from './dtos/auth.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
   constructor(
-    private authSerVice: AuthService,
-    private userService: AccountService,
+    private readonly authService: AuthService,
+    private readonly accountService: AccountService,
   ) {}
 
   // Public decorator để route không bị bảo vệ bởi JwtAuthGuard
   @Public()
   //@UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req) {
+  async login(@Body() body: LoginBodyDto) {
     // Gọi phương thức login từ AuthService
-    return await this.authSerVice.login(req.body.username, req.body.password);
+
+    return await this.authService.login(body.username, body.password);
   }
 
   // Endpoint này yêu cầu JWT để truy cập

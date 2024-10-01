@@ -1,37 +1,50 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('account')
 export class AccountEntity {
-    @PrimaryColumn()
-    id: number;
+  @PrimaryColumn()
+  id!: number;
 
-    @Column()
-    username: string;
+  @Column()
+  username!: string;
 
-    @Column()
-    password: string;
+  @Column()
+  password!: string;
 
-    @Column()
-    email: string;
+  @Column()
+  email?: string;
 
-    @Column({name: 'phone_number'})
-    phonenumber: string;
+  @Column({ name: 'phone_number' })
+  phoneNumber?: string;
 
-    @Column({name: 'role_id'})
-    roleid: number;
+  @Column({ name: 'role_id' })
+  roleId!: number;
 
-    @Column({name: 'is_active'})
-    isactive: number;
+  @Column({ name: 'is_active' })
+  isActive!: number;
 
-    @Column({name: 'update_at'})
-    updateat: string;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
 
-    @Column({name: 'update_by'})
-    updateby: number;
+  @Column({ name: 'created_by' })
+  createdBy!: number;
 
-    @Column({name: 'deleted_at'})
-    deletedat: string;
+  @UpdateDateColumn({ name: 'update_at' })
+  updateAt!: Date;
 
-    @Column({name: 'deleted_by'})
-    deletedby: number;
+  @Column({ name: 'update_by' })
+  updateBy!: number;
+
+  @DeleteDateColumn({ name: 'deleted_at' })
+  deletedAt!: Date;
+
+  @Column({ name: 'deleted_by' })
+  deletedBy!: number;
 }

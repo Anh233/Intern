@@ -5,10 +5,10 @@ import { JwtModule, JwtModuleAsyncOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AccountModule } from 'src/account/account.module';
-import { AccountTokenModule } from 'src/account_token/account_token.module'; // Import AccountTokenModule
-import jwt from './config/jwt';
-import { LocalStrategy } from './local.strategy';
-import { JwtStrategy } from './jwt.strategy';
+import jwt from './config/auth';
+import { LocalStrategy } from './strategy/local.strategy';
+import { JwtStrategy } from './strategy/jwt.strategy';
+import { AccountTokenModule } from 'src/account-token/account-token.module';
 
 @Module({
   imports: [
