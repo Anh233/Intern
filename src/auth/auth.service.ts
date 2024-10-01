@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AccountService } from 'src/account/account.service';
 import { JwtService } from '@nestjs/jwt';
-import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
+import { v4 as uuidv4 } from 'uuid';
 import { AccountTokenService } from 'src/account-token/account-token.service';
 import { LoginModel } from './models/login.model';
 import { compare } from 'bcrypt';
@@ -30,12 +30,10 @@ export class AuthService {
     await this.validatedAccount(username, password);
     const account = await this.accountService.getAccountByUsername(username);
 
-    // Tạo UUID v4
     const tokenKey = uuidv4();
     const payload = new TokenPayloadModel(account.id, tokenKey, account.roleId);
     const accessToken = await this.jwtService.signAsync(payload);
 
-    // Lưu token vào bảng account_token
     await this.accountTokenService.saveToken(account, tokenKey, account.id);
 
     return new LoginModel(accessToken, '7d');
