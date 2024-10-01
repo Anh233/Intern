@@ -19,13 +19,19 @@ import { AccountTokenModule } from 'src/account-token/account-token.module';
     }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
+
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('auth.jwt.secret'),
+        signOptions: {
+          expiresIn: configService.get<string>(
+            'auth.jwt.signOptions.expiresIn',
+          ),
+        },
+      }),
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        return configService.get('jwt') as JwtModuleAsyncOptions;
-      },
     }),
     AccountModule,
-    AccountTokenModule, // Thêm AccountTokenModule vào imports
+    AccountTokenModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],

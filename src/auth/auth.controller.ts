@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Post,
   Request,
   UseGuards,
@@ -11,6 +13,7 @@ import { AccountService } from 'src/account/account.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from './decorators/public.decorator';
 import { LoginBodyDto } from './dtos/auth.dto';
+import { CreateAccountBodyDto } from 'src/auth/dtos/auth.create-account.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -19,21 +22,29 @@ export class AuthController {
     private readonly accountService: AccountService,
   ) {}
 
-  // Public decorator để route không bị bảo vệ bởi JwtAuthGuard
   @Public()
-  //@UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Body() body: LoginBodyDto) {
-    // Gọi phương thức login từ AuthService
-
     return await this.authService.login(body.username, body.password);
   }
 
-  // Endpoint này yêu cầu JWT để truy cập
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
-    // Trả về thông tin user từ token JWT
     return req.user;
+  }
+
+  @Public()
+  @Post('create')
+  async createAccount(@Body() body: CreateAccountBodyDto) {
+    try {
+      return await this.accountService.createAccount(body);
+    } catch (error) {
+      console.error('Error creating account:', error); // Ghi log lỗi
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

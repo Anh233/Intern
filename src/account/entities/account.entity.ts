@@ -3,13 +3,13 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('account')
 export class AccountEntity {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id!: number;
 
   @Column()
@@ -30,19 +30,19 @@ export class AccountEntity {
   @Column({ name: 'is_active' })
   isActive!: number;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;
 
   @Column({ name: 'created_by' })
   createdBy!: number;
 
-  @UpdateDateColumn({ name: 'update_at' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updateAt!: Date;
 
-  @Column({ name: 'update_by' })
+  @Column({ name: 'updated_by' })
   updateBy!: number;
 
-  @DeleteDateColumn({ name: 'deleted_at' })
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp' })
   deletedAt!: Date;
 
   @Column({ name: 'deleted_by' })

@@ -12,20 +12,24 @@ import { AccountTokenModule } from 'src/account-token/account-token.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '123456',
-      database: 'Intern',
-      synchronize: false,
-      autoLoadEntities: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async () => ({
+        type: 'mysql',
+        host: 'localhost',
+        port: 3306,
+        username: 'root',
+        password: '123456',
+        database: 'Intern',
+        synchronize: false,
+        autoLoadEntities: true,
+      }),
     }),
     AccountModule,
     AccountTokenModule,
     AuthModule,
     ConfigModule.forRoot({
+      isGlobal: true,
       load: [app],
     }),
   ],

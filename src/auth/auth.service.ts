@@ -1,7 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AccountService } from 'src/account/account.service';
 import { JwtService } from '@nestjs/jwt';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid4 } from 'uuid';
 import { AccountTokenService } from 'src/account-token/account-token.service';
 import { LoginModel } from './models/login.model';
 import { compare } from 'bcrypt';
@@ -15,27 +20,49 @@ export class AuthService {
     private readonly accountTokenService: AccountTokenService,
   ) {}
 
-  async validatedAccount(username: string, password: string): Promise<boolean> {
-    const user = await this.accountService.getAccountByUsername(username);
-    const checkPassword = await compare(password, user.password);
+  async validatedAccount(username: string, password: string) {
+    const account = await this.accountService.getAccountByUsername(username);
 
-    if (!checkPassword) {
-      throw new UnauthorizedException();
+    if (!account) {
+      throw new UnauthorizedException('Account does not exist');
     }
 
-    return true;
+    const isPasswordValid = await compare(password, account.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid password');
+    }
+
+    if (!account.isActive) {
+      throw new UnauthorizedException('Account is inactive');
+    }
+
+    return account;
   }
 
   async login(username: string, password: string): Promise<any> {
-    await this.validatedAccount(username, password);
-    const account = await this.accountService.getAccountByUsername(username);
+    try {
+      await this.validatedAccount(username, password);
+      const account = await this.accountService.getAccountByUsername(username);
 
-    const tokenKey = uuidv4();
-    const payload = new TokenPayloadModel(account.id, tokenKey, account.roleId);
-    const accessToken = await this.jwtService.signAsync(payload);
+      const tokenKey = uuid4();
+      const payload = new TokenPayloadModel(
+        account.id,
+        tokenKey,
+        account.roleId,
+      ).ChangeObject();
+      const accessToken = await this.jwtService.signAsync(payload);
 
-    await this.accountTokenService.saveToken(account, tokenKey, account.id);
+      await this.accountTokenService.saveToken(account, tokenKey, account.id);
 
-    return new LoginModel(accessToken, '7d');
+      return new LoginModel(accessToken, '7d');
+    } catch (error) {
+      console.error('Login error:', error);
+
+      if (error instanceof UnauthorizedException) {
+        throw new HttpException('INVALID_CREDENTIALS', HttpStatus.UNAUTHORIZED);
+      }
+
+      throw new HttpException('LOGIN_FAILED', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

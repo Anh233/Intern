@@ -41,21 +41,41 @@ export class AccountTokenService {
     return accountToken;
   }
 
-  // Phương thức để lưu token mới vào bảng account_token
   async saveToken(
-    account: AccountEntity, // Instance của AccountEntity
-    tokenKey: string, // JWT Token
-    reqAccountId: number, // Ai đã tạo token
+    account: AccountEntity,
+    tokenKey: string,
+    roleId: number,
   ): Promise<AccountTokenEntity> {
-    // Tìm bản ghi hiện có của người dùng
-    const accountToken = new AccountTokenEntity();
-    accountToken.accountId = account.id;
-    accountToken.tokenKey = tokenKey;
-    accountToken.isActive = 1;
-    accountToken.createdAt = new Date();
-    accountToken.createdBy = reqAccountId;
-    const newAccountToken =
-      await this.accountTokenRepository.save(accountToken);
-    return await this.getAccountTokenById(newAccountToken.id);
+    let accountToken = await this.accountTokenRepository.findOne({
+      where: {
+        accountId: account.id,
+        deletedAt: IsNull(),
+      },
+    });
+
+    if (accountToken) {
+      accountToken.tokenKey = tokenKey;
+      accountToken.isActive = 1;
+      accountToken.updatedAt = new Date();
+      accountToken.updatedBy = account.id;
+    } else {
+      accountToken = new AccountTokenEntity();
+      accountToken.accountId = account.id;
+      accountToken.tokenKey = tokenKey;
+      accountToken.isActive = 1;
+      accountToken.createdAt = new Date();
+      accountToken.createdBy = account.id;
+    }
+
+    try {
+      const newAccountToken =
+        await this.accountTokenRepository.save(accountToken);
+      return await this.getAccountTokenById(newAccountToken.id);
+    } catch (error) {
+      throw new HttpException(
+        'FAILED_TO_SAVE_TOKEN',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

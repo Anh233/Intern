@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('account_token')
 export class AccountTokenEntity {
@@ -8,25 +14,25 @@ export class AccountTokenEntity {
   @Column({ name: 'account_id' })
   accountId!: number;
 
-  @Column({ name: 'token_key' })
+  @Column({ name: 'token_key', type: 'uuid' })
   tokenKey!: string;
 
   @Column({ name: 'is_active' })
   isActive!: number;
 
-  @Column({ name: 'created_at' })
-  createdAt?: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt!: Date;
 
   @Column({ name: 'created_by' })
   createdBy?: number;
 
-  @Column({ name: 'updated_at' })
-  updatedAt?: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt!: Date;
 
   @Column({ name: 'updated_by' })
   updatedBy?: number;
 
-  @Column({ name: 'deleted_at' })
+  @Column({ name: 'deleted_at', type: 'timestamp' })
   deletedAt?: Date;
 
   @Column({ name: 'deleted_by' })
