@@ -40,29 +40,20 @@ export class AuthService {
   }
 
   async login(username: string, password: string): Promise<any> {
-    try {
-      await this.validatedAccount(username, password);
-      const account = await this.accountService.getAccountByUsername(username);
+    await this.validatedAccount(username, password);
+    const account = await this.accountService.getAccountByUsername(username);
 
-      const tokenKey = uuid4();
-      const payload = new TokenPayloadModel(
-        account.id,
-        tokenKey,
-        account.roleId,
-      ).ChangeObject();
-      const accessToken = await this.jwtService.signAsync(payload);
+    const tokenKey = uuid4();
+    const payload = new TokenPayloadModel(
+      account.id,
+      account.username,
+      tokenKey,
+      account.roleId,
+    ).ChangeObject();
+    const accessToken = await this.jwtService.signAsync(payload);
 
-      await this.accountTokenService.saveToken(account, tokenKey, account.id);
+    await this.accountTokenService.saveToken(account, tokenKey, account.id);
 
-      return new LoginModel(accessToken, '7d');
-    } catch (error) {
-      console.error('Login error:', error);
-
-      if (error instanceof UnauthorizedException) {
-        throw new HttpException('INVALID_CREDENTIALS', HttpStatus.UNAUTHORIZED);
-      }
-
-      throw new HttpException('LOGIN_FAILED', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return new LoginModel(accessToken, '7d');
   }
 }

@@ -1,6 +1,7 @@
+import { PickType } from '@nestjs/swagger';
 import { IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
 
-export class CreateAccountBodyDto {
+export class Account {
   @MinLength(3)
   @MaxLength(30)
   @IsString()
@@ -24,3 +25,18 @@ export class CreateAccountBodyDto {
   @IsNumber()
   roleId!: number;
 }
+
+export class CreateAccountBodyDto extends PickType(Account, [
+  'username',
+  'password',
+  'email',
+  'phoneNumber',
+  'roleId',
+] as const) {}
+
+export class UpdateAccountBodyDto extends PickType(Account, [
+  'username',
+  'password',
+  'email',
+  'phoneNumber',
+] as const) {}

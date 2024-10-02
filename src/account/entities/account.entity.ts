@@ -36,7 +36,10 @@ export class AccountEntity {
   @Column({ name: 'created_by' })
   createdBy!: number;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp',
+  })
   updateAt!: Date;
 
   @Column({ name: 'updated_by' })

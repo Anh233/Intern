@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -13,7 +14,8 @@ import { AccountService } from 'src/account/account.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from './decorators/public.decorator';
 import { LoginBodyDto } from './dtos/auth.dto';
-import { CreateAccountBodyDto } from 'src/auth/dtos/auth.create-account.dto';
+import { CreateAccountBodyDto } from 'src/account/dtos/account.dto';
+import { UpdateAccountBodyDto } from '../account/dtos/account.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -34,13 +36,14 @@ export class AuthController {
     return req.user;
   }
 
-  @Public()
-  @Post('create')
-  async createAccount(@Body() body: CreateAccountBodyDto) {
+  @UseGuards(JwtAuthGuard)
+  @Put('/update')
+  async updateAccount(@Request() req, @Body() body: UpdateAccountBodyDto) {
     try {
-      return await this.accountService.createAccount(body);
+      const accountId = req.user.id;
+      return await this.accountService.updateAccount(accountId, body);
     } catch (error) {
-      console.error('Error creating account:', error); // Ghi log lỗi
+      console.error('Error updating account:', error);
       throw new HttpException(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,

@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository, Like } from 'typeorm';
 import { AccountEntity } from './entities/account.entity';
 import { hash } from 'bcrypt';
-import { CreateAccountBodyDto } from 'src/auth/dtos/auth.create-account.dto';
+import { CreateAccountBodyDto } from './dtos/account.dto';
+import { UpdateAccountBodyDto } from './dtos/account.dto';
 
 @Injectable()
 export class AccountService {
@@ -43,38 +44,49 @@ export class AccountService {
   }
 
   async createAccount(
-    createAccountDto: CreateAccountBodyDto,
+    username: string,
+    password: string,
+    email: string,
+    phoneNumber: string,
+    roleId: number,
   ): Promise<AccountEntity> {
-    const { password, ...accountData } = createAccountDto;
-
     const hashedPassword = await hash(password, 10);
 
     const newAccount = this.accountRepository.create({
-      ...accountData,
+      username,
       password: hashedPassword,
+      email,
+      phoneNumber,
+      roleId,
+      isActive: 1,
+      createdAt: new Date(),
     });
 
-    return await this.accountRepository.save(newAccount);
+    await this.accountRepository.save(newAccount);
+
+    return newAccount;
   }
 
   async updateAccount(
     accountId: number,
-    updateData: Partial<AccountEntity>,
+    updateData: UpdateAccountBodyDto,
   ): Promise<AccountEntity> {
-    const account = await this.getAccount(accountId);
+    const account = await this.getAccount(accountId); //kiểm tra acc đã bị xóa chưa
 
-    if (updateData.password) {
-      updateData.password = await hash(updateData.password, 10);
+    if (updateData.username !== null) {
+      account.username = updateData.username;
+    }
+    if (updateData.password !== null && updateData.password !== undefined) {
+      account.password = await hash(updateData.password, 10);
+    }
+    if (updateData.email !== null) {
+      account.email = updateData.email;
+    }
+    if (updateData.phoneNumber !== null) {
+      account.phoneNumber = updateData.phoneNumber;
     }
 
-    Object.assign(account, updateData);
     return await this.accountRepository.save(account);
-  }
-
-  async deleteAccount(accountId: number): Promise<void> {
-    const account = await this.getAccount(accountId);
-    account.deletedAt = new Date();
-    await this.accountRepository.save(account);
   }
 
   async getAccounts(
