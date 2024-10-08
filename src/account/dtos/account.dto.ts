@@ -40,6 +40,4 @@ export class UpdateAccountBodyDto extends PickType(Account, [
   'email',
   'phoneNumber',
   'roleId',
-] as const) {
-  
-}
+] as const) {}

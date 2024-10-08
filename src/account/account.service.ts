@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository, Like } from 'typeorm';
 import { AccountEntity } from './entities/account.entity';
 import { hash } from 'bcrypt';
-import { CreateAccountBodyDto } from './dtos/account.dto';
-import { UpdateAccountBodyDto } from './dtos/account.dto';
 
 @Injectable()
 export class AccountService {
@@ -91,6 +89,18 @@ export class AccountService {
     if (roleId !== undefined && roleId !== null) {
       account.roleId = roleId;
     }
+
+    return await this.accountRepository.save(account);
+  }
+
+  async deleteAccount(username: string): Promise<AccountEntity> {
+    const account = await this.getAccountByUsername(username);
+
+    if (!account) {
+      throw new HttpException('ACCOUNT_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    account.deletedAt = new Date();
 
     return await this.accountRepository.save(account);
   }

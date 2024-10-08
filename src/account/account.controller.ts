@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Put,
   Req,
@@ -50,5 +52,12 @@ export class AccountController {
       body.phoneNumber,
       body.roleId,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/delete/me')
+  async deleteAccount(@Req() request: any) {
+    const username = request.user.username;
+    return await this.accountService.deleteAccount(username);
   }
 }
