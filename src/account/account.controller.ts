@@ -3,9 +3,9 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -15,15 +15,30 @@ import { RequestModel } from 'src/auth/models/request.model';
 import { CreateAccountBodyDto } from './dtos/account.dto';
 import { UpdateAccountBodyDto } from './dtos/account.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AccountEntity } from './entities/account.entity';
 
 @Controller('api/v1/account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @Public()
+  @UseGuards(JwtAuthGuard)
   @Get('all')
-  async getAccounts() {
-    return await this.accountService.getAccount(1);
+  async getAccounts(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 5,
+    @Query('username') username?: string,
+    @Query('email') email?: string,
+    @Query('phoneNumber') phoneNumber?: string,
+    @Query('roleId') roleId?: number,
+  ): Promise<{ data: AccountEntity[]; total: number }> {
+    const filter: Partial<AccountEntity> = {
+      username,
+      email,
+      phoneNumber,
+      roleId,
+    };
+    return await this.accountService.getAccounts(filter, page, limit);
   }
 
   @Public()

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository, Like } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { AccountEntity } from './entities/account.entity';
 import { hash } from 'bcrypt';
 
@@ -108,14 +108,14 @@ export class AccountService {
   async getAccounts(
     filter: Partial<AccountEntity>,
     page: number = 1,
-    limit: number = 10,
+    limit: number = 5,
   ): Promise<{ data: AccountEntity[]; total: number }> {
     const query = this.accountRepository
       .createQueryBuilder('account')
       .where('account.deletedAt IS NULL');
 
     if (filter.id) {
-      query.andWhere('account.id = :id', { id: filter.id });
+      query.andWhere('account.id::text LIKE :id', { id: `%${filter.id}%` });
     }
     if (filter.username) {
       query.andWhere('account.username LIKE :username', {
@@ -133,7 +133,9 @@ export class AccountService {
       });
     }
     if (filter.roleId) {
-      query.andWhere('account.roleId = :roleId', { roleId: filter.roleId });
+      query.andWhere('account.roleId::text LIKE :roleId', {
+        roleId: `%${filter.roleId}%`,
+      });
     }
 
     const [data, total] = await query
