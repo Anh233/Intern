@@ -1,8 +1,18 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AccountService } from './account.service';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { RequestModel } from 'src/auth/models/request.model';
 import { CreateAccountBodyDto } from './dtos/account.dto';
+import { UpdateAccountBodyDto } from './dtos/account.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('api/v1/account')
 export class AccountController {
@@ -15,7 +25,7 @@ export class AccountController {
   }
 
   @Public()
-  @Post('create')
+  @Post('/create')
   async createAccount(@Body() body: CreateAccountBodyDto) {
     return await this.accountService.createAccount(
       body.username,
@@ -26,9 +36,19 @@ export class AccountController {
     );
   }
 
-  @Get('update/me')
-  async getProfile(@Req() request: RequestModel) {
-    const accountId = request.user.accountId;
-    return await this.accountService.getAccount(accountId);
+  @UseGuards(JwtAuthGuard)
+  @Put('/update/me')
+  async updateAccount(
+    @Req() request: RequestModel,
+    @Body() body: UpdateAccountBodyDto,
+  ) {
+    const username = request.user.username;
+    return await this.accountService.updateAccount(
+      username,
+      body.password,
+      body.email,
+      body.phoneNumber,
+      body.roleId,
+    );
   }
 }

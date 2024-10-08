@@ -39,4 +39,7 @@ export class UpdateAccountBodyDto extends PickType(Account, [
   'password',
   'email',
   'phoneNumber',
-] as const) {}
+  'roleId',
+] as const) {
+  
+}

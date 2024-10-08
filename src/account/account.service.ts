@@ -52,15 +52,14 @@ export class AccountService {
   ): Promise<AccountEntity> {
     const hashedPassword = await hash(password, 10);
 
-    const newAccount = this.accountRepository.create({
-      username,
-      password: hashedPassword,
-      email,
-      phoneNumber,
-      roleId,
-      isActive: 1,
-      createdAt: new Date(),
-    });
+    const newAccount = new AccountEntity();
+    newAccount.username = username;
+    newAccount.password = hashedPassword;
+    newAccount.email = email;
+    newAccount.phoneNumber = phoneNumber;
+    newAccount.roleId = roleId;
+    newAccount.isActive = 1;
+    newAccount.createdAt = new Date();
 
     await this.accountRepository.save(newAccount);
 
@@ -68,22 +67,29 @@ export class AccountService {
   }
 
   async updateAccount(
-    accountId: number,
-    updateData: UpdateAccountBodyDto,
+    username: string,
+    password?: string,
+    email?: string,
+    phoneNumber?: string,
+    roleId?: number,
   ): Promise<AccountEntity> {
-    const account = await this.getAccount(accountId); //kiểm tra acc đã bị xóa chưa
+    const account = await this.getAccountByUsername(username);
 
-    if (updateData.username !== null) {
-      account.username = updateData.username;
+    if (!account) {
+      throw new HttpException('ACCOUNT_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-    if (updateData.password !== null && updateData.password !== undefined) {
-      account.password = await hash(updateData.password, 10);
+
+    if (password !== undefined && password !== null) {
+      account.password = await hash(password, 10);
     }
-    if (updateData.email !== null) {
-      account.email = updateData.email;
+    if (email !== undefined && email !== null) {
+      account.email = email;
     }
-    if (updateData.phoneNumber !== null) {
-      account.phoneNumber = updateData.phoneNumber;
+    if (phoneNumber !== undefined && phoneNumber !== null) {
+      account.phoneNumber = phoneNumber;
+    }
+    if (roleId !== undefined && roleId !== null) {
+      account.roleId = roleId;
     }
 
     return await this.accountRepository.save(account);
