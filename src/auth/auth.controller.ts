@@ -9,7 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { AccountService } from 'src/account/account.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { Public } from './decorators/public.decorator';
+import { Public } from '../decorators/public.decorator';
 import { LoginBodyDto } from './dtos/auth.dto';
 
 @Controller('api/v1/auth')
