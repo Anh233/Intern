@@ -21,13 +21,13 @@ export class AccountTokenEntity {
   isActive!: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
-  createdAt!: Date;
+  createdAt?: Date;
 
   @Column({ name: 'created_by' })
   createdBy?: number;
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
-  updatedAt!: Date;
+  updatedAt?: Date;
 
   @Column({ name: 'updated_by' })
   updatedBy?: number;

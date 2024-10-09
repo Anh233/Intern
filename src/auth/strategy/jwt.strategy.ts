@@ -1,7 +1,8 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { TokenPayloadModel } from '../models/token-payload.model';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -9,19 +10,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey:
-        configService.get<string>('auth.jwt.secret') ||
-        (() => {
-          throw new UnauthorizedException('JWT secret not found');
-        })(),
+      secretOrKey: configService.get<string>('auth.jwt.secret'),
     });
   }
 
-  async validate(payload: any) {
-    if (!payload || !payload.sub || !payload.username) {
-      throw new UnauthorizedException('Invalid token payload');
-    }
-
-    return { id: payload.sub, username: payload.username };
+  async validate(payload: TokenPayloadModel) {
+    return payload;
   }
 }

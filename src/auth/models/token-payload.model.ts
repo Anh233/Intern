@@ -1,14 +1,24 @@
 export class TokenPayloadModel {
-  constructor(
-    public readonly accountId: number,
-    public readonly username: string,
-    public readonly tokenKey: string,
-    public readonly roleId: number,
-  ) {}
+  public readonly accountId: number;
+  public readonly username: string;
+  public readonly tokenKey: string;
+  public readonly roleId: number;
 
-  ChangeObject() {
+  constructor(
+    accountId: number,
+    username: string,
+    tokenKey: string,
+    roleId: number,
+  ) {
+    this.accountId = accountId;
+    this.username = username;
+    this.tokenKey = tokenKey;
+    this.roleId = roleId;
+  }
+
+  toJson() {
     return {
-      sub: this.accountId,
+      accountId: this.accountId,
       username: this.username,
       tokenKey: this.tokenKey,
       roleId: this.roleId,

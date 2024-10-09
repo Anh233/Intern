@@ -59,50 +59,52 @@ export class AccountService {
     newAccount.isActive = 1;
     newAccount.createdAt = new Date();
 
-    await this.accountRepository.save(newAccount);
-
-    return newAccount;
+    return await this.accountRepository.save(newAccount);
   }
 
   async updateAccount(
-    username: string,
-    password?: string,
-    email?: string,
-    phoneNumber?: string,
-    roleId?: number,
+    account: AccountEntity,
+    password: string | undefined,
+    email: string | undefined,
+    phoneNumber: string | undefined,
+    roleId: number | undefined,
+    reqAccountId: number,
   ): Promise<AccountEntity> {
-    const account = await this.getAccountByUsername(username);
+    const passwordHash = password ? await hash(password, 10) : undefined;
+    await this.accountRepository.update(
+      {
+        id: account.id,
+        deletedAt: IsNull(),
+      },
+      {
+        email: email,
+        phoneNumber: phoneNumber,
+        roleId: roleId,
+        password: passwordHash,
+        updateAt: new Date(),
+        updateBy: reqAccountId,
+      },
+    );
 
-    if (!account) {
-      throw new HttpException('ACCOUNT_NOT_FOUND', HttpStatus.NOT_FOUND);
-    }
-
-    if (password !== undefined && password !== null) {
-      account.password = await hash(password, 10);
-    }
-    if (email !== undefined && email !== null) {
-      account.email = email;
-    }
-    if (phoneNumber !== undefined && phoneNumber !== null) {
-      account.phoneNumber = phoneNumber;
-    }
-    if (roleId !== undefined && roleId !== null) {
-      account.roleId = roleId;
-    }
-
-    return await this.accountRepository.save(account);
+    return await this.getAccount(account.id);
   }
 
-  async deleteAccount(username: string): Promise<AccountEntity> {
-    const account = await this.getAccountByUsername(username);
+  async deleteAccount(
+    account: AccountEntity,
+    reqAccountId: number,
+  ): Promise<boolean> {
+    await this.accountRepository.update(
+      {
+        id: account.id,
+        deletedAt: IsNull(),
+      },
+      {
+        deletedAt: new Date(),
+        deletedBy: reqAccountId,
+      },
+    );
 
-    if (!account) {
-      throw new HttpException('ACCOUNT_NOT_FOUND', HttpStatus.NOT_FOUND);
-    }
-
-    account.deletedAt = new Date();
-
-    return await this.accountRepository.save(account);
+    return true;
   }
 
   async getAccounts(
@@ -116,20 +118,20 @@ export class AccountService {
 
     if (filter.id) {
       query.andWhere('account.id::text LIKE :id', { id: `%${filter.id}%` });
-    }
+    } //TODO
     if (filter.username) {
       query.andWhere('account.username LIKE :username', {
-        username: `%${filter.username}%`,
+        username: `%${filter.q}%`,
       });
     }
     if (filter.phoneNumber) {
       query.andWhere('account.phoneNumber LIKE :phoneNumber', {
-        phoneNumber: `%${filter.phoneNumber}%`,
+        phoneNumber: `%${filter.q}%`,
       });
     }
     if (filter.email) {
       query.andWhere('account.email LIKE :email', {
-        email: `%${filter.email}%`,
+        email: `%${filter.q}%`,
       });
     }
     if (filter.roleId) {

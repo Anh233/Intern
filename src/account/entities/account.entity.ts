@@ -34,20 +34,20 @@ export class AccountEntity {
   createdAt!: Date;
 
   @Column({ name: 'created_by' })
-  createdBy!: number;
+  createdBy?: number;
 
   @UpdateDateColumn({
     name: 'updated_at',
     type: 'timestamp',
   })
-  updateAt!: Date;
+  updateAt?: Date;
 
   @Column({ name: 'updated_by' })
-  updateBy!: number;
+  updateBy?: number;
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp' })
-  deletedAt!: Date;
+  deletedAt?: Date;
 
   @Column({ name: 'deleted_by' })
-  deletedBy!: number;
+  deletedBy?: number;
 }

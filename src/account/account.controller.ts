@@ -7,14 +7,12 @@ import {
   Put,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { RequestModel } from 'src/auth/models/request.model';
 import { CreateAccountBodyDto } from './dtos/account.dto';
 import { UpdateAccountBodyDto } from './dtos/account.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AccountEntity } from './entities/account.entity';
 
 @Controller('api/v1/account')
@@ -22,7 +20,6 @@ export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @Public()
-  @UseGuards(JwtAuthGuard)
   @Get('all')
   async getAccounts(
     @Query('page') page: number = 1,
@@ -33,16 +30,22 @@ export class AccountController {
     @Query('roleId') roleId?: number,
   ): Promise<{ data: AccountEntity[]; total: number }> {
     const filter: Partial<AccountEntity> = {
-      username,
+      username, //TO DO:
       email,
       phoneNumber,
       roleId,
     };
-    return await this.accountService.getAccounts(filter, page, limit);
+
+    return await this.accountService.getAccounts(
+      accountIds,
+      roleId,
+      q,
+      pagination,
+    );
   }
 
   @Public()
-  @Post('/create')
+  @Post('create')
   async createAccount(@Body() body: CreateAccountBodyDto) {
     return await this.accountService.createAccount(
       body.username,
@@ -53,26 +56,27 @@ export class AccountController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Put('/update/me')
+  @Put('update/me')
   async updateAccount(
     @Req() request: RequestModel,
     @Body() body: UpdateAccountBodyDto,
   ) {
-    const username = request.user.username;
+    const accountId = request.user.accountId;
+    const account = await this.accountService.getAccount(accountId);
     return await this.accountService.updateAccount(
-      username,
+      account,
       body.password,
       body.email,
       body.phoneNumber,
       body.roleId,
+      accountId,
     );
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Delete('/delete/me')
-  async deleteAccount(@Req() request: any) {
-    const username = request.user.username;
-    return await this.accountService.deleteAccount(username);
+  @Delete('delete/me')
+  async deleteAccount(@Req() request: RequestModel) {
+    const accountId = request.user.accountId;
+    const account = await this.accountService.getAccount(accountId);
+    return await this.accountService.deleteAccount(account, accountId);
   }
 }

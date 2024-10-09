@@ -32,7 +32,7 @@ export class CreateAccountBodyDto extends PickType(Account, [
   'email',
   'phoneNumber',
   'roleId',
-] as const) {}
+]) {}
 
 export class UpdateAccountBodyDto extends PickType(Account, [
   'username',
@@ -40,4 +40,4 @@ export class UpdateAccountBodyDto extends PickType(Account, [
   'email',
   'phoneNumber',
   'roleId',
-] as const) {}
+]) {}

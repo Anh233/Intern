@@ -6,6 +6,9 @@ import { AccountTokenService } from 'src/account-token/account-token.service';
 import { LoginModel } from './models/login.model';
 import { compare } from 'bcrypt';
 import { TokenPayloadModel } from './models/token-payload.model';
+import { AccountEntity } from 'src/account/entities/account.entity';
+import { ConfigService } from '@nestjs/config';
+import { throwError } from 'src/utils/function';
 
 @Injectable()
 export class AuthService {
@@ -13,13 +16,12 @@ export class AuthService {
     private readonly accountService: AccountService,
     private readonly jwtService: JwtService,
     private readonly accountTokenService: AccountTokenService,
+    private readonly configService: ConfigService,
   ) {}
 
-  async validatedAccount(username: string, password: string) {
-    const account = await this.accountService.getAccountByUsername(username);
-
-    if (!account) {
-      throw new UnauthorizedException('Account does not exist');
+  async validatedAccount(account: AccountEntity, password: string) {
+    if (!account.isActive) {
+      throw new UnauthorizedException('Account is inactive');
     }
 
     const isPasswordValid = await compare(password, account.password);
@@ -27,16 +29,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid password');
     }
 
-    if (!account.isActive) {
-      throw new UnauthorizedException('Account is inactive');
-    }
-
-    return account;
+    return true;
   }
 
-  async login(username: string, password: string): Promise<any> {
-    await this.validatedAccount(username, password);
+  async login(username: string, password: string): Promise<LoginModel> {
     const account = await this.accountService.getAccountByUsername(username);
+    await this.validatedAccount(account, password);
 
     const tokenKey = uuid4();
     const payload = new TokenPayloadModel(
@@ -44,11 +42,13 @@ export class AuthService {
       account.username,
       tokenKey,
       account.roleId,
-    ).ChangeObject();
-    const accessToken = await this.jwtService.signAsync(payload);
-
+    );
+    const accessToken = await this.jwtService.signAsync(payload.toJson());
     await this.accountTokenService.saveToken(account, tokenKey, account.id);
+    const expiresIn =
+      this.configService.get<string>('auth.jwt.signOptions.expiresIn') ??
+      throwError();
 
-    return new LoginModel(accessToken, '7d');
+    return new LoginModel(accessToken, expiresIn);
   }
 }

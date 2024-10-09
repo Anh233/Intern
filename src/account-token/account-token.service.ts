@@ -44,38 +44,15 @@ export class AccountTokenService {
   async saveToken(
     account: AccountEntity,
     tokenKey: string,
-    roleId: number,
+    reqAccountId: number,
   ): Promise<AccountTokenEntity> {
-    let accountToken = await this.accountTokenRepository.findOne({
-      where: {
-        accountId: account.id,
-        deletedAt: IsNull(),
-      },
-    });
+    const accountToken = new AccountTokenEntity();
+    accountToken.accountId = account.id;
+    accountToken.tokenKey = tokenKey;
+    accountToken.isActive = 1;
+    accountToken.createdAt = new Date();
+    accountToken.createdBy = reqAccountId;
 
-    if (accountToken) {
-      accountToken.tokenKey = tokenKey;
-      accountToken.isActive = 1;
-      accountToken.updatedAt = new Date();
-      accountToken.updatedBy = account.id;
-    } else {
-      accountToken = new AccountTokenEntity();
-      accountToken.accountId = account.id;
-      accountToken.tokenKey = tokenKey;
-      accountToken.isActive = 1;
-      accountToken.createdAt = new Date();
-      accountToken.createdBy = account.id;
-    }
-
-    try {
-      const newAccountToken =
-        await this.accountTokenRepository.save(accountToken);
-      return await this.getAccountTokenById(newAccountToken.id);
-    } catch (error) {
-      throw new HttpException(
-        'FAILED_TO_SAVE_TOKEN',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return await this.accountTokenRepository.save(accountToken);
   }
 }
