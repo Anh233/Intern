@@ -1,8 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { Brackets, IsNull, Repository } from 'typeorm';
 import { AccountEntity } from './entities/account.entity';
 import { hash } from 'bcrypt';
+import { SearchAccountDto } from './dtos/account.dto';
+import { AccountModel } from './models/account.model';
 
 @Injectable()
 export class AccountService {
@@ -108,43 +110,46 @@ export class AccountService {
   }
 
   async getAccounts(
-    filter: Partial<AccountEntity>,
-    page: number = 1,
-    limit: number = 5,
-  ): Promise<{ data: AccountEntity[]; total: number }> {
-    const query = this.accountRepository
-      .createQueryBuilder('account')
-      .where('account.deletedAt IS NULL');
+    filter: SearchAccountDto,
+  ): Promise<{ data: AccountModel[]; total: number }> {
+    const query = this.accountRepository.createQueryBuilder('account');
 
-    if (filter.id) {
-      query.andWhere('account.id::text LIKE :id', { id: `%${filter.id}%` });
-    } //TODO
-    if (filter.username) {
-      query.andWhere('account.username LIKE :username', {
-        username: `%${filter.q}%`,
+    if (filter.accountId) {
+      query.andWhere('account.id = :accountId', {
+        accountId: filter.accountId,
       });
     }
-    if (filter.phoneNumber) {
-      query.andWhere('account.phoneNumber LIKE :phoneNumber', {
-        phoneNumber: `%${filter.q}%`,
-      });
+    if (filter.roleId !== undefined) {
+      query.andWhere('account.roleId = :roleId', { roleId: filter.roleId });
     }
-    if (filter.email) {
-      query.andWhere('account.email LIKE :email', {
-        email: `%${filter.q}%`,
-      });
-    }
-    if (filter.roleId) {
-      query.andWhere('account.roleId::text LIKE :roleId', {
-        roleId: `%${filter.roleId}%`,
-      });
+    if (filter.q) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('account.username LIKE :q', { q: `%${filter.q}%` })
+            .orWhere('account.email LIKE :q', { q: `%${filter.q}%` })
+            .orWhere('account.phoneNumber LIKE :q', { q: `%${filter.q}%` });
+        }),
+      );
     }
 
+    const page = filter.page || 1;
+    const pageSize = filter.pageSize || 10;
     const [data, total] = await query
-      .skip((page - 1) * limit)
-      .take(limit)
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
       .getManyAndCount();
 
-    return { data, total };
+    const accountModels = data.map(
+      (account) =>
+        new AccountModel(
+          account.id,
+          account.username,
+          account.email || '',
+          account.phoneNumber || '',
+          account.roleId,
+        ),
+    );
+
+    return { data: accountModels, total };
   }
 }

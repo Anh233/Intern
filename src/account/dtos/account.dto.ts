@@ -2,6 +2,9 @@ import { PickType } from '@nestjs/swagger';
 import { IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class Account {
+  @IsNumber()
+  id!: number;
+
   @MinLength(3)
   @MaxLength(30)
   @IsString()
@@ -41,3 +44,11 @@ export class UpdateAccountBodyDto extends PickType(Account, [
   'phoneNumber',
   'roleId',
 ]) {}
+
+export class SearchAccountDto {
+  accountId?: number;
+  roleId?: number;
+  q?: string;
+  page?: number;
+  pageSize?: number;
+}

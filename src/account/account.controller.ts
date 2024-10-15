@@ -11,9 +11,9 @@ import {
 import { AccountService } from './account.service';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { RequestModel } from 'src/auth/models/request.model';
-import { CreateAccountBodyDto } from './dtos/account.dto';
+import { CreateAccountBodyDto, SearchAccountDto } from './dtos/account.dto';
 import { UpdateAccountBodyDto } from './dtos/account.dto';
-import { AccountEntity } from './entities/account.entity';
+import { AccountModel } from './models/account.model';
 
 @Controller('api/v1/account')
 export class AccountController {
@@ -28,20 +28,15 @@ export class AccountController {
     @Query('email') email?: string,
     @Query('phoneNumber') phoneNumber?: string,
     @Query('roleId') roleId?: number,
-  ): Promise<{ data: AccountEntity[]; total: number }> {
-    const filter: Partial<AccountEntity> = {
-      username, //TO DO:
-      email,
-      phoneNumber,
+  ): Promise<{ data: AccountModel[]; total: number }> {
+    const filter: SearchAccountDto = {
+      q: username || email || phoneNumber,
       roleId,
+      page,
+      pageSize: limit,
     };
 
-    return await this.accountService.getAccounts(
-      accountIds,
-      roleId,
-      q,
-      pagination,
-    );
+    return await this.accountService.getAccounts(filter);
   }
 
   @Public()
