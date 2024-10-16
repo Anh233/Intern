@@ -1,15 +1,15 @@
 export class AccountModel {
   id: number;
   username: string;
-  email?: string;
-  phoneNumber: string;
+  email: string | undefined;
+  phoneNumber: string | undefined;
   roleId: number;
 
   constructor(
     id: number,
     username: string,
-    email: string,
-    phoneNumber: string,
+    email: string | undefined,
+    phoneNumber: string | undefined,
     roleId: number,
   ) {
     this.id = id;

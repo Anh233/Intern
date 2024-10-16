@@ -15,11 +15,9 @@ import { AccountTokenModule } from 'src/account-token/account-token.module';
     PassportModule,
     ConfigModule.forRoot({
       load: [jwt],
-      isGlobal: true,
     }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('auth.jwt.secret'),
         signOptions: {

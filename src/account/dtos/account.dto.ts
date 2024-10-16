@@ -1,9 +1,11 @@
-import { PickType } from '@nestjs/swagger';
+import { PartialType, PickType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
 
-export class Account {
+export class AccountDto {
+  @Type(() => Number)
   @IsNumber()
-  id!: number;
+  accountId!: number;
 
   @MinLength(3)
   @MaxLength(30)
@@ -25,11 +27,23 @@ export class Account {
   @MaxLength(30)
   phoneNumber!: string;
 
+  @Type(() => Number)
   @IsNumber()
   roleId!: number;
+
+  @IsString()
+  q!: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  limit!: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  page!: number;
 }
 
-export class CreateAccountBodyDto extends PickType(Account, [
+export class CreateAccountBodyDto extends PickType(AccountDto, [
   'username',
   'password',
   'email',
@@ -37,24 +51,20 @@ export class CreateAccountBodyDto extends PickType(Account, [
   'roleId',
 ]) {}
 
-export class UpdateAccountBodyDto extends PickType(Account, [
+export class UpdateAccountBodyDto extends PickType(AccountDto, [
   'username',
   'password',
   'email',
   'phoneNumber',
   'roleId',
 ]) {}
-
-export class SearchAccountDto {
-  accountId?: number;
-  roleId?: number;
-  q?: string;
-  page?: number;
-  pageSize?: number;
-}
 
 export class Article {
   accountId: number | undefined;
   isPublished: boolean | undefined;
   roleId: number | undefined;
 }
+
+export class GetAccountsQueryDto extends PartialType(
+  PickType(AccountDto, ['q', 'roleId', 'page', 'limit', 'accountId']),
+) {}

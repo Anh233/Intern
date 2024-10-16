@@ -4,7 +4,6 @@ import {
   Delete,
   ForbiddenException,
   Get,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -14,11 +13,12 @@ import {
 import { AccountService } from './account.service';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { RequestModel } from 'src/auth/models/request.model';
-import { CreateAccountBodyDto, SearchAccountDto } from './dtos/account.dto';
+import { CreateAccountBodyDto, GetAccountsQueryDto } from './dtos/account.dto';
 import { UpdateAccountBodyDto } from './dtos/account.dto';
 import { AccountModel } from './models/account.model';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from './enums/role.enum';
+import { PaginationModel } from 'src/utils/models/pagination.model';
 
 @Controller('api/v1/account')
 export class AccountController {
@@ -27,21 +27,14 @@ export class AccountController {
   @Get('all')
   @Roles(Role.Admin)
   async getAccounts(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 5,
-    @Query('username') username?: string,
-    @Query('email') email?: string,
-    @Query('phoneNumber') phoneNumber?: string,
-    @Query('roleId') roleId?: number,
+    @Query() query: GetAccountsQueryDto,
   ): Promise<{ data: AccountModel[]; total: number }> {
-    const filter: SearchAccountDto = {
-      q: username || email || phoneNumber,
-      roleId,
-      page,
-      pageSize: limit,
-    };
-
-    return await this.accountService.getAccounts(filter);
+    return await this.accountService.getAccounts(
+      query.accountId,
+      query.roleId,
+      new PaginationModel(query.page, query.limit),
+      query.q,
+    );
   }
 
   @Public()
@@ -74,25 +67,21 @@ export class AccountController {
     );
   }
 
-  @Delete('delete/:accountId')
+  @Delete(':accountId/delete')
   @Roles(Role.Admin)
   async deleteAccount(
     @Req() request: RequestModel,
-    @Param('accountId') accountId: string,
+    @Param('accountId') accountId: string, //DTO
   ) {
-    const adminId = request.user.accountId;
+    const reqAccountId = request.user.accountId;
     const accountIdNumber = parseInt(accountId, 10);
 
-    if (adminId === accountIdNumber) {
+    if (reqAccountId == accountIdNumber) {
       throw new ForbiddenException('Admin cannot delete their own account');
     }
 
     const account = await this.accountService.getAccount(accountIdNumber);
-    if (!account) {
-      throw new NotFoundException('Account not found');
-    }
-
-    return await this.accountService.deleteAccount(account, adminId);
+    return await this.accountService.deleteAccount(account, reqAccountId);
   }
 
   @Get('admin-dashboard')

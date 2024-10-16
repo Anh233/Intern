@@ -30,7 +30,6 @@ import { RolesGuard } from 'src/account/guards/roles.guard';
     AccountTokenModule,
     AuthModule,
     ConfigModule.forRoot({
-      isGlobal: true,
       load: [app],
     }),
   ],

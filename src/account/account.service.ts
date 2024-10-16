@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, IsNull, Repository } from 'typeorm';
 import { AccountEntity } from './entities/account.entity';
 import { hash } from 'bcrypt';
-import { SearchAccountDto } from './dtos/account.dto';
 import { AccountModel } from './models/account.model';
+import { PaginationModel } from 'src/utils/models/pagination.model';
+import { PageListModel } from 'src/utils/models/page-list.model';
 
 @Injectable()
 export class AccountService {
@@ -110,46 +111,47 @@ export class AccountService {
   }
 
   async getAccounts(
-    filter: SearchAccountDto,
-  ): Promise<{ data: AccountModel[]; total: number }> {
+    accountId: number | undefined,
+    roleId: number | undefined,
+    pagination: PaginationModel,
+    q: string | undefined,
+  ) {
     const query = this.accountRepository.createQueryBuilder('account');
 
-    if (filter.accountId) {
+    if (accountId) {
       query.andWhere('account.id = :accountId', {
-        accountId: filter.accountId,
+        accountId: accountId,
       });
     }
-    if (filter.roleId !== undefined) {
-      query.andWhere('account.roleId = :roleId', { roleId: filter.roleId });
+    if (roleId !== undefined) {
+      query.andWhere('account.roleId = :roleId', { roleId: roleId });
     }
-    if (filter.q) {
+
+    if (q) {
       query.andWhere(
         new Brackets((qb) => {
-          qb.where('account.username LIKE :q', { q: `%${filter.q}%` })
-            .orWhere('account.email LIKE :q', { q: `%${filter.q}%` })
-            .orWhere('account.phoneNumber LIKE :q', { q: `%${filter.q}%` });
+          qb.where('account.username LIKE :q', { q: `%${q}%` })
+            .orWhere('account.email LIKE :q', { q: `%${q}%` })
+            .orWhere('account.phoneNumber LIKE :q', { q: `%${q}%` });
         }),
       );
     }
 
-    const page = filter.page || 1;
-    const pageSize = filter.pageSize || 10;
     const [data, total] = await query
-      .skip((page - 1) * pageSize)
-      .take(pageSize)
+      .skip((pagination.page - 1) * pagination.limit)
+      .take(pagination.limit)
       .getManyAndCount();
 
-    const accountModels = data.map(
+    const accounts = data.map(
       (account) =>
         new AccountModel(
           account.id,
           account.username,
-          account.email || '',
-          account.phoneNumber || '',
+          account.email,
+          account.phoneNumber,
           account.roleId,
         ),
     );
-
-    return { data: accountModels, total };
+    return new PageListModel<AccountModel>(total, accounts);
   }
 }
