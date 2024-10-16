@@ -14,6 +14,8 @@ import { RequestModel } from 'src/auth/models/request.model';
 import { CreateAccountBodyDto, SearchAccountDto } from './dtos/account.dto';
 import { UpdateAccountBodyDto } from './dtos/account.dto';
 import { AccountModel } from './models/account.model';
+import { Roles } from './decorators/roles.decorator';
+import { Role } from './enums/role.enum';
 
 @Controller('api/v1/account')
 export class AccountController {
@@ -21,6 +23,7 @@ export class AccountController {
 
   @Public()
   @Get('all')
+  @Roles(Role.Admin)
   async getAccounts(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 5,
@@ -52,6 +55,7 @@ export class AccountController {
   }
 
   @Put('update/me')
+  @Roles(Role.Admin, Role.User)
   async updateAccount(
     @Req() request: RequestModel,
     @Body() body: UpdateAccountBodyDto,
@@ -69,9 +73,22 @@ export class AccountController {
   }
 
   @Delete('delete/me')
+  @Roles(Role.Admin)
   async deleteAccount(@Req() request: RequestModel) {
     const accountId = request.user.accountId;
     const account = await this.accountService.getAccount(accountId);
     return await this.accountService.deleteAccount(account, accountId);
+  }
+
+  @Get('admin-dashboard')
+  @Roles(Role.Admin)
+  getAdminDashboard() {
+    return 'This is admin dashboard';
+  }
+
+  @Get('user')
+  @Roles(Role.User)
+  getUserData() {
+    return 'This is user data';
   }
 }
