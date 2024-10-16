@@ -52,3 +52,9 @@ export class SearchAccountDto {
   page?: number;
   pageSize?: number;
 }
+
+export class Article {
+  accountId: number | undefined;
+  isPublished: boolean | undefined;
+  roleId: number | undefined;
+}

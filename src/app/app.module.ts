@@ -9,7 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import app from 'src/config/app';
 import { AccountTokenModule } from 'src/account-token/account-token.module';
-import { RolesGuard } from 'src/account/roles/roles.guard';
+import { RolesGuard } from 'src/account/guards/roles.guard';
 
 @Module({
   imports: [

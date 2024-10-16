@@ -22,19 +22,19 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles) {
       return true;
     }
+
     const { user } = context.switchToHttp().getRequest();
 
-    if (!requiredRoles) {
+    if (user.roleId === Role.Admin) {
       return true;
     }
-    if (user.roleId === 1) {
-      return true;
-    }
+
     if (!requiredRoles.includes(user.roleId)) {
       throw new ForbiddenException(
         'You do not have permission to access this resource',
       );
     }
+
     return true;
   }
 }

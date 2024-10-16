@@ -2,7 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
+  NotFoundException,
+  Param,
   Post,
   Put,
   Query,
@@ -21,7 +24,6 @@ import { Role } from './enums/role.enum';
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
-  @Public()
   @Get('all')
   @Roles(Role.Admin)
   async getAccounts(
@@ -72,12 +74,25 @@ export class AccountController {
     );
   }
 
-  @Delete('delete/me')
+  @Delete('delete/:accountId')
   @Roles(Role.Admin)
-  async deleteAccount(@Req() request: RequestModel) {
-    const accountId = request.user.accountId;
-    const account = await this.accountService.getAccount(accountId);
-    return await this.accountService.deleteAccount(account, accountId);
+  async deleteAccount(
+    @Req() request: RequestModel,
+    @Param('accountId') accountId: string,
+  ) {
+    const adminId = request.user.accountId;
+    const accountIdNumber = parseInt(accountId, 10);
+
+    if (adminId === accountIdNumber) {
+      throw new ForbiddenException('Admin cannot delete their own account');
+    }
+
+    const account = await this.accountService.getAccount(accountIdNumber);
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+
+    return await this.accountService.deleteAccount(account, adminId);
   }
 
   @Get('admin-dashboard')
