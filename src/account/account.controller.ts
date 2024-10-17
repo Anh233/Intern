@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -68,19 +69,27 @@ export class AccountController {
   }
 
   @Delete(':accountId/delete')
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.User)
   async deleteAccount(
     @Req() request: RequestModel,
-    @Param('accountId') accountId: string, //DTO
+    @Param('accountId', ParseIntPipe) accountId: number,
   ) {
     const reqAccountId = request.user.accountId;
-    const accountIdNumber = parseInt(accountId, 10);
+    const userRole = request.user.roleId;
 
-    if (reqAccountId == accountIdNumber) {
-      throw new ForbiddenException('Admin cannot delete their own account');
+    if (userRole == Role.Admin) {
+      if (reqAccountId == accountId) {
+        throw new ForbiddenException('Admin cannot delete their own account');
+      }
+    } else if (userRole == Role.User) {
+      if (reqAccountId !== accountId) {
+        throw new ForbiddenException('User can only delete their own account');
+      }
+    } else {
+      throw new ForbiddenException('Insufficient permissions');
     }
 
-    const account = await this.accountService.getAccount(accountIdNumber);
+    const account = await this.accountService.getAccount(accountId);
     return await this.accountService.deleteAccount(account, reqAccountId);
   }
 

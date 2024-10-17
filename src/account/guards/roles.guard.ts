@@ -25,7 +25,7 @@ export class RolesGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest();
 
-    if (user.roleId === Role.Admin) {
+    if (user.roleId == Role.Admin) {
       return true;
     }
 
@@ -34,7 +34,6 @@ export class RolesGuard implements CanActivate {
         'You do not have permission to access this resource',
       );
     }
-
     return true;
   }
 }
