@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import app from 'src/config/app';
 import { AccountTokenModule } from 'src/account-token/account-token.module';
 import { RolesGuard } from 'src/account/guards/roles.guard';
+import { PostModule } from 'src/post/post.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { RolesGuard } from 'src/account/guards/roles.guard';
     ConfigModule.forRoot({
       load: [app],
     }),
+    PostModule,
   ],
   controllers: [AppController],
   providers: [
