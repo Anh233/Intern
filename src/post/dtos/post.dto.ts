@@ -1,4 +1,4 @@
-import { PickType } from '@nestjs/swagger';
+import { PartialType, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
 
@@ -23,6 +23,21 @@ export class PostDto {
   @MinLength(1)
   @IsString()
   content!: string;
+
+  @IsString()
+  q!: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  limit!: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  page!: number;
 }
 
 export class CreatePostDto extends PickType(PostDto, ['title', 'content']) {}
+
+export class GetPostQueryDto extends PartialType(
+  PickType(PostDto, ['q', 'postId', 'page', 'limit', 'accountId']),
+) {}
