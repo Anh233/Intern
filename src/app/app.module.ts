@@ -11,6 +11,8 @@ import app from 'src/config/app';
 import { AccountTokenModule } from 'src/account-token/account-token.module';
 import { RolesGuard } from 'src/account/guards/roles.guard';
 import { PostModule } from 'src/post/post.module';
+import { ChatSessionsModule } from 'src/chat-sessions/chat-sessions.module';
+import { MessagesModule } from 'src/messages/messages.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { PostModule } from 'src/post/post.module';
       load: [app],
     }),
     PostModule,
+    ChatSessionsModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [
