@@ -10,6 +10,12 @@ export class ChatSessionsService {
     private readonly chatSessionRepository: Repository<ChatSessionsEntity>,
   ) {}
 
+  async createChatSession(accountId: number): Promise<ChatSessionsEntity> {
+    const chatSession = new ChatSessionsEntity();
+    chatSession.accountId = accountId;
+    return this.chatSessionRepository.save(chatSession);
+  }
+
   async getChatSession(status: string) {
     const chatSession = await this.chatSessionRepository.findOne({
       where: {
@@ -39,17 +45,31 @@ export class ChatSessionsService {
     return chatSession;
   }
 
-  async createChatSession(accountId: number): Promise<ChatSessionsEntity> {
-    const chatSession = this.chatSessionRepository.create({
-      accountId: accountId,
-      status: 'Pending',
+  async acceptChatSession(
+    chatSessionId: number,
+    status: string,
+    category: string,
+  ): Promise<ChatSessionsEntity> {
+    const chatSession = await this.getChatSessionById(chatSessionId);
+
+    await this.chatSessionRepository.update(chatSessionId, {
+      status: status,
+      category: category,
     });
     return this.chatSessionRepository.save(chatSession);
   }
 
-  async resolveChatSession(chatSessionId: number): Promise<ChatSessionsEntity> {
+  async updateChatSession(
+    chatSessionId: number,
+    status: string,
+    category: string,
+  ): Promise<ChatSessionsEntity> {
     const chatSession = await this.getChatSessionById(chatSessionId);
-    chatSession.status = 'Resolved';
+
+    await this.chatSessionRepository.update(chatSessionId, {
+      status: status,
+      category: category,
+    });
     return this.chatSessionRepository.save(chatSession);
   }
 }
