@@ -61,7 +61,7 @@ export class MessagesService {
       );
     }
 
-    if (chatSession.accountId != accountId) {
+    if (chatSession.customerId && chatSession.assignedId != accountId) {
       throw new ForbiddenException(
         'You do not have permission to send messages in this chat session',
       );

@@ -1,40 +1,59 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { ChatSessionsService } from './chat-sessions.service';
 import {
   AcceptChatSessionBodyDto,
   CreateChatSessionsBodyDto,
   UpdateChatSessionsBodyDto,
 } from './dtos/chat-sessions.dto';
+import { Status } from './enums/status.enum';
+import { Roles } from 'src/account/decorators/roles.decorator';
+import { Role } from 'src/account/enums/role.enum';
+import { RequestModel } from 'src/auth/models/request.model';
 
 @Controller('api/v1/chat-session')
 export class ChatSessionsController {
   constructor(private readonly chatSessionsService: ChatSessionsService) {}
 
-  @Post('create/:accountId')
+  @Post('create')
   async createChatSession(@Body() body: CreateChatSessionsBodyDto) {
-    return this.chatSessionsService.createChatSession(body.accountId);
+    const accountId = body.accountId; // Lấy accountId từ body
+    return await this.chatSessionsService.createChatSession(accountId);
   }
 
   @Get(':status')
-  async findChatSessions(@Param('status') status: string) {
+  async findChatSessions(@Param('status') status: Status) {
     return await this.chatSessionsService.getChatSession(status);
   }
 
+  @Roles(Role.CustomerService, Role.Admin)
   @Put('accept/:chatSessionId')
-  async acceptChatSession(@Body() body: AcceptChatSessionBodyDto) {
+  async acceptChatSession(
+    @Param('chatSessionId') chatSessionId: number,
+    @Body() body: AcceptChatSessionBodyDto,
+    @Req() req: RequestModel,
+  ) {
+    const role = req.user.roleId;
     return this.chatSessionsService.acceptChatSession(
-      body.chatSessionId,
-      body.status,
+      chatSessionId,
       body.category,
+      body.assignedId,
+      role,
     );
   }
 
+  @Roles(Role.CustomerService, Role.Admin)
   @Put('update/:chatSessionId')
-  async updateChatSession(@Body() body: UpdateChatSessionsBodyDto) {
+  async updateChatSession(
+    @Param('chatSessionId') chatSessionId: number,
+    @Body() body: UpdateChatSessionsBodyDto,
+    @Req() req: RequestModel,
+  ) {
+    const role = req.user.roleId;
     return this.chatSessionsService.updateChatSession(
-      body.chatSessionId,
-      body.status,
+      chatSessionId,
       body.category,
+      body.assignedId,
+      role,
     );
   }
 }

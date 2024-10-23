@@ -3,22 +3,26 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('chat_sessions')
 export class ChatSessionsEntity {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ name: 'account_id' })
-  accountId!: number;
+  @Column({ name: 'customer_id' })
+  customerId!: number;
+
+  @Column({ name: 'assigned_id', nullable: true })
+  assignedId?: number;
 
   @Column()
   status!: string;
 
-  @Column()
-  category: string | undefined;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  category?: string;
 
   @Column({ name: 'is_resolved' })
   isResolved!: number;
@@ -28,6 +32,15 @@ export class ChatSessionsEntity {
 
   @Column({ name: 'created_by' })
   createdBy?: number;
+
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp',
+  })
+  updateAt?: Date;
+
+  @Column({ name: 'updated_by' })
+  updateBy?: number;
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp' })
   deletedAt?: Date;

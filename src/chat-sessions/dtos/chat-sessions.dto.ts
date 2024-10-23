@@ -9,7 +9,15 @@ export class ChatSessionsDto {
 
   @Type(() => Number)
   @IsNumber()
+  customerId!: number;
+
+  @Type(() => Number)
+  @IsNumber()
   accountId!: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  assignedId!: number;
 
   @IsString()
   status!: string;
@@ -39,12 +47,12 @@ export class CreateChatSessionsBodyDto extends PickType(ChatSessionsDto, [
 
 export class UpdateChatSessionsBodyDto extends PickType(ChatSessionsDto, [
   'chatSessionId',
-  'status',
   'category',
+  'assignedId',
 ]) {}
 
 export class AcceptChatSessionBodyDto extends PickType(ChatSessionsDto, [
   'chatSessionId',
-  'status',
   'category',
+  'assignedId',
 ]) {}
