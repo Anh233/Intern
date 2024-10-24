@@ -68,5 +68,3 @@ export class Article {
 export class GetAccountsQueryDto extends PartialType(
   PickType(AccountDto, ['q', 'roleId', 'page', 'limit', 'accountId']),
 ) {}
-
-// export class DeleteAccountDto extends PickType(AccountDto, ['accountId']) {}

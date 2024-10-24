@@ -26,7 +26,7 @@ export class ChatSessionsController {
   }
 
   @Roles(Role.CustomerService, Role.Admin)
-  @Put('accept/:chatSessionId')
+  @Put(':chatSessionId/accept')
   async acceptChatSession(
     @Param('chatSessionId') chatSessionId: number,
     @Body() body: AcceptChatSessionBodyDto,
@@ -42,7 +42,7 @@ export class ChatSessionsController {
   }
 
   @Roles(Role.CustomerService, Role.Admin)
-  @Put('update/:chatSessionId')
+  @Put(':chatSessionId/update')
   async updateChatSession(
     @Param('chatSessionId') chatSessionId: number,
     @Body() body: UpdateChatSessionsBodyDto,

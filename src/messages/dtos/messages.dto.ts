@@ -1,4 +1,4 @@
-import { PickType } from '@nestjs/swagger';
+import { PartialType, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 
@@ -15,7 +15,7 @@ export class MessagesDto {
   message!: string;
 
   @IsString()
-  q!: string;
+  q?: string;
 
   @Type(() => Number)
   @IsNumber()
@@ -26,10 +26,8 @@ export class MessagesDto {
   page!: number;
 }
 
-export class sendMessageDto extends PickType(MessagesDto, [
-  'chatSessionId',
-  'accountId',
-  'message',
-]) {}
+export class sendMessageDto extends PickType(MessagesDto, ['message']) {}
 
-export class GetMessagesDto extends PickType(MessagesDto, ['chatSessionId']) {}
+export class GetMessagesQueryDto extends PartialType(
+  PickType(MessagesDto, ['q', 'limit', 'page'] as const),
+) {}
