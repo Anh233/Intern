@@ -9,18 +9,25 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import app from 'src/config/app';
 import { AccountTokenModule } from 'src/account-token/account-token.module';
+import { RolesGuard } from 'src/account/guards/roles.guard';
+import { PostModule } from 'src/post/post.module';
+import { ChatSessionsModule } from 'src/chat-sessions/chat-sessions.module';
+import { MessagesModule } from 'src/messages/messages.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '123456',
-      database: 'Intern',
-      synchronize: false,
-      autoLoadEntities: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async () => ({
+        type: 'mysql',
+        host: 'localhost',
+        port: 3306,
+        username: 'root',
+        password: '123456',
+        database: 'Intern',
+        synchronize: false,
+        autoLoadEntities: true,
+      }),
     }),
     AccountModule,
     AccountTokenModule,
@@ -28,6 +35,9 @@ import { AccountTokenModule } from 'src/account-token/account-token.module';
     ConfigModule.forRoot({
       load: [app],
     }),
+    PostModule,
+    ChatSessionsModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [
@@ -35,6 +45,10 @@ import { AccountTokenModule } from 'src/account-token/account-token.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

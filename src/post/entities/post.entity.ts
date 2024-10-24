@@ -1,34 +1,28 @@
 import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
-@Entity('account')
-export class AccountEntity {
-  @PrimaryGeneratedColumn()
-  id!: number;
+@Entity('post')
+export class PostEntity {
+  @PrimaryGeneratedColumn({ name: 'post_id' })
+  postId!: number;
 
-  @Column()
-  username!: string;
-
-  @Column()
-  password!: string;
-
-  @Column()
-  email?: string;
-
-  @Column({ name: 'phone_number' })
-  phoneNumber?: string;
+  @Column({ name: 'account_id' })
+  accountId!: number;
 
   @Column({ name: 'role_id' })
-  roleId!: number;
+  roleId?: number;
 
-  @Column({ name: 'is_active' })
-  isActive!: number;
+  @Column()
+  title!: string;
+
+  @Column()
+  content!: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;

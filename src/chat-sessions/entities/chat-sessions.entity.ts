@@ -7,28 +7,25 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('account')
-export class AccountEntity {
+@Entity('chat_sessions')
+export class ChatSessionsEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
-  username!: string;
+  @Column({ name: 'customer_id' })
+  customerId!: number;
+
+  @Column({ name: 'assigned_id', nullable: true })
+  assignedId?: number;
 
   @Column()
-  password!: string;
+  status!: string;
 
-  @Column()
-  email?: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  category?: string;
 
-  @Column({ name: 'phone_number' })
-  phoneNumber?: string;
-
-  @Column({ name: 'role_id' })
-  roleId!: number;
-
-  @Column({ name: 'is_active' })
-  isActive!: number;
+  @Column({ name: 'is_resolved' })
+  isResolved!: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;

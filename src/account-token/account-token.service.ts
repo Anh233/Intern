@@ -41,21 +41,18 @@ export class AccountTokenService {
     return accountToken;
   }
 
-  // Phương thức để lưu token mới vào bảng account_token
   async saveToken(
-    account: AccountEntity, // Instance của AccountEntity
-    tokenKey: string, // JWT Token
-    reqAccountId: number, // Ai đã tạo token
+    account: AccountEntity,
+    tokenKey: string,
+    reqAccountId: number,
   ): Promise<AccountTokenEntity> {
-    // Tìm bản ghi hiện có của người dùng
     const accountToken = new AccountTokenEntity();
     accountToken.accountId = account.id;
     accountToken.tokenKey = tokenKey;
     accountToken.isActive = 1;
     accountToken.createdAt = new Date();
     accountToken.createdBy = reqAccountId;
-    const newAccountToken =
-      await this.accountTokenRepository.save(accountToken);
-    return await this.getAccountTokenById(newAccountToken.id);
+
+    return await this.accountTokenRepository.save(accountToken);
   }
 }
