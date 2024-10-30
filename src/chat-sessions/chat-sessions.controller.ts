@@ -16,7 +16,7 @@ export class ChatSessionsController {
 
   @Post('create')
   async createChatSession(@Body() body: CreateChatSessionsBodyDto) {
-    const accountId = body.accountId; 
+    const accountId = body.accountId;
     return await this.chatSessionsService.createChatSession(accountId);
   }
 

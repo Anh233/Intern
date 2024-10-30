@@ -90,7 +90,7 @@ export class AccountController {
     }
 
     const account = await this.accountService.getAccount(accountId);
-    return await this.accountService.deleteAccount(account, reqAccountId);
+    await this.accountService.deleteAccount(account, reqAccountId);
   }
 
   @Get('admin-dashboard')

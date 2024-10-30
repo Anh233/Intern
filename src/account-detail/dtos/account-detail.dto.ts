@@ -59,7 +59,7 @@ export class UpdateAccountDetailDto extends PickType(AccountDetailDto, [
   'gender',
   'address',
   'dateOfBirth',
-]) { }
+]) {}
 
 export class DeleteAccountDetailDto extends PickType(AccountDetailDto, [
   'firstName',

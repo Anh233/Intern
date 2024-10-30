@@ -6,17 +6,24 @@ import {
   Param,
   Post,
   Put,
+  Req,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { RoleEntity } from './entities/role.entity';
+import { RequestModel } from 'src/auth/models/request.model';
+import { CreateRoleDto, UpdateRoleDto } from './dtos/role.dto';
 
 @Controller('api/v1/role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Post('create')
-  async createRole() {
-    return await this.roleService.create('Admin', 'Administrator');
+  async createRole(
+    @Req() Request: RequestModel,
+    @Body() body: CreateRoleDto,
+  ): Promise<RoleEntity> {
+    const accountId = Request.user.accountId;
+    return await this.roleService.createRole(body.name, body.detail, accountId);
   }
 
   @Get('all')
@@ -24,22 +31,21 @@ export class RoleController {
     return await this.roleService.findAll();
   }
 
-  @Get('find')
-  async findRole() {
-    return await this.roleService.findById(1);
-  }
-
-  @Put('update')
+  @Put(':id/update')
   async updateRole(
     @Param('id') id: number,
-    @Body('name') name: string,
-    @Body('detail') detail: string,
+    @Body() body: UpdateRoleDto,
   ): Promise<RoleEntity> {
-    return await this.roleService.update(id, name, detail);
+    await this.roleService.findById(id);
+    return await this.roleService.updateRole(id, body.name, body.detail);
   }
 
-  @Delete('delete')
-  async deleteRole(@Param('id') id: number): Promise<void> {
-    return await this.roleService.remove(id);
+  @Delete(':id/delete')
+  async deleteRole(
+    @Req() request: RequestModel,
+    @Param('id') id: number,
+  ): Promise<boolean> {
+    const accountId = request.user.accountId;
+    return await this.roleService.deleteRole(id, accountId);
   }
 }
