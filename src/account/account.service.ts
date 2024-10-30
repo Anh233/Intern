@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, IsNull, Repository } from 'typeorm';
 import { AccountEntity } from './entities/account.entity';
@@ -6,12 +6,15 @@ import { hash } from 'bcrypt';
 import { AccountModel } from './models/account.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
+import { AccountDetailService } from 'src/account-detail/account-detail.service';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectRepository(AccountEntity)
     private readonly accountRepository: Repository<AccountEntity>,
+    @Inject(AccountDetailService)
+    private readonly accountDetailService: AccountDetailService,
   ) {}
 
   async getAccount(accountId: number) {
@@ -106,7 +109,6 @@ export class AccountService {
         deletedBy: reqAccountId,
       },
     );
-
     return true;
   }
 
@@ -120,7 +122,7 @@ export class AccountService {
 
     if (accountId) {
       query.andWhere('account.id = :accountId', {
-        accountId: accountId,
+        id: accountId,
       });
     }
     if (roleId !== undefined) {

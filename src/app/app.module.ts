@@ -13,6 +13,7 @@ import { RolesGuard } from 'src/account/guards/roles.guard';
 import { PostModule } from 'src/post/post.module';
 import { ChatSessionsModule } from 'src/chat-sessions/chat-sessions.module';
 import { MessagesModule } from 'src/messages/messages.module';
+import { AccountDetailModule } from 'src/account-detail/account-detail.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { MessagesModule } from 'src/messages/messages.module';
     PostModule,
     ChatSessionsModule,
     MessagesModule,
+    AccountDetailModule,
   ],
   controllers: [AppController],
   providers: [

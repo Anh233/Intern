@@ -7,28 +7,16 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('account_detail')
-export class AccountDetailEntity {
+@Entity('role')
+export class RoleEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ name: 'account_id' })
-  accountId!: number;
-
-  @Column({ name: 'full_name' })
-  fullName!: string;
-
-  @Column({ name: 'last_name' })
-  lastName!: string;
+  @Column()
+  name!: string;
 
   @Column()
-  gender!: number;
-
-  @Column({ name: 'date_of_birth' })
-  dateOfBirth!: Date;
-
-  @Column()
-  address!: string;
+  detail!: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;
