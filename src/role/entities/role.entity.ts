@@ -9,8 +9,8 @@ import {
 
 @Entity('role')
 export class RoleEntity {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn({ name: 'id' })
+  roleId!: number;
 
   @Column()
   name!: string;

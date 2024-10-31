@@ -14,7 +14,7 @@ export class AccountService {
     private readonly accountRepository: Repository<AccountEntity>,
   ) {}
 
-  async getAccount(accountId: number, isHiddenPassword: boolean) {
+  async getAccount(accountId: number | undefined, isHiddenPassword: boolean) {
     const account = await this.accountRepository.findOne({
       where: {
         id: accountId,
@@ -27,7 +27,7 @@ export class AccountService {
     }
 
     if (isHiddenPassword) {
-      //TO DO
+      account.password = undefined;
     }
 
     return account;
@@ -93,7 +93,7 @@ export class AccountService {
       },
     );
 
-    return await this.getAccount(account.id);
+    return await this.getAccount(account.id, true);
   }
 
   async deleteAccount(

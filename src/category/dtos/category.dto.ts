@@ -5,7 +5,7 @@ import { IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
 export class CategoryDto {
   @Type(() => Number)
   @IsNumber()
-  id!: number;
+  categoryId!: number;
 
   @MinLength(3)
   @MaxLength(30)
@@ -22,12 +22,19 @@ export class CategoryDto {
   @Type(() => Number)
   @IsNumber()
   page!: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  accountId!: number;
 }
 
-export class CreateCategoryDto extends PickType(CategoryDto, ['name']) {}
+export class CreateCategoryDto extends PickType(CategoryDto, [
+  'accountId',
+  'name',
+]) {}
 
 export class UpdateCategoryDto extends PickType(CategoryDto, ['name']) {}
 
 export class GetCategoriesQueryDto extends PartialType(
-  PickType(CategoryDto, ['q', 'id', 'page', 'limit']),
+  PickType(CategoryDto, ['q', 'categoryId', 'page', 'limit']),
 ) {}

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from './entities/category.entity';
 import { IsNull, Repository } from 'typeorm';
 import { PaginationModel } from 'src/utils/models/pagination.model';
-import { GetCategoriesQueryDto } from './dtos/category.dto';
 import { PageListModel } from 'src/utils/models/page-list.model';
 import { CategoryModel } from './models/category.model';
 
@@ -15,13 +14,13 @@ export class CategoryService {
   ) {}
 
   async getCategories(
-    id: number | undefined,
+    categoryId: number | undefined,
     pagination: PaginationModel,
     q: string | undefined,
   ): Promise<PageListModel<CategoryModel>> {
     const query = this.categoryRepository.createQueryBuilder('category');
-    if (id) {
-      query.andWhere('category.id = :id', { id });
+    if (categoryId) {
+      query.andWhere('category.categoryId = :categoryId', { categoryId });
     }
     if (q) {
       query.andWhere('category.name LIKE :q', { q: `%${q}%` });
@@ -32,15 +31,15 @@ export class CategoryService {
       .getManyAndCount();
 
     const categories = data.map((category) => {
-      return new CategoryModel(category.id, category.name);
+      return new CategoryModel(category.categoryId, category.name);
     });
     return new PageListModel<CategoryModel>(total, categories);
   }
 
-  async getCategoryById(id: number): Promise<CategoryEntity> {
+  async getCategoryById(categoryId: number): Promise<CategoryEntity> {
     const category = await this.categoryRepository.findOne({
       where: {
-        id,
+        categoryId: categoryId,
         deletedAt: IsNull(),
       },
     });
@@ -53,7 +52,7 @@ export class CategoryService {
   async createCategory(
     accountId: number,
     name: string,
-  ): Promise<CategoryEntity> {
+  ){
     const category = new CategoryEntity();
     category.name = name;
     category.createdAt = new Date();
@@ -63,13 +62,13 @@ export class CategoryService {
   }
 
   async updateCategory(
-    id: number,
+    categoryId: number,
     name: string,
     accountId: number,
   ): Promise<CategoryEntity> {
     await this.categoryRepository.update(
       {
-        id: id,
+        categoryId: categoryId,
         deletedAt: IsNull(),
       },
       {
@@ -78,13 +77,16 @@ export class CategoryService {
         updateBy: accountId,
       },
     );
-    return await this.getCategoryById(id);
+    return await this.getCategoryById(categoryId);
   }
 
-  async deleteCategory(id: number, accountId: number): Promise<boolean> {
-    await this.getCategoryById(id);
+  async deleteCategory(
+    categoryId: number,
+    accountId: number,
+  ): Promise<boolean> {
+    await this.getCategoryById(categoryId);
     await this.categoryRepository.update(
-      { id: id, deletedAt: IsNull() },
+      { categoryId: categoryId, deletedAt: IsNull() },
       {
         deletedAt: new Date(),
         deletedBy: accountId,

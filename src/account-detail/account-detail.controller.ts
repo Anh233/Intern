@@ -16,12 +16,12 @@ import {
   GetAccountDetailsQueryDto,
   UpdateAccountDetailBodyDto,
 } from './dtos/account-detail.dto';
-import { AccountDetailModel } from './models/account-detail.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { Roles } from 'src/account/decorators/roles.decorator';
 import { Role } from 'src/account/enums/role.enum';
 import { RequestModel } from 'src/auth/models/request.model';
 import { AccountService } from 'src/account/account.service';
+import { AccountModel } from 'src/account/models/account.model';
 
 @Controller('api/v1/account')
 export class AccountDetailController {
@@ -51,18 +51,20 @@ export class AccountDetailController {
   @Put(':accountId/detail/update')
   async updateAccountDetail(
     @Req() req: RequestModel,
-    @Param('accountId') accountId: number, //TO DO
-    @Body() body: UpdateAccountDetailBodyDto,
+    @Param() params: UpdateAccountDetailBodyDto,
   ) {
     const reqAccountId = req.user.accountId;
-    const account = await this.accountService.getAccount(accountId);
+    const account = await this.accountService.getAccount(
+      params.accountId,
+      true,
+    );
     return await this.accountDetailService.updateAccountDetail(
-      account,
-      body.firstName,
-      body.lastName,
-      body.gender,
-      body.dateOfBirth,
-      body.address,
+      account as AccountModel,
+      params.firstName,
+      params.lastName,
+      params.gender,
+      params.dateOfBirth,
+      params.address,
       reqAccountId,
     );
   }
@@ -70,19 +72,21 @@ export class AccountDetailController {
   @Post(':accountId/detail')
   async addAccountDetail(
     @Req() req: RequestModel,
-    @Param('accountId') accountId: number, //TO DO
-    @Body() body: AddAccountDetailBodyDto,
+    @Param() params: AddAccountDetailBodyDto,
   ) {
-    const account = await this.accountService.getAccount(accountId);
+    const account = await this.accountService.getAccount(
+      params.accountId,
+      true,
+    );
     const reqAccountId = req.user.accountId;
 
     return await this.accountDetailService.addAccountDetail(
-      account,
-      body.firstName,
-      body.lastName,
-      body.gender,
-      body.dateOfBirth,
-      body.address,
+      account as AccountModel,
+      params.firstName,
+      params.lastName,
+      params.gender,
+      params.dateOfBirth,
+      params.address,
       reqAccountId,
     );
   }
@@ -90,7 +94,7 @@ export class AccountDetailController {
   @Delete(':accountId/detail/delete')
   async deleteAccountDetail(
     @Req() request: RequestModel,
-    @Param('accountId') accountId: number, //TO DO
+    @Param('accountId') accountId: number,
   ) {
     const reqAccountId = request.user.accountId;
     const accountDetail =
