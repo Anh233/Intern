@@ -80,7 +80,10 @@ export class AccountDetailService {
 
   async getAccountDetail(accountId: number): Promise<AccountDetailEntity> {
     const accountDetail = await this.accountDetailRepository.findOne({
-      where: { accountId },
+      where: {
+        accountId,
+        deletedAt: IsNull(),
+      },
     });
     if (!accountDetail) {
       throw new HttpException('ACCOUNT_DETAIL_NOT_FOUND', HttpStatus.NOT_FOUND);
