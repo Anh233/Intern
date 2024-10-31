@@ -6,6 +6,7 @@ import { AccountDetailModel } from './models/account-detail.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
 import { Role } from 'src/account/enums/role.enum';
+import { AccountModel } from 'src/account/models/account.model';
 
 @Injectable()
 export class AccountDetailService {
@@ -63,54 +64,52 @@ export class AccountDetailService {
       .take(pagination.limit)
       .getManyAndCount();
 
-    const details = data.map(
-      (detail) =>
-        new AccountDetailModel(
-          detail.accountId,
-          detail.firstName,
-          detail.lastName,
-          detail.gender as number,
-          detail.dateOfBirth,
-          detail.address,
-        ),
-    );
+    const details = data.map((detail) => detail.toModel());
 
     return new PageListModel<AccountDetailModel>(total, details);
   }
 
   async getAccountDetail(accountId: number): Promise<AccountDetailEntity> {
     const accountDetail = await this.accountDetailRepository.findOne({
-      where: { accountId },
+      where: {
+        accountId,
+        deletedAt: IsNull(),
+      },
     });
+
     if (!accountDetail) {
       throw new HttpException('ACCOUNT_DETAIL_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
+
     return accountDetail;
   }
 
   async updateAccountDetail(
-    accountId: number,
-    firstName?: string,
-    lastName?: string,
-    gender?: number,
-    dateOfBirth?: string,
-    address?: string,
+    account: AccountModel,
+    firstName: string | undefined,
+    lastName: string | undefined,
+    gender: number | undefined,
+    dateOfBirth: string | undefined,
+    address: string | undefined,
+    reqAccountId: number,
   ): Promise<AccountDetailEntity> {
     await this.accountDetailRepository.update(
       {
-        accountId,
+        accountId: account.id,
         deletedAt: IsNull(),
       },
       {
-        firstName,
-        lastName,
-        gender,
-        dateOfBirth,
-        address,
-        updateBy: accountId,
+        firstName: firstName,
+        lastName: lastName,
+        gender: gender,
+        dateOfBirth: dateOfBirth,
+        address: address,
+        updateAt: new Date(),
+        updateBy: reqAccountId,
       },
     );
-    return await this.getAccountDetail(accountId);
+
+    return await this.getAccountDetail(account.id);
   }
 
   async deleteAccountDetail(
@@ -131,22 +130,23 @@ export class AccountDetailService {
   }
 
   async addAccountDetail(
-    accountId: number,
+    account: AccountModel,
     firstName: string,
     lastName: string,
     gender: number,
     dateOfBirth: string,
     address: string,
+    reqAccountId: number,
   ): Promise<AccountDetailEntity> {
     const newAccountDetail = new AccountDetailEntity();
-    newAccountDetail.accountId = accountId;
+    newAccountDetail.accountId = account.id;
     newAccountDetail.firstName = firstName;
     newAccountDetail.lastName = lastName;
     newAccountDetail.gender = gender;
     newAccountDetail.address = address;
     newAccountDetail.dateOfBirth = dateOfBirth;
     newAccountDetail.createdAt = new Date();
-    newAccountDetail.createdBy = accountId;
+    newAccountDetail.createdBy = reqAccountId;
 
     return await this.accountDetailRepository.save(newAccountDetail);
   }

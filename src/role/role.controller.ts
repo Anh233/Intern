@@ -19,10 +19,10 @@ export class RoleController {
 
   @Post('create')
   async createRole(
-    @Req() Request: RequestModel,
+    @Req() request: RequestModel,
     @Body() body: CreateRoleDto,
   ): Promise<RoleEntity> {
-    const accountId = Request.user.accountId;
+    const accountId = request.user.accountId;
     return await this.roleService.createRole(body.name, body.detail, accountId);
   }
 
@@ -31,16 +31,16 @@ export class RoleController {
     return await this.roleService.findAll();
   }
 
-  @Put(':id/update')
+  @Put(':roleId/update')
   async updateRole(
-    @Param('id') id: number,
+    @Param('id') id: number, // TO DO
     @Body() body: UpdateRoleDto,
   ): Promise<RoleEntity> {
     await this.roleService.findById(id);
     return await this.roleService.updateRole(id, body.name, body.detail);
   }
 
-  @Delete(':id/delete')
+  @Delete(':id/delete') // TO DO
   async deleteRole(
     @Req() request: RequestModel,
     @Param('id') id: number,

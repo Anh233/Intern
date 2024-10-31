@@ -1,4 +1,4 @@
-import { PickType } from '@nestjs/swagger';
+import { IntersectionType, PartialType, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 
@@ -16,5 +16,11 @@ export class RoleDto {
   detail!: string;
 }
 
-export class CreateRoleDto extends PickType(RoleDto, ['name', 'detail']) {}
-export class UpdateRoleDto extends PickType(RoleDto, ['name', 'detail']) {}
+export class CreateRoleDto extends IntersectionType(
+  PickType(RoleDto, ['name']),
+  PartialType(PickType(RoleDto, ['detail'])),
+) {} //TO DO
+
+export class UpdateRoleDto extends PartialType(
+  PickType(RoleDto, ['name', 'detail']),
+) {} //TO DO

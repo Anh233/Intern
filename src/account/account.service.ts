@@ -6,18 +6,15 @@ import { hash } from 'bcrypt';
 import { AccountModel } from './models/account.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
-import { AccountDetailService } from 'src/account-detail/account-detail.service';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectRepository(AccountEntity)
     private readonly accountRepository: Repository<AccountEntity>,
-    @Inject(AccountDetailService)
-    private readonly accountDetailService: AccountDetailService,
   ) {}
 
-  async getAccount(accountId: number) {
+  async getAccount(accountId: number, isHiddenPassword: boolean) {
     const account = await this.accountRepository.findOne({
       where: {
         id: accountId,
@@ -27,6 +24,10 @@ export class AccountService {
 
     if (!account) {
       throw new HttpException('ACCOUNT_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    if (isHiddenPassword) {
+      //TO DO
     }
 
     return account;
@@ -109,6 +110,7 @@ export class AccountService {
         deletedBy: reqAccountId,
       },
     );
+
     return true;
   }
 

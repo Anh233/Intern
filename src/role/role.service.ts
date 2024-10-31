@@ -10,7 +10,11 @@ export class RoleService {
     private readonly roleRepository: Repository<RoleEntity>,
   ) {}
 
-  async createRole(name: string, detail: string, accountId: number): Promise<RoleEntity> {
+  async createRole(
+    name: string,
+    detail: string,
+    accountId: number,
+  ): Promise<RoleEntity> {
     const newRole = new RoleEntity();
     newRole.name = name;
     newRole.detail = detail;
@@ -25,14 +29,22 @@ export class RoleService {
   }
 
   async findById(id: number): Promise<RoleEntity> {
-    const role = await this.roleRepository.findOneBy({ id });
+    const role = await this.roleRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
     if (!role) {
       throw new Error(`Role with id ${id} not found`);
     }
     return role;
   }
 
-  async updateRole(id: number, name: string, detail?: string): Promise<RoleEntity> {
+  async updateRole(
+    id: number,
+    name: string,
+    detail?: string,
+  ): Promise<RoleEntity> {
     await this.roleRepository.update(
       {
         id,
@@ -45,8 +57,14 @@ export class RoleService {
 
   async deleteRole(id: number, accountId: number): Promise<boolean> {
     await this.roleRepository.update(
-      { id: id, deletedAt: IsNull() },
-      { deletedAt: new Date(), deletedBy: accountId },
+      {
+        id: id,
+        deletedAt: IsNull(),
+      },
+      {
+        deletedAt: new Date(),
+        deletedBy: accountId,
+      },
     );
     return true;
   }

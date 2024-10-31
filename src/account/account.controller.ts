@@ -89,8 +89,8 @@ export class AccountController {
       throw new ForbiddenException('Insufficient permissions');
     }
 
-    const account = await this.accountService.getAccount(accountId);
-    await this.accountService.deleteAccount(account, reqAccountId);
+    const account = await this.accountService.getAccount(accountId, true);
+    return await this.accountService.deleteAccount(account, reqAccountId);
   }
 
   @Get('admin-dashboard')

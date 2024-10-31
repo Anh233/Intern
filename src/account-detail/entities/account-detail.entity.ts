@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AccountDetailModel } from '../models/account-detail.model';
 
 @Entity('account_detail')
 export class AccountDetailEntity {
@@ -50,4 +51,15 @@ export class AccountDetailEntity {
 
   @Column({ name: 'deleted_by' })
   deletedBy?: number;
+
+  toModel(): AccountDetailModel {
+    return new AccountDetailModel(
+      this.accountId,
+      this.firstName,
+      this.lastName,
+      this.gender,
+      this.dateOfBirth,
+      this.address,
+    );
+  }
 }

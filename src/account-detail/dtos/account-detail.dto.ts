@@ -1,11 +1,17 @@
 import { PartialType, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsDate,
+  IsNumber,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class AccountDetailDto {
   @Type(() => Number)
   @IsNumber()
-  id!: number;
+  accountDetailId!: number;
 
   @Type(() => Number)
   @IsNumber()
@@ -30,7 +36,8 @@ export class AccountDetailDto {
   @MaxLength(30)
   address!: string;
 
-  @IsString()
+  @Type(() => Date)
+  @IsDate()
   dateOfBirth!: string;
 
   @IsString()
@@ -45,7 +52,7 @@ export class AccountDetailDto {
   page!: number;
 }
 
-export class AddAccountDetailDto extends PickType(AccountDetailDto, [
+export class AddAccountDetailBodyDto extends PickType(AccountDetailDto, [
   'firstName',
   'lastName',
   'gender',
@@ -53,21 +60,15 @@ export class AddAccountDetailDto extends PickType(AccountDetailDto, [
   'dateOfBirth',
 ]) {}
 
-export class UpdateAccountDetailDto extends PickType(AccountDetailDto, [
-  'firstName',
-  'lastName',
-  'gender',
-  'address',
-  'dateOfBirth',
-]) {}
-
-export class DeleteAccountDetailDto extends PickType(AccountDetailDto, [
-  'firstName',
-  'lastName',
-  'gender',
-  'address',
-  'dateOfBirth',
-]) {}
+export class UpdateAccountDetailBodyDto extends PartialType(
+  PickType(AccountDetailDto, [
+    'firstName',
+    'lastName',
+    'gender',
+    'address',
+    'dateOfBirth',
+  ]),
+) {}
 
 export class GetAccountDetailsQueryDto extends PartialType(
   PickType(AccountDetailDto, ['q', 'accountId', 'page', 'limit', 'gender']),
