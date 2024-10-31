@@ -2,9 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoleEntity } from './entities/role.entity';
 import { IsNull, Repository } from 'typeorm';
+import { PaginationModel } from 'src/utils/models/pagination.model';
+import { RoleModel } from './models/role.model';
+import { PageListModel } from 'src/utils/models/page-list.model';
 
 @Injectable()
 export class RoleService {
+  getRoles(
+    id: number | undefined,
+    arg1: PaginationModel,
+    q: string | undefined,
+  ):
+    | { data: import('./models/role.model').RoleModel[]; total: number }
+    | PromiseLike<{
+        data: import('./models/role.model').RoleModel[];
+        total: number;
+      }> {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectRepository(RoleEntity)
     private readonly roleRepository: Repository<RoleEntity>,
@@ -24,16 +39,33 @@ export class RoleService {
     return await this.roleRepository.save(newRole);
   }
 
-  async findAll(): Promise<RoleEntity[]> {
-    return this.roleRepository.find();
+  async getRoles(
+    id: number | undefined,
+    pagination: PaginationModel,
+    q: string | undefined,
+  ): Promise<PageListModel<RoleModel>> {
+    const query = this.roleRepository.createQueryBuilder('role');
+
+    if (id) {
+      query.andWhere('role.id = :id', { id });
+    }
+    if (q) {
+      query.andWhere('role.name LIKE :q', { q: `%${q}%` });
+    }
+    const [data, total] = await query
+      .skip((pagination.page - 1) * pagination.limit)
+      .take(pagination.limit)
+      .getManyAndCount();
+
+    const roles = data.map((role) => {
+      return new RoleModel(role.id, role.name, role.detail);
+    });
+
+    return new PageListModel<RoleModel>(total, roles);
   }
 
-  async findById(id: number): Promise<RoleEntity> {
-    const role = await this.roleRepository.findOne({
-      where: {
-        id: id,
-      },
-    });
+  async getRoleById(id: number): Promise<RoleEntity> {
+    const role = await this.roleRepository.findOneBy({ id });
     if (!role) {
       throw new Error(`Role with id ${id} not found`);
     }
@@ -43,6 +75,7 @@ export class RoleService {
   async updateRole(
     id: number,
     name: string,
+    accountId: number,
     detail?: string,
   ): Promise<RoleEntity> {
     await this.roleRepository.update(
@@ -50,9 +83,10 @@ export class RoleService {
         id,
         deletedAt: IsNull(),
       },
-      { name, detail },
+      { name, detail, updateBy: accountId },
     );
-    return this.findById(id);
+    await this.roleRepository.save({ id, name, detail });
+    return await this.getRoleById(id);
   }
 
   async deleteRole(id: number, accountId: number): Promise<boolean> {

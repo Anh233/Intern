@@ -6,12 +6,19 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { RoleEntity } from './entities/role.entity';
 import { RequestModel } from 'src/auth/models/request.model';
-import { CreateRoleDto, UpdateRoleDto } from './dtos/role.dto';
+import {
+  CreateRoleDto,
+  GetRolesQueryDto,
+  UpdateRoleDto,
+} from './dtos/role.dto';
+import { RoleModel } from './models/role.model';
+import { PaginationModel } from 'src/utils/models/pagination.model';
 
 @Controller('api/v1/role')
 export class RoleController {
@@ -27,17 +34,29 @@ export class RoleController {
   }
 
   @Get('all')
-  async getRoles() {
-    return await this.roleService.findAll();
+  async getRoles(
+    @Query() query: GetRolesQueryDto,
+  ): Promise<{ data: RoleModel[]; total: number }> {
+    return await this.roleService.getRoles(
+      query.id,
+      new PaginationModel(query.page, query.limit),
+      query.q,
+    );
   }
 
   @Put(':roleId/update')
   async updateRole(
     @Param('id') id: number, // TO DO
     @Body() body: UpdateRoleDto,
+    @Req() request: RequestModel,
   ): Promise<RoleEntity> {
-    await this.roleService.findById(id);
-    return await this.roleService.updateRole(id, body.name, body.detail);
+    const accountId = request.user.accountId;
+    return await this.roleService.updateRole(
+      id,
+      body.name,
+      accountId,
+      body.detail, //To do
+    );
   }
 
   @Delete(':id/delete') // TO DO

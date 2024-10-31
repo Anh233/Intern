@@ -14,6 +14,17 @@ export class RoleDto {
   @Type(() => String)
   @IsString()
   detail!: string;
+
+  @IsString()
+  q!: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  limit!: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  page!: number;
 }
 
 export class CreateRoleDto extends IntersectionType(
@@ -24,3 +35,7 @@ export class CreateRoleDto extends IntersectionType(
 export class UpdateRoleDto extends PartialType(
   PickType(RoleDto, ['name', 'detail']),
 ) {} //TO DO
+
+export class GetRolesQueryDto extends PartialType(
+  PickType(RoleDto, ['q', 'id', 'page', 'limit']),
+) {}
