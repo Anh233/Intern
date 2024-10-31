@@ -5,21 +5,10 @@ import { IsNull, Repository } from 'typeorm';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { RoleModel } from './models/role.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
+import { throwError } from 'src/utils/function';
 
 @Injectable()
 export class RoleService {
-  getRoles(
-    id: number | undefined,
-    arg1: PaginationModel,
-    q: string | undefined,
-  ):
-    | { data: import('./models/role.model').RoleModel[]; total: number }
-    | PromiseLike<{
-        data: import('./models/role.model').RoleModel[];
-        total: number;
-      }> {
-    throw new Error('Method not implemented.');
-  }
   constructor(
     @InjectRepository(RoleEntity)
     private readonly roleRepository: Repository<RoleEntity>,
@@ -40,14 +29,14 @@ export class RoleService {
   }
 
   async getRoles(
-    id: number | undefined,
+    roleId: number | undefined,
     pagination: PaginationModel,
     q: string | undefined,
-  ): Promise<PageListModel<RoleModel>> {
+  ) {
     const query = this.roleRepository.createQueryBuilder('role');
 
-    if (id) {
-      query.andWhere('role.id = :id', { id });
+    if (roleId) {
+      query.andWhere('role.roleId = :roleId', { roleId });
     }
     if (q) {
       query.andWhere('role.name LIKE :q', { q: `%${q}%` });
@@ -58,41 +47,51 @@ export class RoleService {
       .getManyAndCount();
 
     const roles = data.map((role) => {
-      return new RoleModel(role.id, role.name, role.detail);
+      return new RoleModel(role.roleId, role.name, role.detail);
     });
 
     return new PageListModel<RoleModel>(total, roles);
   }
 
-  async getRoleById(id: number): Promise<RoleEntity> {
-    const role = await this.roleRepository.findOneBy({ id });
+  async getRoleById(roleId: number) {
+    const role = await this.roleRepository.findOne({
+      where: {
+        roleId: roleId,
+        deletedAt: IsNull(),
+      },
+    });
     if (!role) {
-      throw new Error(`Role with id ${id} not found`);
+      throwError(`Role with id ${roleId} not found`);
     }
     return role;
   }
 
   async updateRole(
-    id: number,
-    name: string,
+    roleId: number,
+    name: string | undefined,
     accountId: number,
-    detail?: string,
-  ): Promise<RoleEntity> {
+    detail: string | undefined,
+  ) {
     await this.roleRepository.update(
       {
-        id,
+        roleId: roleId,
         deletedAt: IsNull(),
       },
-      { name, detail, updateBy: accountId },
+      {
+        name,
+        detail,
+        updateAt: new Date(),
+        updateBy: accountId,
+      },
     );
-    await this.roleRepository.save({ id, name, detail });
-    return await this.getRoleById(id);
+    await this.roleRepository.save({ roleId, name, detail });
+    return await this.getRoleById(roleId);
   }
 
-  async deleteRole(id: number, accountId: number): Promise<boolean> {
+  async deleteRole(roleId: number, accountId: number): Promise<boolean> {
     await this.roleRepository.update(
       {
-        id: id,
+        roleId: roleId,
         deletedAt: IsNull(),
       },
       {

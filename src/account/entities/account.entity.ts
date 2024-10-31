@@ -16,7 +16,7 @@ export class AccountEntity {
   username!: string;
 
   @Column()
-  password!: string;
+  password?: string;
 
   @Column()
   email?: string;

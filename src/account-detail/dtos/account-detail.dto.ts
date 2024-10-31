@@ -15,7 +15,7 @@ export class AccountDetailDto {
 
   @Type(() => Number)
   @IsNumber()
-  accountId!: number;
+  accountId: number | undefined;
 
   @MinLength(3)
   @MaxLength(30)
@@ -53,6 +53,7 @@ export class AccountDetailDto {
 }
 
 export class AddAccountDetailBodyDto extends PickType(AccountDetailDto, [
+  'accountId',
   'firstName',
   'lastName',
   'gender',
@@ -62,6 +63,7 @@ export class AddAccountDetailBodyDto extends PickType(AccountDetailDto, [
 
 export class UpdateAccountDetailBodyDto extends PartialType(
   PickType(AccountDetailDto, [
+    'accountId',
     'firstName',
     'lastName',
     'gender',

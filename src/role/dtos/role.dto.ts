@@ -5,15 +5,15 @@ import { IsNumber, IsString } from 'class-validator';
 export class RoleDto {
   @Type(() => Number)
   @IsNumber()
-  id!: number;
+  roleId!: number;
 
   @Type(() => String)
   @IsString()
-  name!: string;
+  name: string | undefined;
 
   @Type(() => String)
   @IsString()
-  detail!: string;
+  detail: string | undefined;
 
   @IsString()
   q!: string;
@@ -30,12 +30,12 @@ export class RoleDto {
 export class CreateRoleDto extends IntersectionType(
   PickType(RoleDto, ['name']),
   PartialType(PickType(RoleDto, ['detail'])),
-) {} //TO DO
+) {}
 
 export class UpdateRoleDto extends PartialType(
-  PickType(RoleDto, ['name', 'detail']),
-) {} //TO DO
+  PickType(RoleDto, [ 'name', 'detail']),
+) { }
 
 export class GetRolesQueryDto extends PartialType(
-  PickType(RoleDto, ['q', 'id', 'page', 'limit']),
+  PickType(RoleDto, ['q', 'roleId', 'page', 'limit']),
 ) {}

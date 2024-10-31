@@ -9,8 +9,8 @@ import {
 
 @Entity('category')
 export class CategoryEntity {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn({ name: 'id' })
+  categoryId!: number;
 
   @Column()
   name!: string;
