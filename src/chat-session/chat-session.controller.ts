@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
-import { ChatSessionsService } from './chat-sessions.service';
+import { ChatSessionService } from './chat-session.service';
 import {
   AcceptChatSessionBodyDto,
   CreateChatSessionsBodyDto,
@@ -12,7 +12,7 @@ import { RequestModel } from 'src/auth/models/request.model';
 
 @Controller('api/v1/chat-session')
 export class ChatSessionsController {
-  constructor(private readonly chatSessionsService: ChatSessionsService) {}
+  constructor(private readonly chatSessionsService: ChatSessionService) {}
 
   @Post('create')
   async createChatSession(@Body() body: CreateChatSessionsBodyDto) {
@@ -35,7 +35,6 @@ export class ChatSessionsController {
     const role = req.user.roleId;
     return this.chatSessionsService.acceptChatSession(
       chatSessionId,
-      body.category,
       body.assignedId,
       role,
     );

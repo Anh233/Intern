@@ -1,9 +1,11 @@
+import { AccountEntity } from 'src/account/entities/account.entity';
 import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity('account_token')
@@ -37,4 +39,7 @@ export class AccountTokenEntity {
 
   @Column({ name: 'deleted_by' })
   deletedBy?: number;
+
+  @ManyToOne(() => AccountEntity, (account) => account.id)
+  account!: AccountEntity;
 }

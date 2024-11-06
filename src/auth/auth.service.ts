@@ -24,7 +24,9 @@ export class AuthService {
       throw new UnauthorizedException('Account is inactive');
     }
 
-    const isPasswordValid = account.password ? await compare(password, account.password) : false;
+    const isPasswordValid = account.password
+      ? await compare(password, account.password)
+      : false;
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }

@@ -13,6 +13,29 @@ export class CategoryService {
     private categoryRepository: Repository<CategoryEntity>,
   ) {}
 
+  public getDefaultCategoryId(): number {
+    return 1;
+  }
+
+  async getOrCreateCategory(
+    accountId: number,
+    categoryId: number,
+    name: string,
+  ): Promise<CategoryEntity> {
+    let category = await this.getCategoryById(categoryId);
+
+    if (!category) {
+      category = this.categoryRepository.create({
+        name,
+        createdAt: new Date(),
+        createdBy: accountId,
+      });
+      category = await this.categoryRepository.save(category);
+    }
+
+    return category;
+  }
+
   async getCategories(
     categoryId: number | undefined,
     pagination: PaginationModel,
@@ -49,10 +72,7 @@ export class CategoryService {
     return category;
   }
 
-  async createCategory(
-    accountId: number,
-    name: string,
-  ){
+  async createCategory(accountId: number, name: string) {
     const category = new CategoryEntity();
     category.name = name;
     category.createdAt = new Date();

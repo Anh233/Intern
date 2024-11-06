@@ -1,3 +1,4 @@
+import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
 import {
   Entity,
   Column,
@@ -5,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('category')
@@ -35,4 +37,7 @@ export class CategoryEntity {
 
   @Column({ name: 'deleted_by' })
   deletedBy?: number;
+
+  @OneToMany(() => ChatSessionEntity, (chatSession) => chatSession.categoryId)
+  chatSession!: ChatSessionEntity[];
 }

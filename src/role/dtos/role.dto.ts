@@ -33,8 +33,8 @@ export class CreateRoleDto extends IntersectionType(
 ) {}
 
 export class UpdateRoleDto extends PartialType(
-  PickType(RoleDto, [ 'name', 'detail']),
-) { }
+  PickType(RoleDto, ['name', 'detail']),
+) {}
 
 export class GetRolesQueryDto extends PartialType(
   PickType(RoleDto, ['q', 'roleId', 'page', 'limit']),

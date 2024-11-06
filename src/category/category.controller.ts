@@ -12,7 +12,7 @@ import {
 import {
   CreateCategoryDto,
   GetCategoriesQueryDto,
-  UpdateCategoryDto,
+  UpdateCategoryBodyDto,
 } from './dtos/category.dto';
 import { RequestModel } from 'src/auth/models/request.model';
 import { CategoryService } from './category.service';
@@ -56,7 +56,7 @@ export class CategoryController {
   @Put(':categoryId/update')
   async updateCategory(
     @Param('categoryId') categoryId: number,
-    @Body() body: UpdateCategoryDto,
+    @Body() body: UpdateCategoryBodyDto,
     @Req() req: RequestModel,
   ) {
     await this.categoryService.getCategoryById(categoryId);
