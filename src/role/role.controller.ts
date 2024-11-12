@@ -20,6 +20,7 @@ import {
 import { RoleModel } from './models/role.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { throwError } from 'src/utils/function';
+import { throwError } from 'src/utils/function';
 
 @Controller('api/v1/role')
 export class RoleController {
@@ -27,7 +28,11 @@ export class RoleController {
 
   @Post('create')
   async createRole(@Req() request: RequestModel, @Body() body: CreateRoleDto) {
+  async createRole(@Req() request: RequestModel, @Body() body: CreateRoleDto) {
     const accountId = request.user.accountId;
+    if (!body.name || !body.detail) {
+      throwError('Name and detail are required');
+    }
     if (!body.name || !body.detail) {
       throwError('Name and detail are required');
     }
@@ -52,6 +57,7 @@ export class RoleController {
     @Body() body: UpdateRoleDto,
     @Req() request: RequestModel,
   ) {
+  ) {
     const accountId = request.user.accountId;
     const roleId = params.roleId;
 
@@ -65,6 +71,7 @@ export class RoleController {
     );
   }
 
+  @Delete(':roleId/delete')
   @Delete(':roleId/delete')
   async deleteRole(
     @Req() request: RequestModel,

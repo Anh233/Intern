@@ -6,13 +6,16 @@ export class RoleDto {
   @Type(() => Number)
   @IsNumber()
   roleId!: number;
+  roleId!: number;
 
   @Type(() => String)
   @IsString()
   name: string | undefined;
+  name: string | undefined;
 
   @Type(() => String)
   @IsString()
+  detail: string | undefined;
   detail: string | undefined;
 
   @IsString()
@@ -53,6 +56,7 @@ export class UpdateRoleDto extends PartialType(
 }
 
 export class GetRolesQueryDto extends PartialType(
+  PickType(RoleDto, ['q', 'roleId', 'page', 'limit']),
   PickType(RoleDto, ['q', 'roleId', 'page', 'limit']),
 ) {}
 

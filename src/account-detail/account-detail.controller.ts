@@ -22,6 +22,7 @@ import { Role } from 'src/account/enums/role.enum';
 import { RequestModel } from 'src/auth/models/request.model';
 import { AccountService } from 'src/account/account.service';
 import { AccountModel } from 'src/account/models/account.model';
+import { AccountModel } from 'src/account/models/account.model';
 
 @Controller('api/v1/account')
 export class AccountDetailController {
@@ -54,12 +55,19 @@ export class AccountDetailController {
   async addAccountDetail(
     @Req() req: RequestModel,
     @Param() params: UpdateAccountDetailBodyDto,
+    @Param() params: UpdateAccountDetailBodyDto,
   ) {
     const accountId = params.accountId;
 
     const account = await this.accountService.getAccount(accountId, true);
     const reqAccountId = req.user.accountId;
     return await this.accountDetailService.updateAccountDetail(
+      account as AccountModel,
+      params.firstName,
+      params.lastName,
+      params.gender,
+      params.dateOfBirth,
+      params.address,
       account as AccountModel,
       params.firstName,
       params.lastName,
@@ -74,7 +82,12 @@ export class AccountDetailController {
   async updateAccountDetail(
     @Req() req: RequestModel,
     @Param() params: AddAccountDetailBodyDto,
+    @Param() params: AddAccountDetailBodyDto,
   ) {
+    const account = await this.accountService.getAccount(
+      params.accountId,
+      true,
+    );
     const account = await this.accountService.getAccount(
       params.accountId,
       true,
@@ -82,6 +95,12 @@ export class AccountDetailController {
     const reqAccountId = req.user.accountId;
 
     return await this.accountDetailService.addAccountDetail(
+      account as AccountModel,
+      params.firstName,
+      params.lastName,
+      params.gender,
+      params.dateOfBirth,
+      params.address,
       account as AccountModel,
       params.firstName,
       params.lastName,

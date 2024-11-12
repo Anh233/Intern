@@ -15,6 +15,8 @@ import { ChatSessionsModule } from 'src/chat-session/chat-session.module';
 import { MessagesModule } from 'src/messages/messages.module';
 import { AccountDetailModule } from 'src/account-detail/account-detail.module';
 import { RoleModule } from 'src/role/role.module';
+import { Category } from 'src/chat-sessions/enums/categories.enum';
+import { CategoryModel } from 'src/category/models/category.model';
 import { CategoryModule } from 'src/category/category.module';
 
 @Module({

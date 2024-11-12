@@ -6,6 +6,7 @@ export class CategoryDto {
   @Type(() => Number)
   @IsNumber()
   categoryId!: number;
+  categoryId!: number;
 
   @MinLength(3)
   @MaxLength(30)
@@ -26,6 +27,10 @@ export class CategoryDto {
   @Type(() => Number)
   @IsNumber()
   accountId!: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  accountId!: number;
 }
 
 export class CreateCategoryBodyDto extends PickType(CategoryDto, ['name']) {}
@@ -33,6 +38,7 @@ export class CreateCategoryBodyDto extends PickType(CategoryDto, ['name']) {}
 export class UpdateCategoryBodyDto extends PickType(CategoryDto, ['name']) {}
 
 export class GetCategoriesQueryDto extends PartialType(
+  PickType(CategoryDto, ['q', 'categoryId', 'page', 'limit']),
   PickType(CategoryDto, ['q', 'categoryId', 'page', 'limit']),
 ) {}
 

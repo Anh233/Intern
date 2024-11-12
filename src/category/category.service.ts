@@ -38,10 +38,13 @@ export class CategoryService {
 
   async getCategories(
     categoryId: number | undefined,
+    categoryId: number | undefined,
     pagination: PaginationModel,
     q: string | undefined,
   ) {
     const query = this.categoryRepository.createQueryBuilder('category');
+    if (categoryId) {
+      query.andWhere('category.categoryId = :categoryId', { categoryId });
     if (categoryId) {
       query.andWhere('category.categoryId = :categoryId', { categoryId });
     }
@@ -57,13 +60,16 @@ export class CategoryService {
 
     const categories = data.map((category) => {
       return new CategoryModel(category.categoryId, category.name);
+      return new CategoryModel(category.categoryId, category.name);
     });
     return new PageListModel<CategoryModel>(total, categories);
   }
 
   async getCategoryById(categoryId: number): Promise<CategoryEntity> {
+  async getCategoryById(categoryId: number): Promise<CategoryEntity> {
     const category = await this.categoryRepository.findOne({
       where: {
+        categoryId: categoryId,
         categoryId: categoryId,
         deletedAt: IsNull(),
       },
@@ -85,11 +91,13 @@ export class CategoryService {
 
   async updateCategory(
     categoryId: number,
+    categoryId: number,
     name: string,
     accountId: number,
   ): Promise<CategoryEntity> {
     await this.categoryRepository.update(
       {
+        categoryId: categoryId,
         categoryId: categoryId,
         deletedAt: IsNull(),
       },
@@ -100,6 +108,7 @@ export class CategoryService {
       },
     );
     return await this.getCategoryById(categoryId);
+    return await this.getCategoryById(categoryId);
   }
 
   async deleteCategory(
@@ -107,7 +116,13 @@ export class CategoryService {
     accountId: number,
   ): Promise<boolean> {
     await this.getCategoryById(categoryId);
+  async deleteCategory(
+    categoryId: number,
+    accountId: number,
+  ): Promise<boolean> {
+    await this.getCategoryById(categoryId);
     await this.categoryRepository.update(
+      { categoryId: categoryId, deletedAt: IsNull() },
       { categoryId: categoryId, deletedAt: IsNull() },
       {
         deletedAt: new Date(),

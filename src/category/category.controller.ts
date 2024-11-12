@@ -59,6 +59,7 @@ export class CategoryController {
   }
 
   @Put(':categoryId/update')
+  @Put(':categoryId/update')
   async updateCategory(
     @Param() params: GetCategoryIdParamDto,
     @Body() body: UpdateCategoryBodyDto,
@@ -68,6 +69,11 @@ export class CategoryController {
 
     await this.categoryService.getCategoryById(categoryId);
     const accountId = req.user.accountId;
+    return await this.categoryService.updateCategory(
+      categoryId,
+      body.name,
+      accountId,
+    );
     return await this.categoryService.updateCategory(
       categoryId,
       body.name,
@@ -85,5 +91,7 @@ export class CategoryController {
     await this.categoryService.getCategoryById(categoryId);
     const accountId = req.user.accountId;
     return await this.categoryService.deleteCategory(categoryId, accountId);
+    return await this.categoryService.deleteCategory(categoryId, accountId);
   }
 }
+
