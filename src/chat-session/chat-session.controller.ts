@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { ChatSessionService } from './chat-session.service';
 import {
   AcceptChatSessionBodyDto,
@@ -17,6 +26,22 @@ import { PaginationModel } from 'src/utils/models/pagination.model';
 @Controller('api/v1/chat-session')
 export class ChatSessionsController {
   constructor(private readonly chatSessionsService: ChatSessionService) {}
+
+  @Get('all')
+  async getAllChatSessions(
+    @Req() req: RequestModel,
+    @Query() query: GetChatSessionsQueryDto,
+  ) {
+    const accountId = req.user.accountId;
+    const chatSessionId = query.chatSessionId;
+
+    return await this.chatSessionsService.getChatSessions(
+      chatSessionId,
+      accountId,
+      new PaginationModel(query.page, query.limit),
+      query.q,
+    );
+  }
 
   @Post('create')
   async createChatSession(@Body() body: CreateChatSessionsBodyDto) {

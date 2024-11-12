@@ -21,8 +21,9 @@ export class MessageService {
     private readonly messageRepository: Repository<MessagesEntity>,
     @InjectRepository(ChatSessionEntity)
     private readonly chatSessionRepository: Repository<ChatSessionEntity>,
-    @InjectRepository(AccountEntity)
-    private readonly accountRepository: Repository<AccountEntity>,
+
+    @Inject(AccountService)
+    private readonly accountService: AccountService,
   ) {}
 
   async getChatSessionById(chatSessionId: number) {

@@ -23,7 +23,7 @@ export class ChatSessionDto {
   status!: string;
 
   @IsNumber()
-  category!: number;
+  categoryId!: number;
 
   @Type(() => Number)
   @IsNumber()
@@ -48,35 +48,14 @@ export class CreateChatSessionsBodyDto extends PickType(ChatSessionDto, [
   'accountId',
 ]) {}
 
-export class UpdateChatSessionsBodyDto extends PickType(ChatSessionDto, [
+export class UpdateChatSessionsBodyDto extends PickType(ChatSessionsDto, [
   'chatSessionId',
   'assignedId',
   'categoryName',
 ]) {}
 
-export class AcceptChatSessionBodyDto extends PickType(ChatSessionDto, [
-  'chatSessionId',
-  'category',
-  'assignedId',
-]) {}
-
-export class GetChatSessionIdParamDto extends PickType(ChatSessionDto, [
+export class AcceptChatSessionBodyDto extends PickType(ChatSessionsDto, [
   'chatSessionId',
 <<<<<<< HEAD:src/chat-session/dtos/chat-sessions.dto.ts
   'assignedId',
-=======
->>>>>>> feat/func:src/chat-sessions/dtos/chat-sessions.dto.ts
 ]) {}
-
-export class GetChatSessionsQueryDto extends PartialType(
-  PickType(ChatSessionDto, [
-    'chatSessionId',
-    'accountId',
-    'q',
-    'limit',
-    'page',
-  ]),
-) {
-  @Type(() => Number)
-  chatSessionId!: number;
-}

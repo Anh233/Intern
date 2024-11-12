@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -53,23 +54,21 @@ export class AccountDetailController {
   @Post(':accountId/detail/add')
   async addAccountDetail(
     @Req() req: RequestModel,
-    @Param() params: UpdateAccountDetailBodyDto,
+    @Param() params: GetAccountIdParamDto,
+    @Body() body: AddAccountDetailBodyDto,
   ) {
     const accountId = params.accountId;
 
     const account = await this.accountService.getAccount(accountId, true);
     const reqAccountId = req.user.accountId;
-    const account = await this.accountService.getAccount(
-      params.accountId,
-      true,
-    );
-    return await this.accountDetailService.updateAccountDetail(
+
+    return await this.accountDetailService.addAccountDetail(
       account as AccountModel,
-      params.firstName,
-      params.lastName,
-      params.gender,
-      params.dateOfBirth,
-      params.address,
+      body.firstName,
+      body.lastName,
+      body.gender,
+      body.dateOfBirth,
+      body.address,
       reqAccountId,
     );
   }
@@ -77,21 +76,20 @@ export class AccountDetailController {
   @Put(':accountId/detail/update')
   async updateAccountDetail(
     @Req() req: RequestModel,
-    @Param() params: AddAccountDetailBodyDto,
+    @Param() params: GetAccountIdParamDto,
+    @Body() body: UpdateAccountDetailBodyDto,
   ) {
-    const account = await this.accountService.getAccount(
-      params.accountId,
-      true,
-    );
+    const accountId = params.accountId;
     const reqAccountId = req.user.accountId;
 
-    return await this.accountDetailService.addAccountDetail(
+    const account = await this.accountService.getAccount(accountId, true);
+    return await this.accountDetailService.updateAccountDetail(
       account as AccountModel,
-      params.firstName,
-      params.lastName,
-      params.gender,
-      params.dateOfBirth,
-      params.address,
+      body.firstName,
+      body.lastName,
+      body.gender,
+      body.dateOfBirth,
+      body.address,
       reqAccountId,
     );
   }
@@ -99,7 +97,7 @@ export class AccountDetailController {
   @Delete(':accountId/detail/delete')
   async deleteAccountDetail(
     @Req() request: RequestModel,
-    @Param('accountId') accountId: number,
+    @Param() params: GetAccountIdParamDto,
   ) {
     const accountId = params.accountId;
 

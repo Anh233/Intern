@@ -10,8 +10,10 @@ import {
   Req,
 } from '@nestjs/common';
 import {
+  GetAccountIdParamDto,
   CreateCategoryDto,
   GetCategoriesQueryDto,
+  GetCategoryIdParamDto,
   UpdateCategoryBodyDto,
 } from './dtos/category.dto';
 import { RequestModel } from 'src/auth/models/request.model';
@@ -26,19 +28,16 @@ export class CategoryController {
     private readonly accountService: AccountService,
   ) {}
 
-  @Get(':categoryId')
-  async getCategoryById(@Param('categoryId') categoryId: number) {
-    return await this.categoryService.getCategoryById(categoryId);
+  @Get(':categoryId/detail')
+  async getCategoryById(@Param() params: GetCategoryIdParamDto) {
+    return await this.categoryService.getCategoryById(params.categoryId);
   }
 
   @Get('all')
-  async getCategories(
-    @Query() query: GetCategoriesQueryDto,
-    @Req() req: RequestModel,
-  ) {
-    const accountId = req.user.accountId;
+  async getCategories(@Query() query: GetCategoriesQueryDto) {
+    const categoryId = query.categoryId;
     return await this.categoryService.getCategories(
-      accountId,
+      categoryId,
       new PaginationModel(query.page, query.limit),
       query.q,
     );
@@ -49,16 +48,18 @@ export class CategoryController {
     @Param() params: GetAccountIdParamDto,
     @Body() body: CreateCategoryDto,
   ) {
+    const accountId = params.accountId;
     await this.accountService.getAccount(accountId, true);
     return await this.categoryService.createCategory(accountId, body.name);
   }
 
   @Put(':categoryId/update')
   async updateCategory(
-    @Param('categoryId') categoryId: number,
+    @Param() params: GetCategoryIdParamDto,
     @Body() body: UpdateCategoryBodyDto,
     @Req() req: RequestModel,
   ) {
+    const categoryId = params.categoryId;
     await this.categoryService.getCategoryById(categoryId);
     const accountId = req.user.accountId;
     return await this.categoryService.updateCategory(
@@ -68,11 +69,13 @@ export class CategoryController {
     );
   }
 
-  @Delete(':categoryId/delete')
+  @Delete(':categoryId/delete') //sau bỏ thêm chatSessionId
   async deleteCategory(
-    @Param('categoryId') categoryId: number,
+    @Param() params: GetCategoryIdParamDto,
     @Req() req: RequestModel,
   ) {
+    const categoryId = params.categoryId;
+
     await this.categoryService.getCategoryById(categoryId);
     const accountId = req.user.accountId;
     return await this.categoryService.deleteCategory(categoryId, accountId);
