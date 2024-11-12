@@ -7,7 +7,6 @@ import {
   Post,
   Put,
   Query,
-  Query,
   Req,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
