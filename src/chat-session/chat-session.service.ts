@@ -16,12 +16,18 @@ export class ChatSessionService {
   constructor(
     @InjectRepository(ChatSessionEntity)
     private readonly chatSessionRepository: Repository<ChatSessionEntity>,
+<<<<<<< HEAD:src/chat-session/chat-session.service.ts
     @Inject(CategoryService)
+=======
+    @InjectRepository(AccountEntity)
+    private readonly accountRepository: Repository<AccountEntity>,
+
+>>>>>>> feat/func:src/chat-sessions/chat-sessions.service.ts
     private readonly categoryService: CategoryService,
   ) {}
 
-  async getChatSession(status: Status) {
-    const chatSession = await this.chatSessionRepository.findOne({
+  async getStatus(status: Status) {
+    const chatSession = await this.chatSessionRepository.find({
       where: {
         status: status,
         deletedAt: IsNull(),
@@ -45,11 +51,58 @@ export class ChatSessionService {
     if (!chatSession) {
       throw new HttpException('SESSION_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-
     return chatSession;
   }
 
+<<<<<<< HEAD:src/chat-session/chat-session.service.ts
   async checkChatSession(chatSessionId: number): Promise<ChatSessionEntity> {
+=======
+  async getChatSessions(
+    chatSessionId: number,
+    accountId: number | undefined,
+    pagination: PaginationModel,
+    q: string | undefined,
+  ) {
+    const query = this.chatSessionRepository.createQueryBuilder('chatSession');
+
+    if (chatSessionId) {
+      query.andWhere('chatSession.chatSessionId = :chatSessionId', {
+        chatSessionId,
+      });
+    }
+    if (accountId) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('chatSession.userAccountId = :accountId', {
+            accountId,
+          }).orWhere('chatSession.assignedId = :accountId', { accountId });
+        }),
+      );
+    }
+    if (q) {
+      query.andWhere('chatSession.status LIKE :q', { q: `%${q}%` });
+    }
+
+    const [data, total] = await query
+      .skip((pagination.page - 1) * pagination.limit)
+      .take(pagination.limit)
+      .getManyAndCount();
+
+    const chatSessions = data.map(
+      (chatSession) =>
+        new ChatSessionModel(
+          chatSession.id,
+          chatSession.userAccountId,
+          chatSession.assignedId!,
+          chatSession.status,
+          chatSession.categoryId!,
+        ),
+    );
+    return new PageListModel<ChatSessionModel>(total, chatSessions);
+  }
+
+  async checkChatSession(chatSessionId: number): Promise<ChatSessionsEntity> {
+>>>>>>> feat/func:src/chat-sessions/chat-sessions.service.ts
     const chatSession = await this.getChatSessionById(chatSessionId);
 
     if (chatSession.assignedId !== null) {
@@ -107,6 +160,8 @@ export class ChatSessionService {
     await this.chatSessionRepository.update(chatSessionId, {
       status: Status.InProgress,
       assignedId: assignedId,
+      updateAt: new Date(),
+      updateBy: assignedId,
     });
 
     return this.getChatSessionById(chatSessionId);
@@ -116,9 +171,12 @@ export class ChatSessionService {
     chatSessionId: number,
     categoryId: number,
     assignedId: number,
+    categoryName: string,
     role: Role,
   ): Promise<ChatSessionEntity> {
     const chatSession = await this.getChatSessionById(chatSessionId);
+    const category =
+      await this.categoryService.findCategoryByName(categoryName);
 
     if (role === Role.Admin) {
       chatSession.categoryId = categoryId;
@@ -187,7 +245,11 @@ export class ChatSessionService {
         new ChatSessionModel(
           chatSession.id,
           chatSession.userAccountId,
+<<<<<<< HEAD:src/chat-session/chat-session.service.ts
           chatSession.assignedId!,
+=======
+          chatSession.assignedId!, //cần kiểm tra chắc chắn phải có assignedId trước khi vào hàm.
+>>>>>>> feat/func:src/chat-sessions/chat-sessions.service.ts
           chatSession.status,
           chatSession.categoryId!,
         ),

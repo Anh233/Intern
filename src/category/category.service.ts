@@ -40,14 +40,16 @@ export class CategoryService {
     categoryId: number | undefined,
     pagination: PaginationModel,
     q: string | undefined,
-  ): Promise<PageListModel<CategoryModel>> {
+  ) {
     const query = this.categoryRepository.createQueryBuilder('category');
     if (categoryId) {
       query.andWhere('category.categoryId = :categoryId', { categoryId });
     }
+
     if (q) {
       query.andWhere('category.name LIKE :q', { q: `%${q}%` });
     }
+
     const [data, total] = await query
       .skip((pagination.page - 1) * pagination.limit)
       .take(pagination.limit)
@@ -113,5 +115,19 @@ export class CategoryService {
       },
     );
     return true;
+  }
+
+  async findCategoryByName(name: string) {
+    let category = await this.categoryRepository.findOne({
+      where: {
+        name: name,
+        deletedAt: IsNull(),
+      },
+    });
+    if (!category) {
+      category = this.categoryRepository.create({ name: name });
+      category = await this.categoryRepository.save(category);
+    }
+    return category;
   }
 }

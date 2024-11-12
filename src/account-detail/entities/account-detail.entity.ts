@@ -28,7 +28,7 @@ export class AccountDetailEntity {
   gender?: number;
 
   @Column({ name: 'date_of_birth' })
-  dateOfBirth!: string;
+  dateOfBirth!: String;
 
   @Column()
   address!: string;

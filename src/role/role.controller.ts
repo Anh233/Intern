@@ -13,6 +13,7 @@ import { RoleService } from './role.service';
 import { RequestModel } from 'src/auth/models/request.model';
 import {
   CreateRoleDto,
+  GetRoleIdParamDto,
   GetRolesQueryDto,
   UpdateRoleDto,
 } from './dtos/role.dto';
@@ -51,6 +52,7 @@ export class RoleController {
     @Req() request: RequestModel,
   ) {
     const accountId = request.user.accountId;
+
     return await this.roleService.updateRole(
       roleId,
       body.name,

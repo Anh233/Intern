@@ -13,6 +13,7 @@ import { AccountDetailEntity } from './entities/account-detail.entity';
 import {
   AddAccountDetailBodyDto,
   GetAccountDetailsQueryDto,
+  GetAccountIdParamDto,
   UpdateAccountDetailBodyDto,
 } from './dtos/account-detail.dto';
 import { PaginationModel } from 'src/utils/models/pagination.model';
@@ -31,8 +32,10 @@ export class AccountDetailController {
 
   @Get(':accountId/detail')
   async getAccountDetail(
-    @Param('accountId') accountId: number, //TO DO
+    @Param() params: GetAccountIdParamDto,
   ): Promise<AccountDetailEntity> {
+    const accountId = params.accountId;
+
     return this.accountDetailService.getAccountDetail(accountId);
   }
 
@@ -47,11 +50,14 @@ export class AccountDetailController {
     );
   }
 
-  @Put(':accountId/detail/update')
-  async updateAccountDetail(
+  @Post(':accountId/detail/add')
+  async addAccountDetail(
     @Req() req: RequestModel,
     @Param() params: UpdateAccountDetailBodyDto,
   ) {
+    const accountId = params.accountId;
+
+    const account = await this.accountService.getAccount(accountId, true);
     const reqAccountId = req.user.accountId;
     const account = await this.accountService.getAccount(
       params.accountId,
@@ -68,8 +74,8 @@ export class AccountDetailController {
     );
   }
 
-  @Post(':accountId/detail')
-  async addAccountDetail(
+  @Put(':accountId/detail/update')
+  async updateAccountDetail(
     @Req() req: RequestModel,
     @Param() params: AddAccountDetailBodyDto,
   ) {
@@ -95,6 +101,8 @@ export class AccountDetailController {
     @Req() request: RequestModel,
     @Param('accountId') accountId: number,
   ) {
+    const accountId = params.accountId;
+
     const reqAccountId = request.user.accountId;
     const accountDetail =
       await this.accountDetailService.getAccountDetail(accountId);

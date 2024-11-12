@@ -21,6 +21,7 @@ export class MessagesController {
       chatSessionId,
       accountId,
       body.message,
+      body.imageUrl,
     );
   }
 

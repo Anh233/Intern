@@ -46,7 +46,7 @@ export class CategoryController {
 
   @Post(':accountId/create')
   async createCategory(
-    @Param('accountId') accountId: number,
+    @Param() params: GetAccountIdParamDto,
     @Body() body: CreateCategoryDto,
   ) {
     await this.accountService.getAccount(accountId, true);
