@@ -12,7 +12,7 @@ import { MessageService } from './messages.service';
 import { MessagesService } from './messages.service';
 import { ChatSessionsModule } from 'src/chat-session/chat-session.module';
 import { AccountModel } from 'src/account/models/account.model';
-import { ChatSessionsEntity } from 'src/chat-session/entities/chat-session.entity';
+import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
 import { AccountEntity } from 'src/account/entities/account.entity';
 import { AccountService } from 'src/account/account.service';
 >>>>>>> feat/func
@@ -21,6 +21,7 @@ import { AccountService } from 'src/account/account.service';
   imports: [
     TypeOrmModule.forFeature([
       MessagesEntity,
+      ChatSessionEntity,
       ChatSessionEntity,
       AccountEntity,
     ]),

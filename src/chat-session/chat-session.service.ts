@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatSessionEntity } from './entities/chat-session.entity';
 import { Brackets, IsNull, Repository } from 'typeorm';
@@ -9,6 +10,7 @@ import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
 import { ChatSessionModel } from './models/chat-session.model';
 import { CategoryService } from 'src/category/category.service';
+import { AccountService } from 'src/account/account.service';
 import { AccountService } from 'src/account/account.service';
 
 @Injectable()
