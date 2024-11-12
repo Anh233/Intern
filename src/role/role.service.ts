@@ -19,6 +19,11 @@ export class RoleService {
     detail: string,
     accountId: number,
   ): Promise<RoleEntity> {
+  async createRole(
+    name: string,
+    detail: string,
+    accountId: number,
+  ): Promise<RoleEntity> {
     const newRole = new RoleEntity();
     newRole.name = name;
     newRole.detail = detail;
