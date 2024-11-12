@@ -1,21 +1,31 @@
-import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
   DeleteDateColumn,
-  OneToMany,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('category')
-export class CategoryEntity {
-  @PrimaryGeneratedColumn({ name: 'id' })
-  categoryId!: number;
+@Entity('chat_sessions')
+export class ChatSessionsEntity {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column({ name: 'customer_id' })
+  customerId!: number;
+
+  @Column({ name: 'assigned_id', nullable: true })
+  assignedId?: number;
 
   @Column()
-  name!: string;
+  status!: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  category?: string;
+
+  @Column({ name: 'is_resolved' })
+  isResolved!: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;
@@ -37,7 +47,4 @@ export class CategoryEntity {
 
   @Column({ name: 'deleted_by' })
   deletedBy?: number;
-
-  @OneToMany(() => ChatSessionEntity, (chatSession) => chatSession.categoryId)
-  chatSession!: ChatSessionEntity[];
 }
