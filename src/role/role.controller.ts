@@ -7,7 +7,6 @@ import {
   Post,
   Put,
   Query,
-  Query,
   Req,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
@@ -21,7 +20,6 @@ import {
 import { RoleModel } from './models/role.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { throwError } from 'src/utils/function';
-import { throwError } from 'src/utils/function';
 
 @Controller('api/v1/role')
 export class RoleController {
@@ -29,11 +27,7 @@ export class RoleController {
 
   @Post('create')
   async createRole(@Req() request: RequestModel, @Body() body: CreateRoleDto) {
-  async createRole(@Req() request: RequestModel, @Body() body: CreateRoleDto) {
     const accountId = request.user.accountId;
-    if (!body.name || !body.detail) {
-      throwError('Name and detail are required');
-    }
     if (!body.name || !body.detail) {
       throwError('Name and detail are required');
     }
@@ -45,7 +39,6 @@ export class RoleController {
     @Query() query: GetRolesQueryDto,
   ): Promise<{ data: RoleModel[]; total: number }> {
     return await this.roleService.getRoles(
-      query.roleId,
       query.roleId,
       new PaginationModel(query.page, query.limit),
       query.q,
@@ -63,15 +56,12 @@ export class RoleController {
 
     return await this.roleService.updateRole(
       roleId,
-      roleId,
       body.name,
       accountId,
-      body.detail,
       body.detail,
     );
   }
 
-  @Delete(':roleId/delete')
   @Delete(':roleId/delete')
   async deleteRole(
     @Req() request: RequestModel,

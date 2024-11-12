@@ -28,7 +28,7 @@ export class AccountTokenService {
     });
 
     if (accountToken) {
-      accountToken.tokenkey = tokenKey; // Sử dụng cùng một mã hóa UUID v4
+      accountToken.tokenkey = tokenKey;
       accountToken.isactive = 1;
       accountToken.updatedby = createdby;
       accountToken.updatedat = new Date();

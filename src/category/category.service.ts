@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CategoryEntity } from './entities/category.entity';
 import { IsNull, Repository } from 'typeorm';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
 import { CategoryModel } from './models/category.model';
+import { CategoryEntity } from './entities/category.entity';
 
 @Injectable()
 export class CategoryService {
@@ -19,7 +19,6 @@ export class CategoryService {
 
   async getCategories(
     categoryId: number | undefined,
-    categoryId: number | undefined,
     pagination: PaginationModel,
     q: string | undefined,
   ) {
@@ -28,30 +27,29 @@ export class CategoryService {
     console.log('categoryId', categoryId);
     if (categoryId) {
       query.andWhere('category.categoryId = :categoryId', { categoryId });
-    if (categoryId) {
-      query.andWhere('category.categoryId = :categoryId', { categoryId });
+      if (categoryId) {
+        query.andWhere('category.categoryId = :categoryId', { categoryId });
+      }
+
+      if (q) {
+        query.andWhere('category.name LIKE :q', { q: `%${q}%` });
+      }
+
+      const [data, total] = await query
+        .skip((pagination.page - 1) * pagination.limit)
+        .take(pagination.limit)
+        .getManyAndCount();
+
+      const categories = data.map((category) => {
+        return new CategoryModel(category.categoryId, category.name);
+      });
+      return new PageListModel<CategoryModel>(total, categories);
     }
-
-    if (q) {
-      query.andWhere('category.name LIKE :q', { q: `%${q}%` });
-    }
-
-    const [data, total] = await query
-      .skip((pagination.page - 1) * pagination.limit)
-      .take(pagination.limit)
-      .getManyAndCount();
-
-    const categories = data.map((category) => {
-      return new CategoryModel(category.categoryId, category.name);
-      return new CategoryModel(category.categoryId, category.name);
-    });
-    return new PageListModel<CategoryModel>(total, categories);
   }
 
   async getCategoryById(categoryId: number): Promise<CategoryEntity> {
     const category = await this.categoryRepository.findOne({
       where: {
-        categoryId: categoryId,
         categoryId: categoryId,
         deletedAt: IsNull(),
       },
@@ -73,13 +71,11 @@ export class CategoryService {
 
   async updateCategory(
     categoryId: number,
-    categoryId: number,
     name: string,
     accountId: number,
   ): Promise<CategoryEntity> {
     await this.categoryRepository.update(
       {
-        categoryId: categoryId,
         categoryId: categoryId,
         deletedAt: IsNull(),
       },
@@ -90,7 +86,6 @@ export class CategoryService {
       },
     );
     return await this.getCategoryById(categoryId);
-    return await this.getCategoryById(categoryId);
   }
 
   async deleteCategory(
@@ -98,13 +93,7 @@ export class CategoryService {
     accountId: number,
   ): Promise<boolean> {
     await this.getCategoryById(categoryId);
-  async deleteCategory(
-    categoryId: number,
-    accountId: number,
-  ): Promise<boolean> {
-    await this.getCategoryById(categoryId);
     await this.categoryRepository.update(
-      { categoryId: categoryId, deletedAt: IsNull() },
       { categoryId: categoryId, deletedAt: IsNull() },
       {
         deletedAt: new Date(),

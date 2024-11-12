@@ -7,9 +7,7 @@ import { Role } from 'src/account/enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
 import { ChatSessionModel } from './models/chat-session.model';
-import { CategoryService } from 'src/category/category.service';
-import { AccountService } from 'src/account/account.service';
-import { AccountService } from 'src/account/account.service';
+import { CategoryService } from 'src/category/category.service';;
 
 @Injectable()
 export class ChatSessionService {
@@ -94,53 +92,6 @@ export class ChatSessionService {
   }
 
   async checkChatSession(chatSessionId: number): Promise<ChatSessionEntity> {
-=======
-  async getChatSessions(
-    chatSessionId: number,
-    accountId: number | undefined,
-    pagination: PaginationModel,
-    q: string | undefined,
-  ) {
-    const query = this.chatSessionRepository.createQueryBuilder('chatSession');
-
-    if (chatSessionId) {
-      query.andWhere('chatSession.chatSessionId = :chatSessionId', {
-        chatSessionId,
-      });
-    }
-    if (accountId) {
-      query.andWhere(
-        new Brackets((qb) => {
-          qb.where('chatSession.userAccountId = :accountId', {
-            accountId,
-          }).orWhere('chatSession.assignedId = :accountId', { accountId });
-        }),
-      );
-    }
-    if (q) {
-      query.andWhere('chatSession.status LIKE :q', { q: `%${q}%` });
-    }
-
-    const [data, total] = await query
-      .skip((pagination.page - 1) * pagination.limit)
-      .take(pagination.limit)
-      .getManyAndCount();
-
-    const chatSessions = data.map(
-      (chatSession) =>
-        new ChatSessionModel(
-          chatSession.id,
-          chatSession.userAccountId,
-          chatSession.assignedId!,
-          chatSession.status,
-          chatSession.categoryId!,
-        ),
-    );
-    return new PageListModel<ChatSessionModel>(total, chatSessions);
-  }
-
-  async checkChatSession(chatSessionId: number): Promise<ChatSessionsEntity> {
->>>>>>> feat/func:src/chat-sessions/chat-sessions.service.ts
     const chatSession = await this.getChatSessionById(chatSessionId);
 
     if (chatSession.assignedId !== null) {

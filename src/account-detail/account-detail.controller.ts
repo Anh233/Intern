@@ -23,7 +23,6 @@ import { Role } from 'src/account/enums/role.enum';
 import { RequestModel } from 'src/auth/models/request.model';
 import { AccountService } from 'src/account/account.service';
 import { AccountModel } from 'src/account/models/account.model';
-import { AccountModel } from 'src/account/models/account.model';
 
 @Controller('api/v1/account')
 export class AccountDetailController {
