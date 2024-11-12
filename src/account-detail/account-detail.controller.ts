@@ -17,12 +17,12 @@ import {
   GetAccountIdParamDto,
   UpdateAccountDetailBodyDto,
 } from './dtos/account-detail.dto';
-import { AccountDetailModel } from './models/account-detail.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { Roles } from 'src/account/decorators/roles.decorator';
 import { Role } from 'src/account/enums/role.enum';
 import { RequestModel } from 'src/auth/models/request.model';
 import { AccountService } from 'src/account/account.service';
+import { AccountModel } from 'src/account/models/account.model';
 
 @Controller('api/v1/account')
 export class AccountDetailController {
@@ -60,10 +60,6 @@ export class AccountDetailController {
 
     const account = await this.accountService.getAccount(accountId, true);
     const reqAccountId = req.user.accountId;
-    const account = await this.accountService.getAccount(
-      params.accountId,
-      true,
-    );
     return await this.accountDetailService.updateAccountDetail(
       account as AccountModel,
       params.firstName,
@@ -100,7 +96,7 @@ export class AccountDetailController {
   @Delete(':accountId/detail/delete')
   async deleteAccountDetail(
     @Req() request: RequestModel,
-    @Param('accountId') accountId: number,
+    @Param() params: GetAccountIdParamDto,
   ) {
     const accountId = params.accountId;
 

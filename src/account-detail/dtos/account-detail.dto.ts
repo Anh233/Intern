@@ -53,6 +53,7 @@ export class AccountDetailDto {
 }
 
 export class AddAccountDetailBodyDto extends PickType(AccountDetailDto, [
+  'accountId',
   'firstName',
   'lastName',
   'gender',
@@ -62,13 +63,18 @@ export class AddAccountDetailBodyDto extends PickType(AccountDetailDto, [
 
 export class UpdateAccountDetailBodyDto extends PartialType(
   PickType(AccountDetailDto, [
+    'accountId',
     'firstName',
     'lastName',
     'gender',
     'address',
     'dateOfBirth',
   ]),
-) {}
+) {
+  @IsNumber()
+  @Type(() => Number)
+  'accountId'!: number;
+}
 
 export class GetAccountDetailsQueryDto extends PartialType(
   PickType(AccountDetailDto, ['q', 'accountId', 'page', 'limit', 'gender']),

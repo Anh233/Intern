@@ -1,18 +1,14 @@
 import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { ChatSessionService } from './chat-session.service';
-import {
-  AcceptChatSessionBodyDto,
-  ChatSessionDto,
-  CreateChatSessionsBodyDto,
-  GetChatSessionIdParamDto,
-  GetChatSessionsQueryDto,
-  UpdateChatSessionsBodyDto,
-} from './dtos/chat-sessions.dto';
-import { Status } from './enums/status.enum';
 import { Roles } from 'src/account/decorators/roles.decorator';
 import { Role } from 'src/account/enums/role.enum';
 import { RequestModel } from 'src/auth/models/request.model';
-import { PaginationModel } from 'src/utils/models/pagination.model';
+import {
+  AcceptChatSessionBodyDto,
+  CreateChatSessionsBodyDto,
+  UpdateChatSessionsBodyDto,
+} from './dtos/chat-session.dto';
+import { Status } from './enums/status.enum';
 
 @Controller('api/v1/chat-session')
 export class ChatSessionsController {
@@ -24,24 +20,21 @@ export class ChatSessionsController {
     return await this.chatSessionsService.createChatSession(accountId);
   }
 
-  @Get(':status/detail')
+  @Get(':status')
   async findChatSessions(@Param('status') status: Status) {
-    return await this.chatSessionsService.getStatus(status);
+    return await this.chatSessionsService.getChatSession(status);
   }
 
   @Roles(Role.CustomerService, Role.Admin)
   @Put(':chatSessionId/accept')
   async acceptChatSession(
-    @Param() params: GetChatSessionIdParamDto,
+    @Param('chatSessionId') chatSessionId: number,
     @Body() body: AcceptChatSessionBodyDto,
     @Req() req: RequestModel,
   ) {
-    const chatSessionId = params.chatSessionId;
     const role = req.user.roleId;
-
     return this.chatSessionsService.acceptChatSession(
       chatSessionId,
-      body.category,
       body.assignedId,
       role,
     );
@@ -50,33 +43,16 @@ export class ChatSessionsController {
   @Roles(Role.CustomerService, Role.Admin)
   @Put(':chatSessionId/update')
   async updateChatSession(
-    @Param() params: GetChatSessionIdParamDto,
+    @Param('chatSessionId') chatSessionId: number,
     @Body() body: UpdateChatSessionsBodyDto,
     @Req() req: RequestModel,
   ) {
-    const chatSessionId = params.chatSessionId;
     const role = req.user.roleId;
-
     return this.chatSessionsService.updateChatSession(
       chatSessionId,
+      body.category,
       body.assignedId,
-      body.categoryName,
       role,
-    );
-  }
-
-  @Roles(Role.CustomerService, Role.Admin)
-  @Put(':chatSessionId/resolve')
-  async resolveChatSession(
-    @Param() params: GetChatSessionIdParamDto,
-    @Req() req: RequestModel,
-  ) {
-    const chatSessionId = params.chatSessionId;
-    const accountId = req.user.accountId;
-
-    return this.chatSessionsService.resolveChatSession(
-      chatSessionId,
-      accountId,
     );
   }
 }

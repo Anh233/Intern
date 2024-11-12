@@ -8,18 +8,6 @@ import { PageListModel } from 'src/utils/models/page-list.model';
 
 @Injectable()
 export class RoleService {
-  getRoles(
-    id: number | undefined,
-    arg1: PaginationModel,
-    q: string | undefined,
-  ):
-    | { data: import('./models/role.model').RoleModel[]; total: number }
-    | PromiseLike<{
-        data: import('./models/role.model').RoleModel[];
-        total: number;
-      }> {
-    throw new Error('Method not implemented.');
-  }
   constructor(
     @InjectRepository(RoleEntity)
     private readonly roleRepository: Repository<RoleEntity>,

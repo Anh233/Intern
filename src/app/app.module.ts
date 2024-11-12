@@ -11,8 +11,8 @@ import app from 'src/config/app';
 import { AccountTokenModule } from 'src/account-token/account-token.module';
 import { RolesGuard } from 'src/account/guards/roles.guard';
 import { PostModule } from 'src/post/post.module';
-import { ChatSessionsModule } from 'src/chat-sessions/chat-sessions.module';
-import { MessagesModule } from 'src/messages/messages.module';
+import { ChatSessionsModule } from 'src/chat-session/chat-session.module';
+import { MessagesModule } from 'src/messages/message.module';
 import { AccountDetailModule } from 'src/account-detail/account-detail.module';
 import { RoleModule } from 'src/role/role.module';
 

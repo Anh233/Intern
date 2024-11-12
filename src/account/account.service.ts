@@ -27,7 +27,7 @@ export class AccountService {
     }
 
     if (isHiddenPassword) {
-      //TO DO
+      account.password = undefined;
     }
 
     return account;
@@ -93,7 +93,7 @@ export class AccountService {
       },
     );
 
-    return await this.getAccount(account.id);
+    return await this.getAccount(account.id, true);
   }
 
   async deleteAccount(

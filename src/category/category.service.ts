@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from './entities/category.entity';
 import { IsNull, Repository } from 'typeorm';
 import { PaginationModel } from 'src/utils/models/pagination.model';
-import { GetCategoriesQueryDto } from './dtos/category.dto';
 import { PageListModel } from 'src/utils/models/page-list.model';
 import { CategoryModel } from './models/category.model';
 
@@ -38,7 +37,7 @@ export class CategoryService {
   }
 
   async getCategories(
-    id: number | undefined,
+    categoryId: number | undefined,
     pagination: PaginationModel,
     q: string | undefined,
   ) {

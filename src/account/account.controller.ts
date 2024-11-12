@@ -57,7 +57,7 @@ export class AccountController {
     @Body() body: UpdateAccountBodyDto,
   ) {
     const accountId = request.user.accountId;
-    const account = await this.accountService.getAccount(accountId);
+    const account = await this.accountService.getAccount(accountId, true);
     return await this.accountService.updateAccount(
       account,
       body.password,

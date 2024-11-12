@@ -39,7 +39,7 @@ export class RoleController {
     @Query() query: GetRolesQueryDto,
   ): Promise<{ data: RoleModel[]; total: number }> {
     return await this.roleService.getRoles(
-      query.id,
+      query.roleId,
       new PaginationModel(query.page, query.limit),
       query.q,
     );
@@ -47,26 +47,29 @@ export class RoleController {
 
   @Put(':roleId/update')
   async updateRole(
-    @Param('roleId') roleId: number, //chưa sửa được sang dto
+    @Param() params: GetRoleIdParamDto,
     @Body() body: UpdateRoleDto,
     @Req() request: RequestModel,
   ) {
     const accountId = request.user.accountId;
+    const roleId = params.roleId;
 
     return await this.roleService.updateRole(
-      id,
+      roleId,
       body.name,
       accountId,
-      body.detail, //To do
+      body.detail,
     );
   }
 
-  @Delete(':id/delete') // TO DO
+  @Delete(':id/delete')
   async deleteRole(
     @Req() request: RequestModel,
-    @Param('roleId') roleId: number,
-  ): Promise<boolean> {
+    @Param() params: GetRoleIdParamDto,
+  ) {
+    const roleId = params.roleId;
     const accountId = request.user.accountId;
+    
     return await this.roleService.deleteRole(roleId, accountId);
   }
 }

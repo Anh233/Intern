@@ -10,9 +10,11 @@ import {
   Req,
 } from '@nestjs/common';
 import {
-  CreateCategoryDto,
+  CreateCategoryBodyDto,
   GetCategoriesQueryDto,
+  GetAccountIdParamDto,
   UpdateCategoryBodyDto,
+  GetCategoryIdParamDto,
 } from './dtos/category.dto';
 import { RequestModel } from 'src/auth/models/request.model';
 import { CategoryService } from './category.service';
@@ -26,8 +28,9 @@ export class CategoryController {
     private readonly accountService: AccountService,
   ) {}
 
-  @Get(':categoryId')
-  async getCategoryById(@Param('categoryId') categoryId: number) {
+  @Get(':categoryId/detail')
+  async getCategoryById(@Param() params: GetCategoryIdParamDto) {
+    const categoryId = params.categoryId;
     return await this.categoryService.getCategoryById(categoryId);
   }
 
@@ -47,30 +50,40 @@ export class CategoryController {
   @Post(':accountId/create')
   async createCategory(
     @Param() params: GetAccountIdParamDto,
-    @Body() body: CreateCategoryDto,
+    @Body() body: CreateCategoryBodyDto,
   ) {
+    const accountId = params.accountId;
+
     await this.accountService.getAccount(accountId, true);
     return await this.categoryService.createCategory(accountId, body.name);
   }
 
   @Put(':id/update')
   async updateCategory(
-    @Param('categoryId') categoryId: number,
+    @Param() params: GetCategoryIdParamDto,
     @Body() body: UpdateCategoryBodyDto,
     @Req() req: RequestModel,
   ) {
+    const categoryId = params.categoryId;
+
     await this.categoryService.getCategoryById(categoryId);
     const accountId = req.user.accountId;
-    return await this.categoryService.updateCategory(id, body.name, accountId);
+    return await this.categoryService.updateCategory(
+      categoryId,
+      body.name,
+      accountId,
+    );
   }
 
   @Delete(':categoryId/delete')
   async deleteCategory(
-    @Param('categoryId') categoryId: number,
+    @Param() params: GetCategoryIdParamDto,
     @Req() req: RequestModel,
   ) {
+    const categoryId = params.categoryId;
+
     await this.categoryService.getCategoryById(categoryId);
     const accountId = req.user.accountId;
-    return await this.categoryService.deleteCategory(id, accountId);
+    return await this.categoryService.deleteCategory(categoryId, accountId);
   }
 }
