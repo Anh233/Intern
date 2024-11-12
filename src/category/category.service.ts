@@ -17,25 +17,6 @@ export class CategoryService {
     return 1;
   }
 
-  async getOrCreateCategory(
-    accountId: number,
-    categoryId: number,
-    name: string,
-  ): Promise<CategoryEntity> {
-    let category = await this.getCategoryById(categoryId);
-
-    if (!category) {
-      category = this.categoryRepository.create({
-        name,
-        createdAt: new Date(),
-        createdBy: accountId,
-      });
-      category = await this.categoryRepository.save(category);
-    }
-
-    return category;
-  }
-
   async getCategories(
     categoryId: number | undefined,
     categoryId: number | undefined,
@@ -43,6 +24,8 @@ export class CategoryService {
     q: string | undefined,
   ) {
     const query = this.categoryRepository.createQueryBuilder('category');
+
+    console.log('categoryId', categoryId);
     if (categoryId) {
       query.andWhere('category.categoryId = :categoryId', { categoryId });
     if (categoryId) {

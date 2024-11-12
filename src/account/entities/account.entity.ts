@@ -1,11 +1,9 @@
 import { AccountTokenEntity } from 'src/account-token/entities/account-token.entity';
-import { RoleEntity } from 'src/role/entities/role.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -28,7 +26,6 @@ export class AccountEntity {
   @Column({ name: 'phone_number' })
   phoneNumber?: string;
 
-  @ManyToOne(() => RoleEntity, (role) => role.roleId)
   @Column({ name: 'role_id' })
   roleId!: number;
 

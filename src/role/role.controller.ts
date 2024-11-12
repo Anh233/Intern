@@ -57,9 +57,8 @@ export class RoleController {
     @Body() body: UpdateRoleDto,
     @Req() request: RequestModel,
   ) {
-  ) {
-    const accountId = request.user.accountId;
     const roleId = params.roleId;
+    const accountId = request.user.accountId;
 
     return await this.roleService.updateRole(
       roleId,
@@ -79,7 +78,7 @@ export class RoleController {
   ) {
     const roleId = params.roleId;
     const accountId = request.user.accountId;
-    
+
     return await this.roleService.deleteRole(roleId, accountId);
   }
 }

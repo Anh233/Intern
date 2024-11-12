@@ -10,9 +10,10 @@ import {
   Req,
 } from '@nestjs/common';
 import {
-  CreateCategoryBodyDto,
-  GetCategoriesQueryDto,
   GetAccountIdParamDto,
+  CreateCategoryDto,
+  GetCategoriesQueryDto,
+  GetCategoryIdParamDto,
   UpdateCategoryBodyDto,
   GetCategoryIdParamDto,
 } from './dtos/category.dto';
@@ -30,18 +31,14 @@ export class CategoryController {
 
   @Get(':categoryId/detail')
   async getCategoryById(@Param() params: GetCategoryIdParamDto) {
-    const categoryId = params.categoryId;
-    return await this.categoryService.getCategoryById(categoryId);
+    return await this.categoryService.getCategoryById(params.categoryId);
   }
 
   @Get('all')
-  async getCategories(
-    @Query() query: GetCategoriesQueryDto,
-    @Req() req: RequestModel,
-  ) {
-    const accountId = req.user.accountId;
+  async getCategories(@Query() query: GetCategoriesQueryDto) {
+    const categoryId = query.categoryId;
     return await this.categoryService.getCategories(
-      accountId,
+      categoryId,
       new PaginationModel(query.page, query.limit),
       query.q,
     );
@@ -50,10 +47,9 @@ export class CategoryController {
   @Post(':accountId/create')
   async createCategory(
     @Param() params: GetAccountIdParamDto,
-    @Body() body: CreateCategoryBodyDto,
+    @Body() body: CreateCategoryDto,
   ) {
     const accountId = params.accountId;
-
     await this.accountService.getAccount(accountId, true);
     return await this.categoryService.createCategory(accountId, body.name);
   }
@@ -66,7 +62,6 @@ export class CategoryController {
     @Req() req: RequestModel,
   ) {
     const categoryId = params.categoryId;
-
     await this.categoryService.getCategoryById(categoryId);
     const accountId = req.user.accountId;
     return await this.categoryService.updateCategory(
@@ -81,7 +76,7 @@ export class CategoryController {
     );
   }
 
-  @Delete(':categoryId/delete')
+  @Delete(':categoryId/delete') //sau bỏ thêm chatSessionId
   async deleteCategory(
     @Param() params: GetCategoryIdParamDto,
     @Req() req: RequestModel,
