@@ -16,13 +16,9 @@ export class ChatSessionService {
   constructor(
     @InjectRepository(ChatSessionEntity)
     private readonly chatSessionRepository: Repository<ChatSessionEntity>,
-<<<<<<< HEAD:src/chat-session/chat-session.service.ts
-    @Inject(CategoryService)
-=======
     @InjectRepository(AccountEntity)
     private readonly accountRepository: Repository<AccountEntity>,
 
->>>>>>> feat/func:src/chat-sessions/chat-sessions.service.ts
     private readonly categoryService: CategoryService,
   ) {}
 
@@ -245,11 +241,7 @@ export class ChatSessionService {
         new ChatSessionModel(
           chatSession.id,
           chatSession.userAccountId,
-<<<<<<< HEAD:src/chat-session/chat-session.service.ts
-          chatSession.assignedId!,
-=======
           chatSession.assignedId!, //cần kiểm tra chắc chắn phải có assignedId trước khi vào hàm.
->>>>>>> feat/func:src/chat-sessions/chat-sessions.service.ts
           chatSession.status,
           chatSession.categoryId!,
         ),
