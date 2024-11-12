@@ -10,12 +10,11 @@ import {
   Req,
 } from '@nestjs/common';
 import {
+  CreateCategoryBodyDto,
   GetAccountIdParamDto,
-  CreateCategoryDto,
   GetCategoriesQueryDto,
   GetCategoryIdParamDto,
   UpdateCategoryBodyDto,
-  GetCategoryIdParamDto,
 } from './dtos/category.dto';
 import { RequestModel } from 'src/auth/models/request.model';
 import { CategoryService } from './category.service';
@@ -47,14 +46,13 @@ export class CategoryController {
   @Post(':accountId/create')
   async createCategory(
     @Param() params: GetAccountIdParamDto,
-    @Body() body: CreateCategoryDto,
+    @Body() body: CreateCategoryBodyDto,
   ) {
     const accountId = params.accountId;
     await this.accountService.getAccount(accountId, true);
     return await this.categoryService.createCategory(accountId, body.name);
   }
 
-  @Put(':categoryId/update')
   @Put(':categoryId/update')
   async updateCategory(
     @Param() params: GetCategoryIdParamDto,
@@ -64,11 +62,6 @@ export class CategoryController {
     const categoryId = params.categoryId;
     await this.categoryService.getCategoryById(categoryId);
     const accountId = req.user.accountId;
-    return await this.categoryService.updateCategory(
-      categoryId,
-      body.name,
-      accountId,
-    );
     return await this.categoryService.updateCategory(
       categoryId,
       body.name,
@@ -86,7 +79,5 @@ export class CategoryController {
     await this.categoryService.getCategoryById(categoryId);
     const accountId = req.user.accountId;
     return await this.categoryService.deleteCategory(categoryId, accountId);
-    return await this.categoryService.deleteCategory(categoryId, accountId);
   }
 }
-

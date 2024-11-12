@@ -6,7 +6,6 @@ export class CategoryDto {
   @Type(() => Number)
   @IsNumber()
   categoryId!: number;
-  categoryId!: number;
 
   @MinLength(3)
   @MaxLength(30)
@@ -23,10 +22,6 @@ export class CategoryDto {
   @Type(() => Number)
   @IsNumber()
   page!: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  accountId!: number;
 
   @Type(() => Number)
   @IsNumber()

@@ -9,15 +9,11 @@ import {
   Req,
 } from '@nestjs/common';
 import { ChatSessionService } from './chat-session.service';
-import { Roles } from 'src/account/decorators/roles.decorator';
-import { Role } from 'src/account/enums/role.enum';
-import { RequestModel } from 'src/auth/models/request.model';
 import {
   AcceptChatSessionBodyDto,
-  ChatSessionDto,
   CreateChatSessionsBodyDto,
   GetChatSessionIdParamDto,
-  GetChatSessionsQueryDto,
+  getChatSessions,
   UpdateChatSessionsBodyDto,
 } from './dtos/chat-session.dto';
 import { Status } from './enums/status.enum';
@@ -33,10 +29,11 @@ export class ChatSessionsController {
   @Get('all')
   async getAllChatSessions(
     @Req() req: RequestModel,
-    @Query() query: GetChatSessionsQueryDto,
+    @Param() params: GetChatSessionIdParamDto,
+    @Query() query: getChatSessions,
   ) {
     const accountId = req.user.accountId;
-    const chatSessionId = query.chatSessionId;
+    const chatSessionId = params.chatSessionId;
 
     return await this.chatSessionsService.getChatSessions(
       chatSessionId,
