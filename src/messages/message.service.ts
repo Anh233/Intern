@@ -8,10 +8,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessagesEntity } from './entities/messages.entity';
 import { IsNull, Like, Repository } from 'typeorm';
-import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
 import { Role } from 'src/account/enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { MessageModel } from './models/message.model';
+import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
+import { AccountEntity } from 'src/account/entities/account.entity';
 import { AccountService } from 'src/account/account.service';
 
 @Injectable()
@@ -21,8 +22,8 @@ export class MessageService {
     private readonly messageRepository: Repository<MessagesEntity>,
     @InjectRepository(ChatSessionEntity)
     private readonly chatSessionRepository: Repository<ChatSessionEntity>,
-    @InjectRepository(AccountEntity)
-    private readonly accountRepository: Repository<AccountEntity>,
+    @Inject(AccountService)
+    private readonly accountService: AccountService,
   ) {}
 
   async getChatSessionById(chatSessionId: number) {

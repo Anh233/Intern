@@ -1,5 +1,5 @@
 export class ChatSessionModel {
-  id: number;
+  chatSessionId: number;
   userAccountId: number;
   assignedId: number;
   status: string;
@@ -11,7 +11,7 @@ export class ChatSessionModel {
     status: string,
     categoryId: number,
   ) {
-    this.id = id;
+    this.chatSessionId = id;
     this.userAccountId = userAccountId;
     this.assignedId = assignedId;
     this.status = status;

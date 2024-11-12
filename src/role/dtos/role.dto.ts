@@ -30,14 +30,30 @@ export class RoleDto {
 export class CreateRoleDto extends IntersectionType(
   PickType(RoleDto, ['name']),
   PartialType(PickType(RoleDto, ['detail'])),
-) {}
+) {
+  @Type(() => String)
+  @IsString()
+  name!: string;
+
+  @Type(() => String)
+  @IsString()
+  detail!: string;
+}
 
 export class UpdateRoleDto extends PartialType(
   PickType(RoleDto, ['name', 'detail']),
-) {}
+) {
+  @Type(() => String)
+  @IsString()
+  name!: string;
+
+  @Type(() => String)
+  @IsString()
+  detail: string | undefined;
+}
 
 export class GetRolesQueryDto extends PartialType(
   PickType(RoleDto, ['q', 'roleId', 'page', 'limit']),
 ) {}
 
-export class GetRoleIdParamDto extends PickType(RoleDto, ['roleId']) {}
+export class GetRoleIdParamDto extends PickType(RoleDto, ['roleId']) { }

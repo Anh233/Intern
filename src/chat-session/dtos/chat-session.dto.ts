@@ -1,24 +1,33 @@
+import { PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 
-export class ChatSessionDto {
+export class ChatSessionsDto {
   @Type(() => Number)
   @IsNumber()
-  id!: number;
+  chatSessionId!: number;
 
   @Type(() => Number)
   @IsNumber()
-  userAccountId!: number;
+  customerId!: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  accountId!: number;
 
   @Type(() => Number)
   @IsNumber()
   assignedId!: number;
 
-  @Type(() => String)
+  @IsString()
   status!: string;
 
+  @IsNumber()
+  category!: number;
+
   @Type(() => Number)
-  categoryId!: number;
+  @IsNumber()
+  isResolved!: number;
 
   @IsString()
   q!: string;
@@ -30,8 +39,19 @@ export class ChatSessionDto {
   @Type(() => Number)
   @IsNumber()
   page!: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  accountId!: number;
 }
+
+export class CreateChatSessionsBodyDto extends PickType(ChatSessionsDto, [
+  'accountId',
+]) {}
+
+export class UpdateChatSessionsBodyDto extends PickType(ChatSessionsDto, [
+  'chatSessionId',
+  'category',
+  'assignedId',
+]) {}
+
+export class AcceptChatSessionBodyDto extends PickType(ChatSessionsDto, [
+  'chatSessionId',
+  'assignedId',
+]) {}

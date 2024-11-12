@@ -70,7 +70,11 @@ export class UpdateAccountDetailBodyDto extends PartialType(
     'address',
     'dateOfBirth',
   ]),
-) {}
+) {
+  @IsNumber()
+  @Type(() => Number)
+  'accountId'!: number;
+}
 
 export class GetAccountDetailsQueryDto extends PartialType(
   PickType(AccountDetailDto, ['q', 'accountId', 'page', 'limit', 'gender']),
