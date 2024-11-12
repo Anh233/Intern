@@ -17,37 +17,22 @@ export class CategoryService {
     return 1;
   }
 
-  async getOrCreateCategory(
-    accountId: number,
-    categoryId: number,
-    name: string,
-  ): Promise<CategoryEntity> {
-    let category = await this.getCategoryById(categoryId);
-
-    if (!category) {
-      category = this.categoryRepository.create({
-        name,
-        createdAt: new Date(),
-        createdBy: accountId,
-      });
-      category = await this.categoryRepository.save(category);
-    }
-
-    return category;
-  }
-
   async getCategories(
     categoryId: number | undefined,
     pagination: PaginationModel,
     q: string | undefined,
-  ): Promise<PageListModel<CategoryModel>> {
+  ) {
     const query = this.categoryRepository.createQueryBuilder('category');
+
+    console.log('categoryId', categoryId);
     if (categoryId) {
       query.andWhere('category.categoryId = :categoryId', { categoryId });
     }
+
     if (q) {
       query.andWhere('category.name LIKE :q', { q: `%${q}%` });
     }
+
     const [data, total] = await query
       .skip((pagination.page - 1) * pagination.limit)
       .take(pagination.limit)
@@ -113,5 +98,19 @@ export class CategoryService {
       },
     );
     return true;
+  }
+
+  async findCategoryByName(name: string) {
+    let category = await this.categoryRepository.findOne({
+      where: {
+        name: name,
+        deletedAt: IsNull(),
+      },
+    });
+    if (!category) {
+      category = this.categoryRepository.create({ name: name });
+      category = await this.categoryRepository.save(category);
+    }
+    return category;
   }
 }

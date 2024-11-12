@@ -1,9 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatSessionEntity } from './entities/chat-session.entity';
 import { Brackets, IsNull, Repository } from 'typeorm';
 import { Status } from './enums/status.enum';
-import { AccountEntity } from 'src/account/entities/account.entity';
 import { Role } from 'src/account/enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
@@ -15,14 +14,13 @@ export class ChatSessionService {
   constructor(
     @InjectRepository(ChatSessionEntity)
     private readonly chatSessionRepository: Repository<ChatSessionEntity>,
-    @InjectRepository(AccountEntity)
-    private readonly accountRepository: Repository<AccountEntity>,
 
+    @Inject(CategoryService)
     private readonly categoryService: CategoryService,
   ) {}
 
-  async getChatSession(status: Status) {
-    const chatSession = await this.chatSessionRepository.findOne({
+  async getStatus(status: Status) {
+    const chatSession = await this.chatSessionRepository.find({
       where: {
         status: status,
         deletedAt: IsNull(),
@@ -46,8 +44,51 @@ export class ChatSessionService {
     if (!chatSession) {
       throw new HttpException('SESSION_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-
     return chatSession;
+  }
+
+  async getChatSessions(
+    chatSessionId: number,
+    accountId: number | undefined,
+    pagination: PaginationModel,
+    q: string | undefined,
+  ) {
+    const query = this.chatSessionRepository.createQueryBuilder('chatSession');
+
+    if (chatSessionId) {
+      query.andWhere('chatSession.chatSessionId = :chatSessionId', {
+        chatSessionId,
+      });
+    }
+    if (accountId) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('chatSession.userAccountId = :accountId', {
+            accountId,
+          }).orWhere('chatSession.assignedId = :accountId', { accountId });
+        }),
+      );
+    }
+    if (q) {
+      query.andWhere('chatSession.status LIKE :q', { q: `%${q}%` });
+    }
+
+    const [data, total] = await query
+      .skip((pagination.page - 1) * pagination.limit)
+      .take(pagination.limit)
+      .getManyAndCount();
+
+    const chatSessions = data.map(
+      (chatSession) =>
+        new ChatSessionModel(
+          chatSession.id,
+          chatSession.userAccountId,
+          chatSession.assignedId!,
+          chatSession.status,
+          chatSession.categoryId!,
+        ),
+    );
+    return new PageListModel<ChatSessionModel>(total, chatSessions);
   }
 
   async checkChatSession(chatSessionId: number): Promise<ChatSessionEntity> {
@@ -89,7 +130,7 @@ export class ChatSessionService {
     chatSession.userAccountId = accountId;
     chatSession.assignedId = undefined;
     chatSession.status = Status.Pending;
-    chatSession.categoryId = this.categoryService.getDefaultCategoryId();
+    chatSession.categoryId = 0;
     chatSession.createdBy = accountId;
     chatSession.createdAt = new Date();
 
@@ -108,6 +149,8 @@ export class ChatSessionService {
     await this.chatSessionRepository.update(chatSessionId, {
       status: Status.InProgress,
       assignedId: assignedId,
+      updateAt: new Date(),
+      updateBy: assignedId,
     });
 
     return this.getChatSessionById(chatSessionId);
@@ -115,14 +158,16 @@ export class ChatSessionService {
 
   async updateChatSession(
     chatSessionId: number,
-    categoryId: number,
     assignedId: number,
+    categoryName: string,
     role: Role,
   ): Promise<ChatSessionEntity> {
     const chatSession = await this.getChatSessionById(chatSessionId);
+    const category =
+      await this.categoryService.findCategoryByName(categoryName);
 
     if (role === Role.Admin) {
-      chatSession.categoryId = categoryId;
+      chatSession.categoryId = category.categoryId;
       chatSession.updateAt = new Date();
       chatSession.updateBy = assignedId;
       return this.chatSessionRepository.save(chatSession);
@@ -135,7 +180,7 @@ export class ChatSessionService {
           HttpStatus.FORBIDDEN,
         );
       }
-      chatSession.categoryId = categoryId;
+      chatSession.categoryId = category.categoryId;
       chatSession.updateAt = new Date();
       chatSession.updateBy = assignedId;
       return this.chatSessionRepository.save(chatSession);
@@ -146,53 +191,36 @@ export class ChatSessionService {
     );
   }
 
-  async getChatSessions(
-    chatSessionId: number,
-    userAccountId: number | undefined,
-    assignedId: number | undefined,
-    pagination: PaginationModel,
-    q: string | undefined,
-  ) {
-    const query = this.chatSessionRepository.createQueryBuilder('chatSession');
-    await this.getChatSessionById(chatSessionId);
+  async resolveChatSession(chatSessionId: number, reqAccountId: number) {
+    const chatSession = await this.getChatSessionById(chatSessionId);
 
-    if (chatSessionId) {
-      query.andWhere('chatSession.chatSessionId = :chatSessionId', {
-        chatSessionId,
-      });
-    }
-    if (userAccountId) {
-      query.andWhere('chatSession.userAccountId = :userAccountId', {
-        userAccountId,
-      });
-    }
-    if (assignedId) {
-      query.andWhere('chatSession.assigned = :assignedId', { assignedId });
-    }
-    if (q) {
-      new Brackets((qb) => {
-        qb.andWhere('chatSession.status LIKE :q', { q: `%${q}%` }).orWhere(
-          'chatSession.categoryId LIKE :q',
-          { q: `%${q}%` },
-        );
-      });
+    if (chatSession.assignedId !== reqAccountId) {
+      throw new HttpException(
+        'You do not have permission to access this chat session.',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
-    const [data, total] = await query
-      .skip((pagination.page - 1) * pagination.limit)
-      .take(pagination.limit)
-      .getManyAndCount();
-
-    const chatSessions = data.map(
-      (chatSession) =>
-        new ChatSessionModel(
-          chatSession.id,
-          chatSession.userAccountId,
-          chatSession.assignedId!, //cần kiểm tra chắc chắn phải có assignedId trước khi vào hàm.
-          chatSession.status,
-          chatSession.categoryId!,
-        ),
+    if (!chatSession || chatSession.status == Status.Resolved) {
+      throw new HttpException(
+        'Chat session is already resolved',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    await this.chatSessionRepository.update(
+      {
+        id: chatSession.id,
+        deletedAt: IsNull(),
+      },
+      {
+        status: Status.Resolved,
+        updateAt: new Date(),
+        updateBy: reqAccountId,
+        resolvedAt: new Date(),
+        resolvedBy: reqAccountId,
+      },
     );
-    return new PageListModel<ChatSessionModel>(total, chatSessions);
+
+    return this.getChatSessionById(chatSessionId);
   }
 }

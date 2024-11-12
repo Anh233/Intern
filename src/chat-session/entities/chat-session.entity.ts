@@ -1,11 +1,8 @@
-import { AccountEntity } from 'src/account/entities/account.entity';
-import { CategoryEntity } from 'src/category/entities/category.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -15,18 +12,15 @@ export class ChatSessionEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => AccountEntity, (userAccount) => userAccount.id)
   @Column({ name: 'user_account_id' })
   userAccountId!: number;
 
-  @ManyToOne(() => AccountEntity, (asAccount) => asAccount.id)
   @Column({ name: 'as_account_id' })
   assignedId?: number;
 
   @Column()
   status!: string;
 
-  @ManyToOne(() => CategoryEntity, (category) => category.categoryId)
   @Column({ name: 'category_id' })
   categoryId?: number;
 

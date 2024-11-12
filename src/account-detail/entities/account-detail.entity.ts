@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -14,7 +13,6 @@ export class AccountDetailEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => AccountDetailEntity, (account) => account.id)
   @Column({ name: 'account_id' })
   accountId!: number;
 
@@ -28,7 +26,7 @@ export class AccountDetailEntity {
   gender?: number;
 
   @Column({ name: 'date_of_birth' })
-  dateOfBirth!: string;
+  dateOfBirth!: String;
 
   @Column()
   address!: string;
