@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, IsNull, Repository } from 'typeorm';
 import { AccountEntity } from './entities/account.entity';
@@ -14,7 +14,7 @@ export class AccountService {
     private readonly accountRepository: Repository<AccountEntity>,
   ) {}
 
-  async getAccount(accountId: number) {
+  async getAccount(accountId: number, isHiddenPassword: boolean) {
     const account = await this.accountRepository.findOne({
       where: {
         id: accountId,
@@ -24,6 +24,10 @@ export class AccountService {
 
     if (!account) {
       throw new HttpException('ACCOUNT_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    if (isHiddenPassword) {
+      //TO DO
     }
 
     return account;
@@ -120,7 +124,7 @@ export class AccountService {
 
     if (accountId) {
       query.andWhere('account.id = :accountId', {
-        accountId: accountId,
+        id: accountId,
       });
     }
     if (roleId !== undefined) {

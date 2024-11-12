@@ -1,38 +1,19 @@
-import { AccountTokenEntity } from 'src/account-token/entities/account-token.entity';
-import { RoleEntity } from 'src/role/entities/role.entity';
 import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
-  ManyToOne,
-  OneToMany,
+  Column,
   PrimaryGeneratedColumn,
+  CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
-@Entity('account')
-export class AccountEntity {
+@Entity('category')
+export class CategoryEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Column()
-  username!: string;
-
-  @Column()
-  password!: string;
-
-  @Column()
-  email?: string;
-
-  @Column({ name: 'phone_number' })
-  phoneNumber?: string;
-
-  @Column({ name: 'role_id' })
-  roleId!: number;
-
-  @Column({ name: 'is_active' })
-  isActive!: number;
+  name!: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;

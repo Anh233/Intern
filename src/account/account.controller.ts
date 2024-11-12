@@ -89,7 +89,7 @@ export class AccountController {
       throw new ForbiddenException('Insufficient permissions');
     }
 
-    const account = await this.accountService.getAccount(accountId);
+    const account = await this.accountService.getAccount(accountId, true);
     return await this.accountService.deleteAccount(account, reqAccountId);
   }
 

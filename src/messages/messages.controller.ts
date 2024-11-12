@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { MessagesService } from './messages.service';
+import { MessageService } from './messages.service';
 import { GetMessagesQueryDto, sendMessageDto } from './dtos/messages.dto';
 import { MessageModel } from './models/message.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
@@ -8,7 +8,7 @@ import { Roles } from 'src/account/decorators/roles.decorator';
 
 @Controller('api/v1/message')
 export class MessagesController {
-  constructor(private readonly messagesService: MessagesService) {}
+  constructor(private readonly messagesService: MessageService) {}
 
   @Roles(Role.User, Role.Admin, Role.CustomerService)
   @Post(':chatSessionId/:accountId/send')
@@ -21,6 +21,7 @@ export class MessagesController {
       chatSessionId,
       accountId,
       body.message,
+      body.imageUrl,
     );
   }
 

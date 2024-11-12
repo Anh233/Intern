@@ -31,4 +31,7 @@ export class MessagesEntity {
 
   @Column({ name: 'deleted_by' })
   deletedBy?: number;
+
+  @Column()
+  imageUrl?: string;
 }

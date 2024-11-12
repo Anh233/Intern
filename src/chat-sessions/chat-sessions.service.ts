@@ -1,23 +1,24 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatSessionsEntity } from './entities/chat-sessions.entity';
 import { IsNull, Repository } from 'typeorm';
 import { Status } from './enums/status.enum';
-import { Category } from './enums/categories.enum';
 import { AccountEntity } from 'src/account/entities/account.entity';
 import { Role } from 'src/account/enums/role.enum';
 
 @Injectable()
 export class ChatSessionsService {
   constructor(
-    @InjectRepository(ChatSessionsEntity)
-    private readonly chatSessionRepository: Repository<ChatSessionsEntity>,
+    @InjectRepository(ChatSessionEntity)
+    private readonly chatSessionRepository: Repository<ChatSessionEntity>,
     @InjectRepository(AccountEntity)
     private readonly accountRepository: Repository<AccountEntity>,
+
+    private readonly categoryService: CategoryService,
   ) {}
 
-  async getChatSession(status: Status) {
-    const chatSession = await this.chatSessionRepository.findOne({
+  async getStatus(status: Status) {
+    const chatSession = await this.chatSessionRepository.find({
       where: {
         status: status,
         deletedAt: IsNull(),
@@ -41,8 +42,51 @@ export class ChatSessionsService {
     if (!chatSession) {
       throw new HttpException('SESSION_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-
     return chatSession;
+  }
+
+  async getChatSessions(
+    chatSessionId: number,
+    accountId: number | undefined,
+    pagination: PaginationModel,
+    q: string | undefined,
+  ) {
+    const query = this.chatSessionRepository.createQueryBuilder('chatSession');
+
+    if (chatSessionId) {
+      query.andWhere('chatSession.chatSessionId = :chatSessionId', {
+        chatSessionId,
+      });
+    }
+    if (accountId) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('chatSession.userAccountId = :accountId', {
+            accountId,
+          }).orWhere('chatSession.assignedId = :accountId', { accountId });
+        }),
+      );
+    }
+    if (q) {
+      query.andWhere('chatSession.status LIKE :q', { q: `%${q}%` });
+    }
+
+    const [data, total] = await query
+      .skip((pagination.page - 1) * pagination.limit)
+      .take(pagination.limit)
+      .getManyAndCount();
+
+    const chatSessions = data.map(
+      (chatSession) =>
+        new ChatSessionModel(
+          chatSession.id,
+          chatSession.userAccountId,
+          chatSession.assignedId!,
+          chatSession.status,
+          chatSession.categoryId!,
+        ),
+    );
+    return new PageListModel<ChatSessionModel>(total, chatSessions);
   }
 
   async checkChatSession(chatSessionId: number): Promise<ChatSessionsEntity> {
@@ -84,8 +128,7 @@ export class ChatSessionsService {
     chatSession.customerId = accountId;
     chatSession.assignedId = undefined;
     chatSession.status = Status.Pending;
-    chatSession.category = Category.General;
-    chatSession.isResolved = 0;
+    chatSession.categoryId = this.categoryService.getDefaultCategoryId();
     chatSession.createdBy = accountId;
     chatSession.createdAt = new Date();
 
@@ -106,6 +149,8 @@ export class ChatSessionsService {
       status: Status.InProgress,
       category: category,
       assignedId: assignedId,
+      updateAt: new Date(),
+      updateBy: assignedId,
     });
 
     return this.getChatSessionById(chatSessionId);
@@ -113,14 +158,17 @@ export class ChatSessionsService {
 
   async updateChatSession(
     chatSessionId: number,
-    category: string,
+    categoryId: number,
     assignedId: number,
+    categoryName: string,
     role: Role,
   ): Promise<ChatSessionsEntity> {
     const chatSession = await this.getChatSessionById(chatSessionId);
+    const category =
+      await this.categoryService.findCategoryByName(categoryName);
 
     if (role === Role.Admin) {
-      chatSession.category = category;
+      chatSession.categoryId = categoryId;
       chatSession.updateAt = new Date();
       chatSession.updateBy = assignedId;
       return this.chatSessionRepository.save(chatSession);
@@ -133,7 +181,7 @@ export class ChatSessionsService {
           HttpStatus.FORBIDDEN,
         );
       }
-      chatSession.category = category;
+      chatSession.categoryId = categoryId;
       chatSession.updateAt = new Date();
       chatSession.updateBy = assignedId;
       return this.chatSessionRepository.save(chatSession);
@@ -142,5 +190,55 @@ export class ChatSessionsService {
       'You do not have permission to access this chat session.',
       HttpStatus.FORBIDDEN,
     );
+  }
+
+  async getChatSessions(
+    chatSessionId: number,
+    userAccountId: number | undefined,
+    assignedId: number | undefined,
+    pagination: PaginationModel,
+    q: string | undefined,
+  ) {
+    const query = this.chatSessionRepository.createQueryBuilder('chatSession');
+    await this.getChatSessionById(chatSessionId);
+
+    if (chatSessionId) {
+      query.andWhere('chatSession.chatSessionId = :chatSessionId', {
+        chatSessionId,
+      });
+    }
+    if (userAccountId) {
+      query.andWhere('chatSession.userAccountId = :userAccountId', {
+        userAccountId,
+      });
+    }
+    if (assignedId) {
+      query.andWhere('chatSession.assigned = :assignedId', { assignedId });
+    }
+    if (q) {
+      new Brackets((qb) => {
+        qb.andWhere('chatSession.status LIKE :q', { q: `%${q}%` }).orWhere(
+          'chatSession.categoryId LIKE :q',
+          { q: `%${q}%` },
+        );
+      });
+    }
+
+    const [data, total] = await query
+      .skip((pagination.page - 1) * pagination.limit)
+      .take(pagination.limit)
+      .getManyAndCount();
+
+    const chatSessions = data.map(
+      (chatSession) =>
+        new ChatSessionModel(
+          chatSession.id,
+          chatSession.userAccountId,
+          chatSession.assignedId!, //cần kiểm tra chắc chắn phải có assignedId trước khi vào hàm.
+          chatSession.status,
+          chatSession.categoryId!,
+        ),
+    );
+    return new PageListModel<ChatSessionModel>(total, chatSessions);
   }
 }
