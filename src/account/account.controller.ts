@@ -12,7 +12,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { Public } from 'src/decorators/public.decorator';
 import { RequestModel } from 'src/auth/models/request.model';
 import { CreateAccountBodyDto, GetAccountsQueryDto } from './dtos/account.dto';
 import { UpdateAccountBodyDto } from './dtos/account.dto';
