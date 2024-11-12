@@ -29,5 +29,13 @@ export class CreateCategoryDto extends PickType(CategoryDto, ['name']) {}
 export class UpdateCategoryDto extends PickType(CategoryDto, ['name']) {}
 
 export class GetCategoriesQueryDto extends PartialType(
-  PickType(CategoryDto, ['q', 'id', 'page', 'limit']),
+  PickType(CategoryDto, ['q', 'categoryId', 'page', 'limit']),
 ) {}
+
+export class GetCategoryIdParamDto extends PickType(CategoryDto, [
+  'categoryId',
+]) {}
+
+export class GetAccountIdParamDto extends PickType(CategoryDto, [
+  'accountId',
+]) {}

@@ -39,3 +39,5 @@ export class UpdateRoleDto extends PartialType(
 export class GetRolesQueryDto extends PartialType(
   PickType(RoleDto, ['q', 'id', 'page', 'limit']),
 ) {}
+
+export class GetRoleIdParamDto extends PickType(RoleDto, ['roleId']) {}

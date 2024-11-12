@@ -38,7 +38,7 @@ export class AccountDetailDto {
 
   @Type(() => Date)
   @IsDate()
-  dateOfBirth!: string;
+  dateOfBirth!: String;
 
   @IsString()
   q!: string;
@@ -73,3 +73,11 @@ export class UpdateAccountDetailBodyDto extends PartialType(
 export class GetAccountDetailsQueryDto extends PartialType(
   PickType(AccountDetailDto, ['q', 'accountId', 'page', 'limit', 'gender']),
 ) {}
+
+export class GetAccountIdParamDto extends PickType(AccountDetailDto, [
+  'accountId',
+]) {
+  @IsNumber()
+  @Type(() => Number)
+  accountId!: number;
+}

@@ -6,30 +6,23 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { AccountDetailModel } from '../models/account-detail.model';
 
-@Entity('account_detail')
-export class AccountDetailEntity {
+@Entity('chat_session')
+export class ChatSessionEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ name: 'account_id' })
-  accountId!: number;
+  @Column({ name: 'user_account_id' })
+  userAccountId!: number;
 
-  @Column({ name: 'first_name' })
-  firstName!: string;
-
-  @Column({ name: 'last_name' })
-  lastName!: string;
+  @Column({ name: 'as_account_id' })
+  assignedId?: number;
 
   @Column()
-  gender?: number;
+  status!: string;
 
-  @Column({ name: 'date_of_birth' })
-  dateOfBirth!: String;
-
-  @Column()
-  address!: string;
+  @Column({ name: 'category_id' })
+  categoryId?: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;
@@ -52,14 +45,9 @@ export class AccountDetailEntity {
   @Column({ name: 'deleted_by' })
   deletedBy?: number;
 
-  toModel(): AccountDetailModel {
-    return new AccountDetailModel(
-      this.accountId,
-      this.firstName,
-      this.lastName,
-      this.gender,
-      this.dateOfBirth,
-      this.address,
-    );
-  }
+  @Column({ name: 'resolved_at', type: 'timestamp' })
+  resolvedAt?: Date;
+
+  @Column({ name: 'resolved_by' })
+  resolvedBy?: number;
 }

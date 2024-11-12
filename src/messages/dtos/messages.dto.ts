@@ -24,9 +24,17 @@ export class MessagesDto {
   @Type(() => Number)
   @IsNumber()
   page!: number;
+
+  @IsString()
+  imageUrl?: string;
 }
 
-export class sendMessageDto extends PickType(MessagesDto, ['message']) {}
+export class sendMessageDto extends PickType(MessagesDto, [
+  'chatSessionId',
+  'accountId',
+  'message',
+  'imageUrl',
+]) {}
 
 export class GetMessagesQueryDto extends PartialType(
   PickType(MessagesDto, ['q', 'limit', 'page'] as const),

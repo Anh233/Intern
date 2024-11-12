@@ -1,8 +1,12 @@
+import { AccountTokenEntity } from 'src/account-token/entities/account-token.entity';
+import { RoleEntity } from 'src/role/entities/role.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';

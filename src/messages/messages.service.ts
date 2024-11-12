@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,17 +10,17 @@ import { MessagesEntity } from './entities/messages.entity';
 import { IsNull, Like, Repository } from 'typeorm';
 import { ChatSessionsEntity } from 'src/chat-sessions/entities/chat-sessions.entity';
 import { Role } from 'src/account/enums/role.enum';
-import { AccountEntity } from 'src/account/entities/account.entity';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { MessageModel } from './models/message.model';
+import { AccountService } from 'src/account/account.service';
 
 @Injectable()
 export class MessagesService {
   constructor(
     @InjectRepository(MessagesEntity)
     private readonly messageRepository: Repository<MessagesEntity>,
-    @InjectRepository(ChatSessionsEntity)
-    private readonly chatSessionRepository: Repository<ChatSessionsEntity>,
+    @InjectRepository(ChatSessionEntity)
+    private readonly chatSessionRepository: Repository<ChatSessionEntity>,
     @InjectRepository(AccountEntity)
     private readonly accountRepository: Repository<AccountEntity>,
   ) {}
@@ -39,18 +40,6 @@ export class MessagesService {
     return chatSession;
   }
 
-  async getAccount(accountId: number): Promise<AccountEntity> {
-    const account = await this.accountRepository.findOne({
-      where: { id: accountId, deletedAt: IsNull() },
-    });
-
-    if (!account) {
-      throw new HttpException('ACCOUNT_NOT_FOUND', HttpStatus.NOT_FOUND);
-    }
-
-    return account;
-  }
-
   async checkPermissionForSend(accountId: number, chatSessionId: number) {
     const chatSession = await this.getChatSessionById(chatSessionId);
 
@@ -60,7 +49,7 @@ export class MessagesService {
       );
     }
 
-    const user = await this.getAccount(accountId);
+    const user = await this.accountService.getAccount(accountId, true);
     const userRole = user.roleId;
 
     if (userRole == Role.Admin) {
@@ -83,7 +72,7 @@ export class MessagesService {
       );
     }
 
-    const user = await this.getAccount(accountId);
+    const user = await this.accountService.getAccount(accountId, true);
     const userRole = user.roleId;
 
     if (userRole == Role.Admin || userRole == Role.Operator) {
@@ -101,6 +90,7 @@ export class MessagesService {
     chatSessionId: number,
     accountId: number,
     message: string,
+    imageUrl: string | undefined,
   ): Promise<MessagesEntity> {
     await this.getChatSessionById(chatSessionId);
     await this.checkPermissionForSend(accountId, chatSessionId);
@@ -108,6 +98,7 @@ export class MessagesService {
       chatSessionId: chatSessionId,
       accountId: accountId,
       message: message,
+      imageUrl: imageUrl,
       createdBy: accountId,
     });
     return this.messageRepository.save(text);
@@ -149,5 +140,9 @@ export class MessagesService {
     );
 
     return { data: messageModels, total };
+  }
+
+  async getChatHistory(chatSessionId: number) {
+    return await this.getChatSessionById(chatSessionId);
   }
 }

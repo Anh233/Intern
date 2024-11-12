@@ -14,6 +14,7 @@ import { RoleEntity } from './entities/role.entity';
 import { RequestModel } from 'src/auth/models/request.model';
 import {
   CreateRoleDto,
+  GetRoleIdParamDto,
   GetRolesQueryDto,
   UpdateRoleDto,
 } from './dtos/role.dto';
@@ -46,11 +47,12 @@ export class RoleController {
 
   @Put(':roleId/update')
   async updateRole(
-    @Param('id') id: number, // TO DO
+    @Param('roleId') roleId: number, //chưa sửa được sang dto
     @Body() body: UpdateRoleDto,
     @Req() request: RequestModel,
-  ): Promise<RoleEntity> {
+  ) {
     const accountId = request.user.accountId;
+
     return await this.roleService.updateRole(
       id,
       body.name,
@@ -62,9 +64,9 @@ export class RoleController {
   @Delete(':id/delete') // TO DO
   async deleteRole(
     @Req() request: RequestModel,
-    @Param('id') id: number,
+    @Param('roleId') roleId: number,
   ): Promise<boolean> {
     const accountId = request.user.accountId;
-    return await this.roleService.deleteRole(id, accountId);
+    return await this.roleService.deleteRole(roleId, accountId);
   }
 }

@@ -1,8 +1,8 @@
-import { PickType } from '@nestjs/swagger';
+import { PartialType, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 
-export class ChatSessionsDto {
+export class ChatSessionDto {
   @Type(() => Number)
   @IsNumber()
   chatSessionId!: number;
@@ -22,8 +22,8 @@ export class ChatSessionsDto {
   @IsString()
   status!: string;
 
-  @IsString()
-  category!: string;
+  @IsNumber()
+  category!: number;
 
   @Type(() => Number)
   @IsNumber()
@@ -39,20 +39,40 @@ export class ChatSessionsDto {
   @Type(() => Number)
   @IsNumber()
   page!: number;
+
+  @IsString()
+  categoryName!: string;
 }
 
-export class CreateChatSessionsBodyDto extends PickType(ChatSessionsDto, [
+export class CreateChatSessionsBodyDto extends PickType(ChatSessionDto, [
   'accountId',
 ]) {}
 
-export class UpdateChatSessionsBodyDto extends PickType(ChatSessionsDto, [
+export class UpdateChatSessionsBodyDto extends PickType(ChatSessionDto, [
+  'chatSessionId',
+  'assignedId',
+  'categoryName',
+]) {}
+
+export class AcceptChatSessionBodyDto extends PickType(ChatSessionDto, [
   'chatSessionId',
   'category',
   'assignedId',
 ]) {}
 
-export class AcceptChatSessionBodyDto extends PickType(ChatSessionsDto, [
+export class GetChatSessionIdParamDto extends PickType(ChatSessionDto, [
   'chatSessionId',
-  'category',
-  'assignedId',
 ]) {}
+
+export class GetChatSessionsQueryDto extends PartialType(
+  PickType(ChatSessionDto, [
+    'chatSessionId',
+    'accountId',
+    'q',
+    'limit',
+    'page',
+  ]),
+) {
+  @Type(() => Number)
+  chatSessionId!: number;
+}
