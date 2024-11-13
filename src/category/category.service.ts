@@ -21,29 +21,27 @@ export class CategoryService {
     categoryId: number | undefined,
     pagination: PaginationModel,
     q: string | undefined,
-  ) {
+  ): Promise<PageListModel<CategoryModel>> {
     const query = this.categoryRepository.createQueryBuilder('category');
 
     if (categoryId) {
-      query.andWhere('category.categoryId = :categoryId', { categoryId });
-      if (categoryId) {
-        query.andWhere('category.categoryId = :categoryId', { categoryId });
-      }
-
-      if (q) {
-        query.andWhere('category.name LIKE :q', { q: `%${q}%` });
-      }
-
-      const [data, total] = await query
-        .skip((pagination.page - 1) * pagination.limit)
-        .take(pagination.limit)
-        .getManyAndCount();
-
-      const categories = data.map((category) => {
-        return new CategoryModel(category.categoryId, category.name);
-      });
-      return new PageListModel<CategoryModel>(total, categories);
+      query.andWhere('category.id = :categoryId', { categoryId });
     }
+
+    if (q) {
+      query.andWhere('category.name LIKE :q', { q: `%${q}%` });
+    }
+
+    const [data, total] = await query
+      .skip((pagination.page - 1) * pagination.limit)
+      .take(pagination.limit)
+      .getManyAndCount();
+
+    const categories = data.map(
+      (category) => new CategoryModel(category.categoryId, category.name),
+    );
+
+    return new PageListModel<CategoryModel>(total, categories);
   }
 
   async getCategoryById(categoryId: number): Promise<CategoryEntity> {

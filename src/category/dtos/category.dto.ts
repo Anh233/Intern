@@ -33,9 +33,12 @@ export class CreateCategoryBodyDto extends PickType(CategoryDto, ['name']) {}
 export class UpdateCategoryBodyDto extends PickType(CategoryDto, ['name']) {}
 
 export class GetCategoriesQueryDto extends PartialType(
-  PickType(CategoryDto, ['categoryId', 'page', 'limit', 'q']),
-) {}
-
+  PickType(CategoryDto, ['q', 'categoryId', 'page', 'limit', 'name']),
+) {
+  @Type(() => Number)
+  @IsNumber()
+  categoryId?: number;
+}
 export class GetCategoryIdParamDto extends PickType(CategoryDto, [
   'categoryId',
 ]) {}

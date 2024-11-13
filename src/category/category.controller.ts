@@ -45,10 +45,10 @@ export class CategoryController {
 
   @Post(':accountId/create')
   async createCategory(
-    @Param() params: GetAccountIdParamDto,
+    @Req() req: RequestModel,
     @Body() body: CreateCategoryBodyDto,
   ) {
-    const accountId = params.accountId;
+    const accountId = req.user.accountId;
     await this.accountService.getAccount(accountId, true);
     return await this.categoryService.createCategory(accountId, body.name);
   }
@@ -60,8 +60,10 @@ export class CategoryController {
     @Req() req: RequestModel,
   ) {
     const categoryId = params.categoryId;
-    await this.categoryService.getCategoryById(categoryId);
     const accountId = req.user.accountId;
+
+    await this.categoryService.getCategoryById(categoryId);
+
     return await this.categoryService.updateCategory(
       categoryId,
       body.name,
@@ -69,15 +71,15 @@ export class CategoryController {
     );
   }
 
-  @Delete(':categoryId/delete') //sau bỏ thêm chatSessionId
+  @Delete(':categoryId/delete')
   async deleteCategory(
     @Param() params: GetCategoryIdParamDto,
     @Req() req: RequestModel,
   ) {
     const categoryId = params.categoryId;
+    const accountId = req.user.accountId;
 
     await this.categoryService.getCategoryById(categoryId);
-    const accountId = req.user.accountId;
     return await this.categoryService.deleteCategory(categoryId, accountId);
   }
 }
