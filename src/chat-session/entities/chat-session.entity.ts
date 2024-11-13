@@ -16,7 +16,7 @@ export class ChatSessionEntity {
   userAccountId!: number;
 
   @Column({ name: 'as_account_id' })
-  assignedId?: number;
+  assignedAccountId?: number;
 
   @Column()
   status!: string;

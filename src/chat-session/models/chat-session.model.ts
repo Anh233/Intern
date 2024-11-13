@@ -1,19 +1,20 @@
 export class ChatSessionModel {
   chatSessionId: number;
   userAccountId: number;
-  assignedId: number;
+  assignedAccountId: number;
   status: string;
   categoryId: number;
+
   constructor(
     id: number,
     userAccountId: number,
-    assignedId: number,
+    assignedAccountId: number,
     status: string,
     categoryId: number,
   ) {
     this.chatSessionId = id;
     this.userAccountId = userAccountId;
-    this.assignedId = assignedId;
+    this.assignedAccountId = assignedAccountId;
     this.status = status;
     this.categoryId = categoryId;
   }

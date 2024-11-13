@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatSessionEntity } from './entities/chat-session.entity';
 import { Brackets, IsNull, Repository } from 'typeorm';
@@ -8,29 +14,27 @@ import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
 import { ChatSessionModel } from './models/chat-session.model';
 import { CategoryService } from 'src/category/category.service';
+import { CategoryModel } from 'src/category/models/category.model';
+import { AccountEntity } from 'src/account/entities/account.entity';
 
 @Injectable()
 export class ChatSessionService {
   constructor(
     @InjectRepository(ChatSessionEntity)
     private readonly chatSessionRepository: Repository<ChatSessionEntity>,
-
-    @Inject(CategoryService)
+    @Inject(forwardRef(() => CategoryService))
     private readonly categoryService: CategoryService,
   ) {}
 
-  async getStatus(status: Status) {
-    const chatSession = await this.chatSessionRepository.find({
+  async getSessions(status: Status | undefined) {
+    const chatSessions = await this.chatSessionRepository.find({
       where: {
         status: status,
         deletedAt: IsNull(),
       },
     });
 
-    if (!chatSession) {
-      throw new HttpException('SESSION_NOT_FOUND', HttpStatus.NOT_FOUND);
-    }
-    return chatSession;
+    return chatSessions;
   }
 
   async getChatSessionById(chatSessionId: number): Promise<ChatSessionEntity> {
@@ -44,6 +48,7 @@ export class ChatSessionService {
     if (!chatSession) {
       throw new HttpException('SESSION_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
+
     return chatSession;
   }
 
@@ -83,7 +88,7 @@ export class ChatSessionService {
         new ChatSessionModel(
           chatSession.id,
           chatSession.userAccountId,
-          chatSession.assignedId!,
+          chatSession.assignedAccountId!,
           chatSession.status,
           chatSession.categoryId!,
         ),
@@ -94,7 +99,7 @@ export class ChatSessionService {
   async checkChatSession(chatSessionId: number): Promise<ChatSessionEntity> {
     const chatSession = await this.getChatSessionById(chatSessionId);
 
-    if (chatSession.assignedId !== null) {
+    if (chatSession.assignedAccountId !== null) {
       throw new HttpException(
         'This chat session has already been assigned to another agent.',
         HttpStatus.FORBIDDEN,
@@ -114,7 +119,7 @@ export class ChatSessionService {
     if (
       role !== Role.Admin &&
       role !== Role.CustomerService &&
-      chatSession.assignedId !== accountId
+      chatSession.assignedAccountId !== accountId
     ) {
       throw new HttpException(
         'You do not have permission to access this chat session.',
@@ -128,7 +133,7 @@ export class ChatSessionService {
   async createChatSession(reqAccountId: number): Promise<ChatSessionEntity> {
     const chatSession = new ChatSessionEntity();
     chatSession.userAccountId = reqAccountId;
-    chatSession.assignedId = undefined;
+    chatSession.assignedAccountId = undefined;
     chatSession.status = Status.Pending;
     chatSession.categoryId = 0;
     chatSession.createdBy = reqAccountId;
@@ -148,7 +153,7 @@ export class ChatSessionService {
 
     await this.chatSessionRepository.update(chatSessionId, {
       status: Status.InProgress,
-      assignedId: reqAccountId,
+      assignedAccountId: reqAccountId,
       updateAt: new Date(),
       updateBy: reqAccountId,
     });
@@ -157,58 +162,54 @@ export class ChatSessionService {
   }
 
   async updateChatSession(
-    chatSessionId: number,
+    employeeAccount: AccountEntity,
+    chatSession: ChatSessionEntity,
+    category: CategoryModel,
     reqAccountId: number,
-    categoryName: string,
-    role: Role,
   ): Promise<ChatSessionEntity> {
-    const chatSession = await this.getChatSessionById(chatSessionId);
-    const category = await this.categoryService.findCategoryByName(
-      reqAccountId,
-      categoryName,
-    );
-
-    if (role === Role.Admin) {
-      chatSession.categoryId = category.categoryId;
-      chatSession.updateAt = new Date();
-      chatSession.updateBy = reqAccountId;
-      return this.chatSessionRepository.save(chatSession);
-    }
-
-    if (role === Role.CustomerService) {
-      if (chatSession.assignedId !== reqAccountId) {
-        throw new HttpException(
-          'You do not have permission to access this chat session.',
-          HttpStatus.FORBIDDEN,
-        );
-      }
-      chatSession.categoryId = category.categoryId;
-      chatSession.updateAt = new Date();
-      chatSession.updateBy = reqAccountId;
-      return this.chatSessionRepository.save(chatSession);
-    }
-    throw new HttpException(
-      'You do not have permission to access this chat session.',
-      HttpStatus.FORBIDDEN,
-    );
-  }
-
-  async resolveChatSession(chatSessionId: number, reqAccountId: number) {
-    const chatSession = await this.getChatSessionById(chatSessionId);
-
-    if (chatSession.assignedId !== reqAccountId) {
+    if (
+      employeeAccount.roleId === Role.CustomerService &&
+      chatSession.assignedAccountId !== employeeAccount.id
+    ) {
       throw new HttpException(
         'You do not have permission to access this chat session.',
         HttpStatus.FORBIDDEN,
       );
     }
 
-    if (!chatSession || chatSession.status == Status.Resolved) {
+    await this.chatSessionRepository.update(
+      {
+        id: chatSession.id,
+        deletedAt: IsNull(),
+      },
+      {
+        categoryId: category.id,
+        updateAt: new Date(),
+        updateBy: reqAccountId,
+      },
+    );
+
+    return this.getChatSessionById(chatSession.id);
+  }
+
+  async resolveChatSession(
+    chatSession: ChatSessionEntity,
+    reqAccountId: number,
+  ) {
+    if (chatSession.assignedAccountId !== reqAccountId) {
+      throw new HttpException(
+        'You do not have permission to access this chat session.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (chatSession.status == Status.Resolved) {
       throw new HttpException(
         'Chat session is already resolved',
         HttpStatus.BAD_REQUEST,
       );
     }
+
     await this.chatSessionRepository.update(
       {
         id: chatSession.id,
@@ -223,6 +224,6 @@ export class ChatSessionService {
       },
     );
 
-    return this.getChatSessionById(chatSessionId);
+    return this.getChatSessionById(chatSession.id);
   }
 }

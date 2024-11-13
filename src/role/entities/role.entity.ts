@@ -16,7 +16,7 @@ export class RoleEntity {
   name!: string;
 
   @Column()
-  detail!: string;
+  detail?: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;

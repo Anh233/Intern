@@ -22,6 +22,7 @@ export class ChatSessionDto {
   @IsString()
   status!: string;
 
+  @Type(() => Number)
   @IsNumber()
   categoryId!: number;
 
@@ -49,9 +50,7 @@ export class CreateChatSessionsBodyDto extends PickType(ChatSessionDto, [
 ]) {}
 
 export class UpdateChatSessionBodyDto extends PickType(ChatSessionDto, [
-  'chatSessionId',
-  'categoryName',
-  'assignedId',
+  'categoryId',
 ]) {}
 
 export class AcceptChatSessionBodyDto extends PickType(ChatSessionDto, [

@@ -10,7 +10,7 @@ import {
 @Entity('category')
 export class CategoryEntity {
   @PrimaryGeneratedColumn({ name: 'id' })
-  categoryId!: number;
+  id!: number;
 
   @Column()
   name!: string;

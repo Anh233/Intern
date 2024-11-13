@@ -9,11 +9,11 @@ export class RoleDto {
 
   @Type(() => String)
   @IsString()
-  name: string | undefined;
+  name!: string;
 
   @Type(() => String)
   @IsString()
-  detail: string | undefined;
+  detail!: string;
 
   @IsString()
   q!: string;
@@ -27,13 +27,12 @@ export class RoleDto {
   page!: number;
 }
 
-export class CreateRoleDto extends IntersectionType(
+export class CreateRoleBodyDto extends IntersectionType(
   PickType(RoleDto, ['name']),
   PartialType(PickType(RoleDto, ['detail'])),
-) {
-}
+) {}
 
-export class UpdateRoleDto extends PartialType(
+export class UpdateRoleBodyDto extends PartialType(
   PickType(RoleDto, ['name', 'detail']),
 ) {
   @Type(() => String)

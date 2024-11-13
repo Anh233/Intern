@@ -1,4 +1,4 @@
-import { AccountTokenEntity } from 'src/account-token/entities/account-token.entity';
+import { AccountTokenEntity } from 'src/account/modules/account-token/entities/account-token.entity';
 import {
   Column,
   CreateDateColumn,

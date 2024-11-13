@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import {
   CreateCategoryBodyDto,
-  GetAccountIdParamDto,
   GetCategoriesQueryDto,
   GetCategoryIdParamDto,
   UpdateCategoryBodyDto,
@@ -20,7 +19,9 @@ import { RequestModel } from 'src/auth/models/request.model';
 import { CategoryService } from './category.service';
 import { AccountService } from 'src/account/account.service';
 import { PaginationModel } from 'src/utils/models/pagination.model';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Chat Session / Category')
 @Controller('api/v1/chat-session/category')
 export class CategoryController {
   constructor(
@@ -43,7 +44,7 @@ export class CategoryController {
     );
   }
 
-  @Post(':accountId/create')
+  @Post('create')
   async createCategory(
     @Req() req: RequestModel,
     @Body() body: CreateCategoryBodyDto,
@@ -62,10 +63,10 @@ export class CategoryController {
     const categoryId = params.categoryId;
     const accountId = req.user.accountId;
 
-    await this.categoryService.getCategoryById(categoryId);
+    const category = await this.categoryService.getCategoryById(categoryId);
 
     return await this.categoryService.updateCategory(
-      categoryId,
+      category,
       body.name,
       accountId,
     );
@@ -79,7 +80,7 @@ export class CategoryController {
     const categoryId = params.categoryId;
     const accountId = req.user.accountId;
 
-    await this.categoryService.getCategoryById(categoryId);
-    return await this.categoryService.deleteCategory(categoryId, accountId);
+    const category = await this.categoryService.getCategoryById(categoryId);
+    return await this.categoryService.deleteCategory(category, accountId);
   }
 }

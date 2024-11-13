@@ -56,7 +56,7 @@ export class MessageService {
       return;
     }
 
-    if (chatSession.assignedId !== accountId) {
+    if (chatSession.assignedAccountId !== accountId) {
       throw new ForbiddenException(
         'You do not have permission to send messages in this chat session',
       );
@@ -79,7 +79,7 @@ export class MessageService {
       return;
     }
 
-    if (chatSession.assignedId !== accountId) {
+    if (chatSession.assignedAccountId !== accountId) {
       throw new ForbiddenException(
         'You do not have permission to view messages in this chat session',
       );

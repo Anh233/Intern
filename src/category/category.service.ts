@@ -10,7 +10,7 @@ import { CategoryEntity } from './entities/category.entity';
 export class CategoryService {
   constructor(
     @InjectRepository(CategoryEntity)
-    private categoryRepository: Repository<CategoryEntity>,
+    private readonly categoryRepository: Repository<CategoryEntity>,
   ) {}
 
   public getDefaultCategoryId(): number {
@@ -38,7 +38,7 @@ export class CategoryService {
       .getManyAndCount();
 
     const categories = data.map(
-      (category) => new CategoryModel(category.categoryId, category.name),
+      (category) => new CategoryModel(category.id, category.name),
     );
 
     return new PageListModel<CategoryModel>(total, categories);
@@ -47,7 +47,7 @@ export class CategoryService {
   async getCategoryById(categoryId: number): Promise<CategoryEntity> {
     const category = await this.categoryRepository.findOne({
       where: {
-        categoryId: categoryId,
+        id: categoryId,
         deletedAt: IsNull(),
       },
     });
@@ -67,13 +67,13 @@ export class CategoryService {
   }
 
   async updateCategory(
-    categoryId: number,
-    name: string,
+    category: CategoryEntity,
+    name: string | undefined,
     accountId: number,
   ): Promise<CategoryEntity> {
     await this.categoryRepository.update(
       {
-        categoryId: categoryId,
+        id: category.id,
         deletedAt: IsNull(),
       },
       {
@@ -82,21 +82,24 @@ export class CategoryService {
         updateBy: accountId,
       },
     );
-    return await this.getCategoryById(categoryId);
+    return await this.getCategoryById(category.id);
   }
 
   async deleteCategory(
-    categoryId: number,
+    category: CategoryEntity,
     accountId: number,
   ): Promise<boolean> {
-    await this.getCategoryById(categoryId);
     await this.categoryRepository.update(
-      { categoryId: categoryId, deletedAt: IsNull() },
+      {
+        id: category.id,
+        deletedAt: IsNull(),
+      },
       {
         deletedAt: new Date(),
         deletedBy: accountId,
       },
     );
+
     return true;
   }
 

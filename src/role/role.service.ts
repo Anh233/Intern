@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoleEntity } from './entities/role.entity';
 import { IsNull, Repository } from 'typeorm';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { RoleModel } from './models/role.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
-import { throwError } from 'src/utils/function';
 
 @Injectable()
 export class RoleService {
@@ -16,7 +15,7 @@ export class RoleService {
 
   async createRole(
     name: string,
-    detail: string,
+    detail: string | undefined,
     accountId: number,
   ): Promise<RoleEntity> {
     const newRole = new RoleEntity();
@@ -28,19 +27,13 @@ export class RoleService {
     return await this.roleRepository.save(newRole);
   }
 
-  async getRoles(
-    roleId: number | undefined,
-    pagination: PaginationModel,
-    q: string | undefined,
-  ) {
+  async getRoles(pagination: PaginationModel, q: string | undefined) {
     const query = this.roleRepository.createQueryBuilder('role');
 
-    if (roleId) {
-      query.andWhere('role.roleId = :roleId', { roleId });
-    }
     if (q) {
       query.andWhere('role.name LIKE :q', { q: `%${q}%` });
     }
+
     const [data, total] = await query
       .skip((pagination.page - 1) * pagination.limit)
       .take(pagination.limit)
@@ -60,17 +53,19 @@ export class RoleService {
         deletedAt: IsNull(),
       },
     });
+
     if (!role) {
-      throwError(`Role with id ${roleId} not found`);
+      throw new HttpException('ROLE_ID_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
+
     return role;
   }
 
   async updateRole(
     roleId: number,
     name: string | undefined,
-    accountId: number,
     detail: string | undefined,
+    reqAccountId: number,
   ) {
     await this.roleRepository.update(
       {
@@ -81,7 +76,7 @@ export class RoleService {
         name,
         detail,
         updateAt: new Date(),
-        updateBy: accountId,
+        updateBy: reqAccountId,
       },
     );
     await this.roleRepository.save({ roleId, name, detail });

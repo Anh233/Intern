@@ -8,7 +8,7 @@ import { AccountModule } from 'src/account/account.module';
 import jwt from './config/auth';
 import { LocalStrategy } from './strategy/local.strategy';
 import { JwtStrategy } from './strategy/jwt.strategy';
-import { AccountTokenModule } from 'src/account-token/account-token.module';
+import { AccountTokenModule } from 'src/account/modules/account-token/account-token.module';
 
 @Module({
   imports: [

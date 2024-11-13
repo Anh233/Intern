@@ -12,26 +12,27 @@ import {
 import { RoleService } from './role.service';
 import { RequestModel } from 'src/auth/models/request.model';
 import {
-  CreateRoleDto,
+  CreateRoleBodyDto,
   GetRoleIdParamDto,
   GetRolesQueryDto,
-  UpdateRoleDto,
+  UpdateRoleBodyDto,
 } from './dtos/role.dto';
-import { RoleModel } from './models/role.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
-import { throwError } from 'src/utils/function';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Role')
 @Controller('api/v1/role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Post('create')
-  async createRole(@Req() request: RequestModel, @Body() body: CreateRoleDto) {
-    const accountId = request.user.accountId;
-    if (!body.name || !body.detail) {
-      throwError('Name and detail are required');
-    }
-    return await this.roleService.createRole(body.name, body.detail, accountId);
+  async createRole(@Req() req: RequestModel, @Body() body: CreateRoleBodyDto) {
+    const reqAccountId = req.user.accountId;
+    return await this.roleService.createRole(
+      body.name,
+      body.detail,
+      reqAccountId,
+    );
   }
 
   @Get(':roleId/detail')
@@ -41,11 +42,8 @@ export class RoleController {
   }
 
   @Get('all')
-  async getRoles(
-    @Query() query: GetRolesQueryDto,
-  ): Promise<{ data: RoleModel[]; total: number }> {
+  async getRoles(@Query() query: GetRolesQueryDto) {
     return await this.roleService.getRoles(
-      query.roleId,
       new PaginationModel(query.page, query.limit),
       query.q,
     );
@@ -54,17 +52,17 @@ export class RoleController {
   @Put(':roleId/update')
   async updateRole(
     @Param() params: GetRoleIdParamDto,
-    @Body() body: UpdateRoleDto,
-    @Req() request: RequestModel,
+    @Body() body: UpdateRoleBodyDto,
+    @Req() req: RequestModel,
   ) {
     const roleId = params.roleId;
-    const accountId = request.user.accountId;
+    const accountId = req.user.accountId;
 
     return await this.roleService.updateRole(
       roleId,
       body.name,
-      accountId,
       body.detail,
+      accountId,
     );
   }
 
