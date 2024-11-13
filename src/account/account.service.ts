@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, IsNull, Repository } from 'typeorm';
 import { AccountEntity } from './entities/account.entity';
 import { hash } from 'bcrypt';
-import { AccountModel } from './models/account.model';
+import { AccountModel } from '../utils/models/account.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
 

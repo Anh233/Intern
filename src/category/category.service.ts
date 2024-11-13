@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { Brackets, IsNull, Repository } from 'typeorm';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
-import { CategoryModel } from './models/category.model';
+import { CategoryModel } from '../utils/models/chat-session.category-type.model';
 import { CategoryEntity } from './entities/category.entity';
 
 @Injectable()
@@ -17,19 +17,18 @@ export class CategoryService {
     return 1;
   }
 
-  async getCategories(
-    categoryId: number | undefined,
-    pagination: PaginationModel,
-    q: string | undefined,
-  ): Promise<PageListModel<CategoryModel>> {
+  async getCategories(pagination: PaginationModel, q: string | undefined) {
     const query = this.categoryRepository.createQueryBuilder('category');
 
-    if (categoryId) {
-      query.andWhere('category.id = :categoryId', { categoryId });
-    }
-
     if (q) {
-      query.andWhere('category.name LIKE :q', { q: `%${q}%` });
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('category.name LIKE :q', { q: `%${q}%` }).orWhere(
+            'category.id LIKE :q',
+            { q: `%${q}%` },
+          );
+        }),
+      );
     }
 
     const [data, total] = await query
@@ -112,7 +111,6 @@ export class CategoryService {
     });
     if (!category) {
       category = await this.createCategory(reqAccountId, name);
-      category = await this.categoryRepository.save(category);
     }
     return category;
   }

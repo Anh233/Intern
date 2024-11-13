@@ -5,8 +5,8 @@ import { AccountDetailEntity } from './entities/account-detail.entity';
 import { AccountDetailModel } from './models/account-detail.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
-import { Role } from 'src/account/enums/role.enum';
-import { AccountModel } from 'src/account/models/account.model';
+import { Role } from 'src/enums/role.enum';
+import { AccountModel } from 'src/utils/models/account.model';
 
 @Injectable()
 export class AccountDetailService {

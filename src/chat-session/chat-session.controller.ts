@@ -14,9 +14,9 @@ import {
   getChatSessions,
   UpdateChatSessionBodyDto,
 } from './dtos/chat-session.dto';
-import { Status } from './enums/status.enum';
-import { Roles } from 'src/account/decorators/roles.decorator';
-import { Role } from 'src/account/enums/role.enum';
+import { Status } from '../enums/status.enum';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 import { RequestModel } from 'src/auth/models/request.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { ApiTags } from '@nestjs/swagger';
@@ -27,7 +27,7 @@ import { AccountService } from 'src/account/account.service';
 @Controller('api/v1/chat-session')
 export class ChatSessionsController {
   constructor(
-    private readonly chatSessionsService: ChatSessionService,
+    private readonly chatSessionService: ChatSessionService,
     private readonly categoryService: CategoryService,
     private readonly accountService: AccountService,
   ) {}
@@ -36,13 +36,12 @@ export class ChatSessionsController {
   async getChatSession(@Param() params: GetChatSessionIdParamDto) {
     const chatSessionId = params.chatSessionId;
 
-    return await this.chatSessionsService.getChatSessionById(chatSessionId);
+    return await this.chatSessionService.getChatSessionById(chatSessionId);
   }
 
   @Get('all')
   async getAllChatSessions(@Query() query: getChatSessions) {
-    return await this.chatSessionsService.getChatSessions(
-      query.chatSessionId,
+    return await this.chatSessionService.getChatSessions(
       query.accountId,
       new PaginationModel(query.page, query.limit),
       query.q,
@@ -52,12 +51,12 @@ export class ChatSessionsController {
   @Post('create')
   async createChatSession(@Req() req: RequestModel) {
     const reqAccountId = req.user.accountId;
-    return await this.chatSessionsService.createChatSession(reqAccountId);
+    return await this.chatSessionService.createChatSession(reqAccountId);
   }
 
   @Get(':status/detail')
   async findChatSessions(@Param('status') status: Status) {
-    return await this.chatSessionsService.getSessions(status);
+    return await this.chatSessionService.getSessions(status);
   }
 
   @Roles(Role.CustomerService, Role.Admin)
@@ -68,13 +67,10 @@ export class ChatSessionsController {
   ) {
     const chatSessionId = params.chatSessionId;
     const reqAccountId = req.user.accountId;
-    const role = req.user.roleId;
+    const chatSession =
+      await this.chatSessionService.getChatSessionById(chatSessionId);
 
-    return this.chatSessionsService.acceptChatSession(
-      chatSessionId,
-      reqAccountId,
-      role,
-    );
+    return this.chatSessionService.acceptChatSession(chatSession, reqAccountId);
   }
 
   @Roles(Role.CustomerService, Role.Admin)
@@ -87,7 +83,7 @@ export class ChatSessionsController {
     const chatSessionId = params.chatSessionId;
     const reqAccountId = req.user.accountId;
     const chatSession =
-      await this.chatSessionsService.getChatSessionById(chatSessionId);
+      await this.chatSessionService.getChatSessionById(chatSessionId);
     const category = await this.categoryService.getCategoryById(
       body.categoryId,
     );
@@ -97,7 +93,7 @@ export class ChatSessionsController {
       true,
     );
 
-    return this.chatSessionsService.updateChatSession(
+    return this.chatSessionService.updateChatSession(
       employeeAccount,
       chatSession,
       category,
@@ -114,9 +110,9 @@ export class ChatSessionsController {
     const chatSessionId = params.chatSessionId;
     const reqAccountId = req.user.accountId;
     const chatSession =
-      await this.chatSessionsService.getChatSessionById(chatSessionId);
+      await this.chatSessionService.getChatSessionById(chatSessionId);
 
-    return this.chatSessionsService.resolveChatSession(
+    return this.chatSessionService.resolveChatSession(
       chatSession,
       reqAccountId,
     );

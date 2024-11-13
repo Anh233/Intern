@@ -1,6 +1,6 @@
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { ChatSessionService } from '../chat-session.service';
+import { ChatSessionService } from 'src/chat-session/chat-session.service';
 
 @WebSocketGateway()
 export class ChatGateway {

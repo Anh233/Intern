@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RoleEntity } from './entities/role.entity';
 import { IsNull, Repository } from 'typeorm';
 import { PaginationModel } from 'src/utils/models/pagination.model';
-import { RoleModel } from './models/role.model';
+import { RoleModel } from '../utils/models/role.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
 
 @Injectable()

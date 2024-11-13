@@ -1,12 +1,9 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import {
-  GetMessagesQueryDto,
-  sendMessageDto,
-} from './dtos/messages.dto';
-import { MessageModel } from './models/message.model';
+import { GetMessagesQueryDto, sendMessageDto } from './dtos/messages.dto';
+import { MessageModel } from '../utils/models/message.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
-import { Role } from 'src/account/enums/role.enum';
-import { Roles } from 'src/account/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
+import { Roles } from 'src/decorators/roles.decorator';
 import { MessageService } from './message.service';
 
 @Controller('api/v1/message')

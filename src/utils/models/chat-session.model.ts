@@ -1,9 +1,9 @@
 export class ChatSessionModel {
-  chatSessionId: number;
-  userAccountId: number;
-  assignedAccountId: number;
-  status: string;
-  categoryId: number;
+  public readonly chatSessionId: number;
+  public readonly userAccountId: number;
+  public readonly assignedAccountId: number;
+  public readonly status: string;
+  public readonly categoryId: number;
 
   constructor(
     id: number,

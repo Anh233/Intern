@@ -2,7 +2,7 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { PostEntity } from './entities/post.entity';
-import { Role } from 'src/account/enums/role.enum';
+import { Role } from 'src/enums/role.enum';
 import { AccountEntity } from 'src/account/entities/account.entity';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PostModel } from './models/post.model';

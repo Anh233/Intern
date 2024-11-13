@@ -7,12 +7,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Like, Repository } from 'typeorm';
-import { Role } from 'src/account/enums/role.enum';
+import { Role } from 'src/enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
 import { AccountService } from 'src/account/account.service';
 import { MessageEntity } from './entities/messages.entity';
-import { MessageModel } from './models/message.model';
+import { MessageModel } from '../utils/models/message.model';
 
 @Injectable()
 export class MessageService {

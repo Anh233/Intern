@@ -9,7 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import app from 'src/config/app';
 import { AccountTokenModule } from 'src/account/modules/account-token/account-token.module';
-import { RolesGuard } from 'src/account/guards/roles.guard';
+import { RolesGuard } from 'src/guards/roles.guard';
 import { PostModule } from 'src/post/post.module';
 import { ChatSessionsModule } from 'src/chat-session/chat-session.module';
 import { MessagesModule } from 'src/messgae/message.module';

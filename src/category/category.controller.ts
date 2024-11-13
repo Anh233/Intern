@@ -36,9 +36,7 @@ export class CategoryController {
 
   @Get('all')
   async getCategories(@Query() query: GetCategoriesQueryDto) {
-    const categoryId = query.categoryId;
     return await this.categoryService.getCategories(
-      categoryId,
       new PaginationModel(query.page, query.limit),
       query.q,
     );

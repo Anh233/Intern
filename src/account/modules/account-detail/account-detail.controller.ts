@@ -18,11 +18,11 @@ import {
   UpdateAccountDetailBodyDto,
 } from './dtos/account-detail.dto';
 import { PaginationModel } from 'src/utils/models/pagination.model';
-import { Roles } from 'src/account/decorators/roles.decorator';
-import { Role } from 'src/account/enums/role.enum';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 import { RequestModel } from 'src/auth/models/request.model';
 import { AccountService } from 'src/account/account.service';
-import { AccountModel } from 'src/account/models/account.model';
+import { AccountModel } from 'src/utils/models/account.model';
 
 @Controller('api/v1/account')
 export class AccountDetailController {
@@ -34,7 +34,7 @@ export class AccountDetailController {
   @Get(':accountId/detail')
   async getAccountDetail(
     @Param() params: GetAccountIdParamDto,
-  ): Promise<AccountDetailEntity> {
+  ){
     const accountId = params.accountId;
 
     return this.accountDetailService.getAccountDetail(accountId);

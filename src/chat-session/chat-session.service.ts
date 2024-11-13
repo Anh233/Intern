@@ -1,20 +1,13 @@
-import {
-  forwardRef,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatSessionEntity } from './entities/chat-session.entity';
 import { Brackets, IsNull, Repository } from 'typeorm';
-import { Status } from './enums/status.enum';
-import { Role } from 'src/account/enums/role.enum';
+import { Status } from '../enums/status.enum';
+import { Role } from 'src/enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
-import { ChatSessionModel } from './models/chat-session.model';
-import { CategoryService } from 'src/category/category.service';
-import { CategoryModel } from 'src/category/models/category.model';
+import { ChatSessionModel } from '../utils/models/chat-session.model';
+import { CategoryModel } from 'src/utils/models/chat-session.category-type.model';
 import { AccountEntity } from 'src/account/entities/account.entity';
 
 @Injectable()
@@ -22,8 +15,6 @@ export class ChatSessionService {
   constructor(
     @InjectRepository(ChatSessionEntity)
     private readonly chatSessionRepository: Repository<ChatSessionEntity>,
-    @Inject(forwardRef(() => CategoryService))
-    private readonly categoryService: CategoryService,
   ) {}
 
   async getSessions(status: Status | undefined) {
@@ -37,7 +28,7 @@ export class ChatSessionService {
     return chatSessions;
   }
 
-  async getChatSessionById(chatSessionId: number): Promise<ChatSessionEntity> {
+  async getChatSessionById(chatSessionId: number) {
     const chatSession = await this.chatSessionRepository.findOne({
       where: {
         id: chatSessionId,
@@ -53,18 +44,12 @@ export class ChatSessionService {
   }
 
   async getChatSessions(
-    chatSessionId: number | undefined,
     accountId: number | undefined,
     pagination: PaginationModel,
     q: string | undefined,
   ) {
     const query = this.chatSessionRepository.createQueryBuilder('chatSession');
 
-    if (chatSessionId) {
-      query.andWhere('chatSession.chatSessionId = :chatSessionId', {
-        chatSessionId,
-      });
-    }
     if (accountId) {
       query.andWhere(
         new Brackets((qb) => {
@@ -74,6 +59,7 @@ export class ChatSessionService {
         }),
       );
     }
+
     if (q) {
       query.andWhere('chatSession.status LIKE :q', { q: `%${q}%` });
     }
@@ -96,7 +82,7 @@ export class ChatSessionService {
     return new PageListModel<ChatSessionModel>(total, chatSessions);
   }
 
-  async checkChatSession(chatSessionId: number): Promise<ChatSessionEntity> {
+  async checkChatSession(chatSessionId: number) {
     const chatSession = await this.getChatSessionById(chatSessionId);
 
     if (chatSession.assignedAccountId !== null) {
@@ -109,28 +95,19 @@ export class ChatSessionService {
     return chatSession;
   }
 
-  async CheckPermision(
-    chatSessionId: number,
-    accountId: number,
-    role: Role,
-  ): Promise<ChatSessionEntity> {
+  async CheckPermision(chatSessionId: number, accountId: number) {
     const chatSession = await this.getChatSessionById(chatSessionId);
 
-    if (
-      role !== Role.Admin &&
-      role !== Role.CustomerService &&
-      chatSession.assignedAccountId !== accountId
-    ) {
+    if (chatSession.assignedAccountId !== accountId) {
       throw new HttpException(
         'You do not have permission to access this chat session.',
         HttpStatus.FORBIDDEN,
       );
     }
-
     return chatSession;
   }
 
-  async createChatSession(reqAccountId: number): Promise<ChatSessionEntity> {
+  async createChatSession(reqAccountId: number) {
     const chatSession = new ChatSessionEntity();
     chatSession.userAccountId = reqAccountId;
     chatSession.assignedAccountId = undefined;
@@ -143,22 +120,26 @@ export class ChatSessionService {
   }
 
   async acceptChatSession(
-    chatSessionId: number,
+    chatSession: ChatSessionEntity,
     reqAccountId: number,
-    role: Role,
   ): Promise<ChatSessionEntity> {
-    await this.getChatSessionById(chatSessionId);
-    await this.CheckPermision(chatSessionId, reqAccountId, role);
-    await this.checkChatSession(chatSessionId);
+    await this.CheckPermision(chatSession.id, reqAccountId);
+    await this.checkChatSession(chatSession.id);
 
-    await this.chatSessionRepository.update(chatSessionId, {
-      status: Status.InProgress,
-      assignedAccountId: reqAccountId,
-      updateAt: new Date(),
-      updateBy: reqAccountId,
-    });
+    await this.chatSessionRepository.update(
+      {
+        id: chatSession.id,
+        deletedAt: IsNull(),
+      },
+      {
+        status: Status.InProgress,
+        assignedAccountId: reqAccountId,
+        updateAt: new Date(),
+        updateBy: reqAccountId,
+      },
+    );
 
-    return this.getChatSessionById(chatSessionId);
+    return this.getChatSessionById(chatSession.id);
   }
 
   async updateChatSession(

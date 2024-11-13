@@ -20,9 +20,9 @@ import {
   GetAccountsQueryDto,
 } from './dtos/account.dto';
 import { UpdateAccountBodyDto } from './dtos/account.dto';
-import { AccountModel } from './models/account.model';
-import { Roles } from './decorators/roles.decorator';
-import { Role } from './enums/role.enum';
+import { AccountModel } from '../utils/models/account.model';
+import { Roles } from '../decorators/roles.decorator';
+import { Role } from '../enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 
 @Controller('api/v1/account')
@@ -39,7 +39,7 @@ export class AccountController {
   @Roles(Role.Admin)
   async getAccounts(
     @Query() query: GetAccountsQueryDto,
-  ): Promise<{ data: AccountModel[]; total: number }> {
+  ){
     return await this.accountService.getAccounts(
       query.accountId,
       query.roleId,
@@ -85,7 +85,7 @@ export class AccountController {
   @Delete(':accountId/delete')
   async deleteAccount(
     @Req() request: RequestModel,
-    @Param('accountId', ParseIntPipe) accountId: number,
+    @Param('accountId') accountId: number,
   ) {
     const reqAccountId = request.user.accountId;
     const userRole = request.user.roleId;

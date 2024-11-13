@@ -35,7 +35,7 @@ export class UpdateCategoryBodyDto extends PartialType(
 ) {}
 
 export class GetCategoriesQueryDto extends PartialType(
-  PickType(CategoryDto, ['q', 'categoryId', 'page', 'limit', 'name']),
+  PickType(CategoryDto, ['q', 'page', 'limit']),
 ) {}
 export class GetCategoryIdParamDto extends PickType(CategoryDto, [
   'categoryId',

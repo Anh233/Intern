@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MessageEntity } from './entities/messages.entity';
 import { MessagesController } from './message.controller';
 import { ChatSessionsModule } from 'src/chat-session/chat-session.module';
-import { AccountModel } from 'src/account/models/account.model';
+import { AccountModel } from 'src/utils/models/account.model';
 import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
 import { AccountEntity } from 'src/account/entities/account.entity';
 import { AccountService } from 'src/account/account.service';
@@ -11,11 +11,7 @@ import { MessageService } from './message.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      MessageEntity,
-      ChatSessionEntity,
-      AccountEntity,
-    ]),
+    TypeOrmModule.forFeature([MessageEntity, ChatSessionEntity, AccountEntity]),
     ChatSessionsModule,
     AccountModel,
   ],
