@@ -6,19 +6,19 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MessagesEntity } from './entities/messages.entity';
 import { IsNull, Like, Repository } from 'typeorm';
 import { Role } from 'src/account/enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
-import { MessageModel } from './models/message.model';
 import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
 import { AccountService } from 'src/account/account.service';
+import { MessageEntity } from './entities/messages.entity';
+import { MessageModel } from './models/message.model';
 
 @Injectable()
 export class MessageService {
   constructor(
-    @InjectRepository(MessagesEntity)
-    private readonly messageRepository: Repository<MessagesEntity>,
+    @InjectRepository(MessageEntity)
+    private readonly messageRepository: Repository<MessageEntity>,
     @InjectRepository(ChatSessionEntity)
     private readonly chatSessionRepository: Repository<ChatSessionEntity>,
     @Inject(AccountService)
@@ -91,7 +91,7 @@ export class MessageService {
     accountId: number,
     message: string,
     imageUrl: string | undefined,
-  ): Promise<MessagesEntity> {
+  ): Promise<MessageEntity> {
     await this.getChatSessionById(chatSessionId);
     await this.checkPermissionForSend(accountId, chatSessionId);
     const text = this.messageRepository.create({
