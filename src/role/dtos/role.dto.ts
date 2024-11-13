@@ -31,24 +31,6 @@ export class CreateRoleDto extends IntersectionType(
   PickType(RoleDto, ['name']),
   PartialType(PickType(RoleDto, ['detail'])),
 ) {
-  @Type(() => String)
-  @IsString()
-  name!: string;
-
-  @Type(() => String)
-  @IsString()
-  detail!: string;
-
-  @IsString()
-  q!: string;
-
-  @Type(() => Number)
-  @IsNumber()
-  limit!: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  page!: number;
 }
 
 export class UpdateRoleDto extends PartialType(

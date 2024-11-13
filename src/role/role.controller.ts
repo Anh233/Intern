@@ -34,6 +34,12 @@ export class RoleController {
     return await this.roleService.createRole(body.name, body.detail, accountId);
   }
 
+  @Get(':roleId/detail')
+  async getRole(@Param() params: GetRoleIdParamDto) {
+    const roleId = params.roleId;
+    return await this.roleService.getRoleById(roleId);
+  }
+
   @Get('all')
   async getRoles(
     @Query() query: GetRolesQueryDto,
