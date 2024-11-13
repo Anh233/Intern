@@ -10,11 +10,9 @@ import {
 } from '@nestjs/common';
 import { ChatSessionService } from './chat-session.service';
 import {
-  AcceptChatSessionBodyDto,
-  CreateChatSessionsBodyDto,
   GetChatSessionIdParamDto,
   getChatSessions,
-  UpdateChatSessionsBodyDto,
+  UpdateChatSessionBodyDto,
 } from './dtos/chat-session.dto';
 import { Status } from './enums/status.enum';
 import { Roles } from 'src/account/decorators/roles.decorator';
@@ -26,27 +24,27 @@ import { PaginationModel } from 'src/utils/models/pagination.model';
 export class ChatSessionsController {
   constructor(private readonly chatSessionsService: ChatSessionService) {}
 
-  @Get('all')
-  async getAllChatSessions(
-    @Req() req: RequestModel,
-    @Param() params: GetChatSessionIdParamDto,
-    @Query() query: getChatSessions,
-  ) {
-    const accountId = req.user.accountId;
+  @Get(':chatSessionId/detail')
+  async getChatSession(@Param() params: GetChatSessionIdParamDto) {
     const chatSessionId = params.chatSessionId;
 
+    return await this.chatSessionsService.getChatSessionById(chatSessionId);
+  }
+
+  @Get('all')
+  async getAllChatSessions(@Query() query: getChatSessions) {
     return await this.chatSessionsService.getChatSessions(
-      chatSessionId,
-      accountId,
+      query.chatSessionId,
+      query.accountId,
       new PaginationModel(query.page, query.limit),
       query.q,
     );
   }
 
   @Post('create')
-  async createChatSession(@Body() body: CreateChatSessionsBodyDto) {
-    const accountId = body.accountId;
-    return await this.chatSessionsService.createChatSession(accountId);
+  async createChatSession(@Req() req: RequestModel) {
+    const reqAccountId = req.user.accountId;
+    return await this.chatSessionsService.createChatSession(reqAccountId);
   }
 
   @Get(':status/detail')
@@ -58,15 +56,15 @@ export class ChatSessionsController {
   @Put(':chatSessionId/accept')
   async acceptChatSession(
     @Param() params: GetChatSessionIdParamDto,
-    @Body() body: AcceptChatSessionBodyDto,
     @Req() req: RequestModel,
   ) {
     const chatSessionId = params.chatSessionId;
+    const reqAccountId = req.user.accountId;
     const role = req.user.roleId;
 
     return this.chatSessionsService.acceptChatSession(
       chatSessionId,
-      body.assignedId,
+      reqAccountId,
       role,
     );
   }
@@ -75,15 +73,16 @@ export class ChatSessionsController {
   @Put(':chatSessionId/update')
   async updateChatSession(
     @Param() params: GetChatSessionIdParamDto,
-    @Body() body: UpdateChatSessionsBodyDto,
+    @Body() body: UpdateChatSessionBodyDto,
     @Req() req: RequestModel,
   ) {
     const chatSessionId = params.chatSessionId;
+    const reqAccountId = req.user.accountId;
     const role = req.user.roleId;
 
     return this.chatSessionsService.updateChatSession(
       chatSessionId,
-      body.assignedId,
+      reqAccountId,
       body.categoryName,
       role,
     );

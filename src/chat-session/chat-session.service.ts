@@ -48,7 +48,7 @@ export class ChatSessionService {
   }
 
   async getChatSessions(
-    chatSessionId: number,
+    chatSessionId: number | undefined,
     accountId: number | undefined,
     pagination: PaginationModel,
     q: string | undefined,
@@ -125,13 +125,13 @@ export class ChatSessionService {
     return chatSession;
   }
 
-  async createChatSession(accountId: number): Promise<ChatSessionEntity> {
+  async createChatSession(reqAccountId: number): Promise<ChatSessionEntity> {
     const chatSession = new ChatSessionEntity();
-    chatSession.userAccountId = accountId;
+    chatSession.userAccountId = reqAccountId;
     chatSession.assignedId = undefined;
     chatSession.status = Status.Pending;
     chatSession.categoryId = 0;
-    chatSession.createdBy = accountId;
+    chatSession.createdBy = reqAccountId;
     chatSession.createdAt = new Date();
 
     return await this.chatSessionRepository.save(chatSession);
@@ -139,18 +139,18 @@ export class ChatSessionService {
 
   async acceptChatSession(
     chatSessionId: number,
-    assignedId: number,
+    reqAccountId: number,
     role: Role,
   ): Promise<ChatSessionEntity> {
     await this.getChatSessionById(chatSessionId);
-    await this.CheckPermision(chatSessionId, assignedId, role);
+    await this.CheckPermision(chatSessionId, reqAccountId, role);
     await this.checkChatSession(chatSessionId);
 
     await this.chatSessionRepository.update(chatSessionId, {
       status: Status.InProgress,
-      assignedId: assignedId,
+      assignedId: reqAccountId,
       updateAt: new Date(),
-      updateBy: assignedId,
+      updateBy: reqAccountId,
     });
 
     return this.getChatSessionById(chatSessionId);
@@ -158,23 +158,25 @@ export class ChatSessionService {
 
   async updateChatSession(
     chatSessionId: number,
-    assignedId: number,
+    reqAccountId: number,
     categoryName: string,
     role: Role,
   ): Promise<ChatSessionEntity> {
     const chatSession = await this.getChatSessionById(chatSessionId);
-    const category =
-      await this.categoryService.findCategoryByName(categoryName);
+    const category = await this.categoryService.findCategoryByName(
+      reqAccountId,
+      categoryName,
+    );
 
     if (role === Role.Admin) {
       chatSession.categoryId = category.categoryId;
       chatSession.updateAt = new Date();
-      chatSession.updateBy = assignedId;
+      chatSession.updateBy = reqAccountId;
       return this.chatSessionRepository.save(chatSession);
     }
 
     if (role === Role.CustomerService) {
-      if (chatSession.assignedId !== assignedId) {
+      if (chatSession.assignedId !== reqAccountId) {
         throw new HttpException(
           'You do not have permission to access this chat session.',
           HttpStatus.FORBIDDEN,
@@ -182,7 +184,7 @@ export class ChatSessionService {
       }
       chatSession.categoryId = category.categoryId;
       chatSession.updateAt = new Date();
-      chatSession.updateBy = assignedId;
+      chatSession.updateBy = reqAccountId;
       return this.chatSessionRepository.save(chatSession);
     }
     throw new HttpException(

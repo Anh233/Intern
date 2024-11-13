@@ -48,7 +48,7 @@ export class CreateChatSessionsBodyDto extends PickType(ChatSessionDto, [
   'accountId',
 ]) {}
 
-export class UpdateChatSessionsBodyDto extends PickType(ChatSessionDto, [
+export class UpdateChatSessionBodyDto extends PickType(ChatSessionDto, [
   'chatSessionId',
   'categoryName',
   'assignedId',
@@ -64,5 +64,11 @@ export class GetChatSessionIdParamDto extends PickType(ChatSessionDto, [
 ]) {}
 
 export class getChatSessions extends PartialType(
-  PickType(ChatSessionDto, ['q', 'limit', 'page']),
+  PickType(ChatSessionDto, [
+    'chatSessionId',
+    'accountId',
+    'q',
+    'limit',
+    'page',
+  ]),
 ) {}

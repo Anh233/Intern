@@ -24,7 +24,6 @@ export class CategoryService {
   ) {
     const query = this.categoryRepository.createQueryBuilder('category');
 
-    console.log('categoryId', categoryId);
     if (categoryId) {
       query.andWhere('category.categoryId = :categoryId', { categoryId });
       if (categoryId) {
@@ -103,7 +102,7 @@ export class CategoryService {
     return true;
   }
 
-  async findCategoryByName(name: string) {
+  async findCategoryByName(reqAccountId: number, name: string) {
     let category = await this.categoryRepository.findOne({
       where: {
         name: name,
@@ -111,7 +110,7 @@ export class CategoryService {
       },
     });
     if (!category) {
-      category = this.categoryRepository.create({ name: name });
+      category = await this.createCategory(reqAccountId, name);
       category = await this.categoryRepository.save(category);
     }
     return category;
