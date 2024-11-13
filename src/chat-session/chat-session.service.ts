@@ -7,7 +7,7 @@ import { Role } from 'src/account/enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
 import { ChatSessionModel } from './models/chat-session.model';
-import { CategoryService } from 'src/category/category.service';;
+import { CategoryService } from 'src/category/category.service';
 
 @Injectable()
 export class ChatSessionService {

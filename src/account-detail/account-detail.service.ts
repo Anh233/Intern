@@ -89,7 +89,7 @@ export class AccountDetailService {
     firstName: string | undefined,
     lastName: string | undefined,
     gender: number | undefined,
-    dateOfBirth: String | undefined,
+    dateOfBirth: string | undefined,
     address: string | undefined,
     reqAccountId: number,
   ): Promise<AccountDetailEntity> {
@@ -134,7 +134,7 @@ export class AccountDetailService {
     firstName: string,
     lastName: string,
     gender: number,
-    dateOfBirth: String,
+    dateOfBirth: string,
     address: string,
     reqAccountId: number,
   ): Promise<AccountDetailEntity> {

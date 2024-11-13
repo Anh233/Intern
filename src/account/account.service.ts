@@ -54,6 +54,7 @@ export class AccountService {
     email: string,
     phoneNumber: string,
     roleId: number,
+    reqAccountId: number,
   ): Promise<AccountEntity> {
     const hashedPassword = await hash(password, 10);
 
@@ -65,6 +66,7 @@ export class AccountService {
     newAccount.roleId = roleId;
     newAccount.isActive = 1;
     newAccount.createdAt = new Date();
+    newAccount.createdBy = reqAccountId;
 
     return await this.accountRepository.save(newAccount);
   }
@@ -106,6 +108,7 @@ export class AccountService {
         deletedAt: IsNull(),
       },
       {
+        isActive: 0,
         deletedAt: new Date(),
         deletedBy: reqAccountId,
       },

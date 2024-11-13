@@ -44,7 +44,6 @@ import { CategoryModule } from 'src/category/category.module';
     AccountDetailModule,
     RoleModule,
     CategoryModule,
-    CategoryModule,
   ],
   controllers: [AppController],
   providers: [

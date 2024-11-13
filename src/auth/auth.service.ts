@@ -1,5 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AccountService } from 'src/account/account.service';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuid4 } from 'uuid';
@@ -47,7 +46,11 @@ export class AuthService {
       account.roleId,
     );
     const accessToken = await this.jwtService.signAsync(payload.toJson());
-    await this.accountTokenService.saveToken(account, tokenKey, account.id);
+    await this.accountTokenService.saveToken(
+      account,
+      tokenKey,
+      account.id,
+    );
     const expiresIn =
       this.configService.get<string>('auth.jwt.signOptions.expiresIn') ??
       throwError();

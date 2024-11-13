@@ -12,7 +12,6 @@ import { Role } from 'src/account/enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { MessageModel } from './models/message.model';
 import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
-import { AccountEntity } from 'src/account/entities/account.entity';
 import { AccountService } from 'src/account/account.service';
 
 @Injectable()

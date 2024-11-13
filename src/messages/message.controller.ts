@@ -22,7 +22,6 @@ export class MessagesController {
       accountId,
       body.message,
       body.imageUrl,
-      body.imageUrl,
     );
   }
 

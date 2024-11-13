@@ -14,7 +14,11 @@ import {
 import { AccountService } from './account.service';
 import { Public } from 'src/decorators/public.decorator';
 import { RequestModel } from 'src/auth/models/request.model';
-import { CreateAccountBodyDto, GetAccountsQueryDto } from './dtos/account.dto';
+import {
+  CreateAccountBodyDto,
+  GetAccountIdParamDto,
+  GetAccountsQueryDto,
+} from './dtos/account.dto';
 import { UpdateAccountBodyDto } from './dtos/account.dto';
 import { AccountModel } from './models/account.model';
 import { Roles } from './decorators/roles.decorator';
@@ -24,6 +28,12 @@ import { PaginationModel } from 'src/utils/models/pagination.model';
 @Controller('api/v1/account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
+
+  @Get(':accountId/detail')
+  async getAccount(@Param() params: GetAccountIdParamDto) {
+    const accountId = params.accountId;
+    return await this.accountService.getAccount(accountId, true);
+  }
 
   @Get('all')
   @Roles(Role.Admin)
@@ -40,18 +50,22 @@ export class AccountController {
 
   @Public()
   @Post('create')
-  async createAccount(@Body() body: CreateAccountBodyDto) {
+  async createAccount(
+    @Body() body: CreateAccountBodyDto,
+    @Req() request: RequestModel,
+  ) {
+    const accountId = request.user.accountId;
     return await this.accountService.createAccount(
       body.username,
       body.password,
       body.email,
       body.phoneNumber,
       body.roleId,
+      accountId,
     );
   }
 
   @Put('update/me')
-  @Roles(Role.Admin, Role.User)
   async updateAccount(
     @Req() request: RequestModel,
     @Body() body: UpdateAccountBodyDto,
@@ -69,7 +83,6 @@ export class AccountController {
   }
 
   @Delete(':accountId/delete')
-  @Roles(Role.Admin, Role.User)
   async deleteAccount(
     @Req() request: RequestModel,
     @Param('accountId', ParseIntPipe) accountId: number,
@@ -84,6 +97,10 @@ export class AccountController {
     } else if (userRole == Role.User) {
       if (reqAccountId !== accountId) {
         throw new ForbiddenException('User can only delete their own account');
+      }
+    } else if (userRole == Role.CustomerService || userRole == Role.Operator) {
+      if (reqAccountId !== accountId) {
+        throw new ForbiddenException('You can not delete own account');
       }
     } else {
       throw new ForbiddenException('Insufficient permissions');

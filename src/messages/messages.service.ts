@@ -8,11 +8,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessagesEntity } from './entities/messages.entity';
 import { IsNull, Like, Repository } from 'typeorm';
-import { ChatSessionsEntity } from 'src/chat-sessions/entities/chat-sessions.entity';
 import { Role } from 'src/account/enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { MessageModel } from './models/message.model';
 import { AccountService } from 'src/account/account.service';
+import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
 
 @Injectable()
 export class MessagesService {

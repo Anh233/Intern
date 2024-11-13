@@ -52,7 +52,4 @@ export class AccountEntity {
 
   @Column({ name: 'deleted_by' })
   deletedBy?: number;
-
-  @OneToMany(() => AccountTokenEntity, (accountToken) => accountToken.accountId)
-  tokens!: AccountTokenEntity[];
 }

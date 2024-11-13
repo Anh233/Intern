@@ -3,7 +3,7 @@ export class AccountDetailModel {
   public readonly firstName: string;
   public readonly lastName: string;
   public readonly gender: number | undefined;
-  public readonly dateOfBirth: String;
+  public readonly dateOfBirth: string;
   public readonly address: string;
 
   constructor(
@@ -11,7 +11,7 @@ export class AccountDetailModel {
     firstName: string,
     lastName: string,
     gender: number | undefined,
-    dateOfBirth: String,
+    dateOfBirth: string,
     address: string,
   ) {
     this.accountId = accountId;

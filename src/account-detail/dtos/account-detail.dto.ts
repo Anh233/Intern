@@ -38,7 +38,7 @@ export class AccountDetailDto {
 
   @Type(() => Date)
   @IsDate()
-  dateOfBirth!: String;
+  dateOfBirth!: string;
 
   @IsString()
   q!: string;
