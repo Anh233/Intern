@@ -1,4 +1,3 @@
-
 import {
   Column,
   CreateDateColumn,
@@ -7,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('messages')
+@Entity('message')
 export class MessageEntity {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -21,18 +20,24 @@ export class MessageEntity {
   @Column()
   message!: string;
 
+  @Column({ name: 'image_url' })
+  imageUrl?: string;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;
 
   @Column({ name: 'created_by' })
-  createdBy?: number;
+  createdBy!: number;
+
+  @CreateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updateAt!: Date;
+
+  @Column({ name: 'updated_by' })
+  updateBy!: number;
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp' })
   deletedAt?: Date;
 
   @Column({ name: 'deleted_by' })
   deletedBy?: number;
-
-  @Column()
-  imageUrl?: string;
 }

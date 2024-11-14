@@ -3,20 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MessageEntity } from './entities/messages.entity';
 import { MessagesController } from './message.controller';
 import { ChatSessionsModule } from 'src/chat-session/chat-session.module';
-import { AccountModel } from 'src/utils/models/account.model';
-import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
-import { AccountEntity } from 'src/account/entities/account.entity';
-import { AccountService } from 'src/account/account.service';
 import { MessageService } from './message.service';
+import { MessageGateway } from './gateways/message.gateway';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([MessageEntity, ChatSessionEntity, AccountEntity]),
-    ChatSessionsModule,
-    AccountModel,
-  ],
+  imports: [TypeOrmModule.forFeature([MessageEntity]), ChatSessionsModule],
   controllers: [MessagesController],
-  providers: [MessageService, AccountService],
+  providers: [MessageService, MessageGateway],
   exports: [MessageService],
 })
 export class MessagesModule {}

@@ -95,7 +95,7 @@ export class ChatSessionService {
     return chatSession;
   }
 
-  async CheckPermision(chatSessionId: number, accountId: number) {
+  async checkPermision(chatSessionId: number, accountId: number) {
     const chatSession = await this.getChatSessionById(chatSessionId);
 
     if (chatSession.assignedAccountId !== accountId) {
@@ -123,7 +123,7 @@ export class ChatSessionService {
     chatSession: ChatSessionEntity,
     reqAccountId: number,
   ): Promise<ChatSessionEntity> {
-    await this.CheckPermision(chatSession.id, reqAccountId);
+    await this.checkPermision(chatSession.id, reqAccountId);
     await this.checkChatSession(chatSession.id);
 
     await this.chatSessionRepository.update(

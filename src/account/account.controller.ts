@@ -5,7 +5,6 @@ import {
   ForbiddenException,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -20,11 +19,12 @@ import {
   GetAccountsQueryDto,
 } from './dtos/account.dto';
 import { UpdateAccountBodyDto } from './dtos/account.dto';
-import { AccountModel } from '../utils/models/account.model';
 import { Roles } from '../decorators/roles.decorator';
 import { Role } from '../enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Account')
 @Controller('api/v1/account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
@@ -37,9 +37,7 @@ export class AccountController {
 
   @Get('all')
   @Roles(Role.Admin)
-  async getAccounts(
-    @Query() query: GetAccountsQueryDto,
-  ){
+  async getAccounts(@Query() query: GetAccountsQueryDto) {
     return await this.accountService.getAccounts(
       query.accountId,
       query.roleId,

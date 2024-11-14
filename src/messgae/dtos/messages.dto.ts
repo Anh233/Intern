@@ -1,8 +1,12 @@
 import { PartialType, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, IsString } from 'class-validator';
+import { IsBase64, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class MessagesDto {
+  @Type(() => Number)
+  @IsNumber()
+  messageId!: number;
+
   @Type(() => Number)
   @IsNumber()
   chatSessionId!: number;
@@ -25,11 +29,12 @@ export class MessagesDto {
   @IsNumber()
   page!: number;
 
-  @IsString()
+  @IsOptional()
+  @IsBase64()
   imageUrl?: string;
 }
 
-export class sendMessageDto extends PickType(MessagesDto, [
+export class sendMessageBodyDto extends PickType(MessagesDto, [
   'chatSessionId',
   'accountId',
   'message',
@@ -37,5 +42,13 @@ export class sendMessageDto extends PickType(MessagesDto, [
 ]) {}
 
 export class GetMessagesQueryDto extends PartialType(
-  PickType(MessagesDto, ['q', 'limit', 'page'] as const),
+  PickType(MessagesDto, ['q', 'limit', 'page']),
 ) {}
+
+export class GetChatSessionIdParamsDto extends PickType(MessagesDto, [
+  'chatSessionId',
+]) {}
+
+export class GetAccountIdParamsDto extends PickType(MessagesDto, [
+  'accountId',
+]) {}

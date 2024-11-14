@@ -10,7 +10,6 @@ import {
   Req,
 } from '@nestjs/common';
 import { AccountDetailService } from './account-detail.service';
-import { AccountDetailEntity } from './entities/account-detail.entity';
 import {
   AddAccountDetailBodyDto,
   GetAccountDetailsQueryDto,
@@ -23,7 +22,9 @@ import { Role } from 'src/enums/role.enum';
 import { RequestModel } from 'src/auth/models/request.model';
 import { AccountService } from 'src/account/account.service';
 import { AccountModel } from 'src/utils/models/account.model';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Account / Account Detail')
 @Controller('api/v1/account')
 export class AccountDetailController {
   constructor(
@@ -32,9 +33,7 @@ export class AccountDetailController {
   ) {}
 
   @Get(':accountId/detail')
-  async getAccountDetail(
-    @Param() params: GetAccountIdParamDto,
-  ){
+  async getAccountDetail(@Param() params: GetAccountIdParamDto) {
     const accountId = params.accountId;
 
     return this.accountDetailService.getAccountDetail(accountId);

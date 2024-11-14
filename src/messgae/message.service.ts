@@ -1,148 +1,70 @@
-import {
-  ForbiddenException,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Like, Repository } from 'typeorm';
-import { Role } from 'src/enums/role.enum';
+import { Repository } from 'typeorm';
 import { PaginationModel } from 'src/utils/models/pagination.model';
-import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
-import { AccountService } from 'src/account/account.service';
 import { MessageEntity } from './entities/messages.entity';
 import { MessageModel } from '../utils/models/message.model';
+import { ChatSessionService } from 'src/chat-session/chat-session.service';
+import { PageListModel } from 'src/utils/models/page-list.model';
 
 @Injectable()
 export class MessageService {
   constructor(
     @InjectRepository(MessageEntity)
     private readonly messageRepository: Repository<MessageEntity>,
-    @InjectRepository(ChatSessionEntity)
-    private readonly chatSessionRepository: Repository<ChatSessionEntity>,
-    @Inject(AccountService)
-    private readonly accountService: AccountService,
+    @Inject(ChatSessionService)
+    private readonly chatSessionService: ChatSessionService,
   ) {}
-
-  async getChatSessionById(chatSessionId: number) {
-    const chatSession = await this.chatSessionRepository.findOne({
-      where: {
-        id: chatSessionId,
-        deletedAt: IsNull(),
-      },
-    });
-
-    if (!chatSession) {
-      throw new HttpException('SESSION_NOT_FOUND', HttpStatus.NOT_FOUND);
-    }
-
-    return chatSession;
-  }
-
-  async checkPermissionForSend(accountId: number, chatSessionId: number) {
-    const chatSession = await this.getChatSessionById(chatSessionId);
-
-    if (chatSession.status == 'resolved') {
-      throw new ForbiddenException(
-        'You do not have permission to send messages in a resolved chat session',
-      );
-    }
-
-    const user = await this.accountService.getAccount(accountId, true);
-    const userRole = user.roleId;
-
-    if (userRole == Role.Admin) {
-      return;
-    }
-
-    if (chatSession.assignedAccountId !== accountId) {
-      throw new ForbiddenException(
-        'You do not have permission to send messages in this chat session',
-      );
-    }
-  }
-
-  async checkPermissionForView(accountId: number, chatSessionId: number) {
-    const chatSession = await this.getChatSessionById(chatSessionId);
-
-    if (chatSession.status === 'resolved') {
-      throw new ForbiddenException(
-        'You do not have permission to view messages in a resolved chat session',
-      );
-    }
-
-    const user = await this.accountService.getAccount(accountId, true);
-    const userRole = user.roleId;
-
-    if (userRole == Role.Admin || userRole == Role.Operator) {
-      return;
-    }
-
-    if (chatSession.assignedAccountId !== accountId) {
-      throw new ForbiddenException(
-        'You do not have permission to view messages in this chat session',
-      );
-    }
-  }
 
   async sendMessage(
     chatSessionId: number,
-    accountId: number,
+    reqAccountId: number,
     message: string,
-    imageUrl: string | undefined,
-  ): Promise<MessageEntity> {
-    await this.getChatSessionById(chatSessionId);
-    await this.checkPermissionForSend(accountId, chatSessionId);
-    const text = this.messageRepository.create({
-      chatSessionId: chatSessionId,
-      accountId: accountId,
-      message: message,
-      imageUrl: imageUrl,
-      createdBy: accountId,
-    });
-    return this.messageRepository.save(text);
+    imageUrl?: string | undefined,
+  ) {
+    await this.chatSessionService.checkPermision(chatSessionId, reqAccountId);
+    const newMessage = new MessageEntity();
+    newMessage.chatSessionId = chatSessionId;
+    newMessage.accountId = reqAccountId;
+    newMessage.message = message;
+    newMessage.imageUrl = imageUrl;
+    newMessage.createdAt = new Date();
+    newMessage.createdBy = reqAccountId;
+
+    return this.messageRepository.save(newMessage);
   }
 
   async getMessages(
     chatSessionId: number,
-    accountId: number,
+    reqAccountId: number,
     pagination: PaginationModel,
-    query?: string,
-  ): Promise<{ data: MessageModel[]; total: number }> {
-    await this.getChatSessionById(chatSessionId);
-    await this.checkPermissionForView(accountId, chatSessionId);
+    q?: string,
+  ) {
+    await this.chatSessionService.checkPermision(chatSessionId, reqAccountId);
 
-    const whereConditions: any = {
-      chatSessionId: chatSessionId,
-      deletedAt: IsNull(),
-    };
+    const query = this.messageRepository.createQueryBuilder('message');
 
-    if (query) {
-      whereConditions.message = Like(`%${query}%`);
+    if (q) {
+      query.andWhere('message.message LIKE :q', { q: `%${q}%` });
     }
 
-    const [messages, total] = await this.messageRepository.findAndCount({
-      where: whereConditions,
-      skip: (pagination.page - 1) * pagination.limit,
-      take: pagination.limit,
-      order: { createdAt: 'ASC' },
-    });
+    const [data, total] = await query
+      .skip((pagination.page - 1) * pagination.limit)
+      .take(pagination.limit)
+      .getManyAndCount();
 
-    const messageModels = messages.map(
+    const messages = data.map(
       (message) =>
         new MessageModel(
           message.id,
           message.chatSessionId,
           message.accountId,
           message.message,
+          message.createdAt,
+          message.createdBy,
         ),
     );
 
-    return { data: messageModels, total };
-  }
-
-  async getChatHistory(chatSessionId: number) {
-    return await this.getChatSessionById(chatSessionId);
+    return new PageListModel<MessageModel>(total, messages);
   }
 }
