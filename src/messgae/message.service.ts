@@ -6,6 +6,8 @@ import { MessageEntity } from './entities/messages.entity';
 import { MessageModel } from '../utils/models/message.model';
 import { ChatSessionService } from 'src/chat-session/chat-session.service';
 import { PageListModel } from 'src/utils/models/page-list.model';
+import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
+import { AccountEntity } from 'src/account/entities/account.entity';
 
 @Injectable()
 export class MessageService {
@@ -17,16 +19,17 @@ export class MessageService {
   ) {}
 
   async sendMessage(
-    chatSessionId: number,
-    accountId: number,
+    chatSession: ChatSessionEntity,
+    account: AccountEntity,
     message: string,
-    imageUrl?: string | undefined,
+    imageUrl: string | undefined,
     reqAccountId: number,
   ) {
-    await this.chatSessionService.checkPermision(chatSessionId, reqAccountId);
+    await this.chatSessionService.checkPermisions(chatSession.id, reqAccountId);
+
     const newMessage = new MessageEntity();
-    newMessage.chatSessionId = chatSessionId;
-    newMessage.accountId = reqAccountId;
+    newMessage.chatSessionId = chatSession.id;
+    newMessage.accountId = account.id;
     newMessage.message = message;
     newMessage.imageUrl = imageUrl;
     newMessage.createdAt = new Date();
@@ -36,12 +39,12 @@ export class MessageService {
   }
 
   async getMessages(
-    chatSessionId: number,
-    q?: string,
+    chatSession: ChatSessionEntity,
+    q: string | undefined,
     pagination: PaginationModel,
     reqAccountId: number,
   ) {
-    await this.chatSessionService.checkPermision(chatSessionId, reqAccountId);
+    await this.chatSessionService.checkPermisions(chatSession.id, reqAccountId);
 
     const query = this.messageRepository.createQueryBuilder('message');
 
@@ -50,6 +53,7 @@ export class MessageService {
     }
 
     const [data, total] = await query
+      .orderBy('message.createdAt', 'DESC')
       .skip((pagination.page - 1) * pagination.limit)
       .take(pagination.limit)
       .getManyAndCount();
@@ -61,6 +65,7 @@ export class MessageService {
           message.chatSessionId,
           message.accountId,
           message.message,
+          message.imageUrl,
           message.createdAt,
           message.createdBy,
         ),

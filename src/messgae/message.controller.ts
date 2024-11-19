@@ -6,12 +6,11 @@ import {
   Post,
   Query,
   Req,
-  UploadedFile,
-  UseInterceptors,
 } from '@nestjs/common';
 import {
-  GetChatSessionIdParamsDto,
+  GetMessagesParamsDto,
   GetMessagesQueryDto,
+  GetSendMessagesParamsDto,
   sendMessageBodyDto,
 } from './dtos/messages.dto';
 import { PaginationModel } from 'src/utils/models/pagination.model';
@@ -21,9 +20,7 @@ import { MessageService } from './message.service';
 import { ChatSessionService } from 'src/chat-session/chat-session.service';
 import { RequestModel } from 'src/auth/models/request.model';
 import { ApiTags } from '@nestjs/swagger';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { AccountService } from 'src/account/account.service';
 
 @ApiTags('Message')
 @Controller('api/v1/message')
@@ -31,65 +28,49 @@ export class MessagesController {
   constructor(
     private readonly messageService: MessageService,
     private readonly chatSessionService: ChatSessionService,
+    private readonly accountService: AccountService,
   ) {}
 
   @Roles(Role.User, Role.Admin, Role.CustomerService)
   @Post('chatSession/:chatSessionId/send')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: join(__dirname, '..', 'uploads'),
-        filename: (req, file, callback) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          callback(
-            null,
-            file.fieldname + '-' + uniqueSuffix + extname(file.originalname),
-          );
-        },
-      }),
-    }),
-  )
   async sendMessage(
-    @Param() params: GetChatSessionIdParamsDto,
+    @Param() params: GetSendMessagesParamsDto,
     @Req() req: RequestModel,
     @Body() body: sendMessageBodyDto,
-    @UploadedFile() image: Express.Multer.File,
   ) {
     const chatSessionId = params.chatSessionId;
-    const accountId = req.user.accountId;
+    const reqAccountId = req.user.accountId;
 
-    await this.chatSessionService.getChatSessionById(chatSessionId);
+    const chatSession =
+      await this.chatSessionService.getChatSessionById(chatSessionId);
+    const account = await this.accountService.getAccount(body.accountId, true);
 
-    let imageUrl: string | undefined = undefined;
-
-    if (image) {
-      imageUrl = `/uploads/${image.filename}`;
-    }
     return this.messageService.sendMessage(
-      chatSessionId,
-      accountId,
+      chatSession,
+      account,
       body.message,
-      imageUrl,
+      body.imageUrl,
+      reqAccountId,
     );
   }
 
   @Get('chatSession/:chatSessionId/view')
   async getMessages(
-    @Param() params: GetChatSessionIdParamsDto,
+    @Param() params: GetMessagesParamsDto,
     @Req() req: RequestModel,
     @Query() query: GetMessagesQueryDto,
   ) {
     const chatSessionId = params.chatSessionId;
     const accountId = req.user.accountId;
 
-    await this.chatSessionService.getChatSessionById(chatSessionId);
+    const chatSession =
+      await this.chatSessionService.getChatSessionById(chatSessionId);
 
     return this.messageService.getMessages(
-      chatSessionId,
-      accountId,
-      new PaginationModel(query.page, query.limit),
+      chatSession,
       query.q,
+      new PaginationModel(query.page, query.limit),
+      accountId,
     );
   }
 }

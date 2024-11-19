@@ -12,6 +12,9 @@ import { AccountEntity } from 'src/account/entities/account.entity';
 
 @Injectable()
 export class ChatSessionService {
+  getChatSessionByAccountId(accountId: number) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectRepository(ChatSessionEntity)
     private readonly chatSessionRepository: Repository<ChatSessionEntity>,
@@ -95,7 +98,7 @@ export class ChatSessionService {
     return chatSession;
   }
 
-  async checkPermision(chatSessionId: number, accountId: number) {
+  async checkPermisions(chatSessionId: number, accountId: number) {
     const chatSession = await this.getChatSessionById(chatSessionId);
 
     if (chatSession.assignedAccountId !== accountId) {
@@ -123,7 +126,7 @@ export class ChatSessionService {
     chatSession: ChatSessionEntity,
     reqAccountId: number,
   ): Promise<ChatSessionEntity> {
-    await this.checkPermision(chatSession.id, reqAccountId);
+    await this.checkPermisions(chatSession.id, reqAccountId);
     await this.checkChatSession(chatSession.id);
 
     await this.chatSessionRepository.update(

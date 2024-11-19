@@ -17,6 +17,7 @@ import { RoleModule } from 'src/role/role.module';
 import { CategoryModule } from 'src/category/category.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { StorageS3Module } from 'src/storage/storage-s3.module';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -47,6 +48,7 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
+    StorageS3Module,
   ],
   controllers: [AppController],
   providers: [

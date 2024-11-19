@@ -30,7 +30,6 @@ export class MessagesDto {
   page!: number;
 
   @IsOptional()
-  @IsBase64()
   imageUrl?: string;
 }
 
@@ -43,10 +42,14 @@ export class GetMessagesQueryDto extends PartialType(
   PickType(MessagesDto, ['q', 'limit', 'page']),
 ) {}
 
-export class GetChatSessionIdParamsDto extends PickType(MessagesDto, [
+export class GetMessagesParamsDto extends PickType(MessagesDto, [
   'chatSessionId',
 ]) {}
 
 export class GetAccountIdParamsDto extends PickType(MessagesDto, [
   'accountId',
+]) {}
+
+export class GetSendMessagesParamsDto extends PickType(MessagesDto, [
+  'chatSessionId',
 ]) {}

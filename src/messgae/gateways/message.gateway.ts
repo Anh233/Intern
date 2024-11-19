@@ -21,12 +21,16 @@ export class MessageGateway {
     chatSession: ChatSessionEntity,
     account: AccountEntity,
     message: string,
+    imageUrl: string | undefined,
+    reqAccountId: number,
     @ConnectedSocket() client: Socket,
   ) {
     const newMessage = await this.messageService.sendMessage(
-      chatSession.id,
-      account.id,
+      chatSession,
+      account,
       message,
+      imageUrl,
+      reqAccountId,
     );
     this.server
       .to(`chat_session_${chatSession.id}`)
