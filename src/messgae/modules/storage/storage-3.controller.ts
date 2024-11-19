@@ -1,26 +1,17 @@
 import {
   Controller,
-  Param,
   Post,
-  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { StorageS3Service } from './storage-s3.service';
 import { ApiTags } from '@nestjs/swagger';
-import { GetUploadImageParamsDto } from './dtos/storage.dto';
-import { ChatSessionService } from 'src/chat-session/chat-session.service';
-import { Account } from 'aws-sdk';
-import { RequestModel } from 'src/auth/models/request.model';
+import { StorageS3Service } from './storage-s3.service';
 
 @ApiTags('Image')
 @Controller('api/v1/message/images')
 export class FilesController {
-  constructor(
-    private readonly storageS3Service: StorageS3Service,
-    private readonly chatSessionService: ChatSessionService,
-  ) {}
+  constructor(private readonly storageS3Service: StorageS3Service) {}
 
   @Post('chatSession/:chatSession/upload')
   @UseInterceptors(FileInterceptor('file'))

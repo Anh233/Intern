@@ -1,6 +1,6 @@
 import { IntersectionType, PartialType, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBase64, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class MessagesDto {
   @Type(() => Number)

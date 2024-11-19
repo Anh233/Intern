@@ -13,7 +13,16 @@ import { AccountEntity } from 'src/account/entities/account.entity';
 @Injectable()
 export class ChatSessionService {
   getChatSessionByAccountId(accountId: number) {
-    throw new Error('Method not implemented.');
+    const chatSession = this.chatSessionRepository.findOne({
+      where: {
+        userAccountId: accountId,
+        deletedAt: IsNull(),
+      },
+    });
+
+    if (!chatSession) {
+      throw new HttpException('SESSION_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
   }
   constructor(
     @InjectRepository(ChatSessionEntity)

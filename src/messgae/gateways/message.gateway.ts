@@ -23,7 +23,7 @@ export class MessageGateway {
     message: string,
     imageUrl: string | undefined,
     reqAccountId: number,
-    @ConnectedSocket() client: Socket,
+    // @ConnectedSocket() client: Socket,
   ) {
     const newMessage = await this.messageService.sendMessage(
       chatSession,

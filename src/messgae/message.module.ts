@@ -8,7 +8,11 @@ import { MessageGateway } from './gateways/message.gateway';
 import { AccountModule } from 'src/account/account.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MessageEntity]), ChatSessionsModule, AccountModule],
+  imports: [
+    TypeOrmModule.forFeature([MessageEntity]),
+    ChatSessionsModule,
+    AccountModule,
+  ],
   controllers: [MessagesController],
   providers: [MessageService, MessageGateway],
   exports: [MessageService],

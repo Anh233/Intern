@@ -15,9 +15,7 @@ import { MessagesModule } from 'src/messgae/message.module';
 import { AccountDetailModule } from 'src/account/modules/account-detail/account-detail.module';
 import { RoleModule } from 'src/role/role.module';
 import { CategoryModule } from 'src/category/category.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
-import { StorageS3Module } from 'src/storage/storage-s3.module';
+import { StorageS3Module } from 'src/messgae/modules/storage/storage-s3.module';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -44,10 +42,6 @@ import { StorageS3Module } from 'src/storage/storage-s3.module';
     AccountDetailModule,
     RoleModule,
     CategoryModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/uploads',
-    }),
     StorageS3Module,
   ],
   controllers: [AppController],

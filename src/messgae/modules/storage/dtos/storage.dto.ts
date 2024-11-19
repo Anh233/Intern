@@ -1,6 +1,6 @@
-import { PickType } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsNumber } from "class-validator";
+import { PickType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsNumber } from 'class-validator';
 
 export class StorageDto {
   @Type(() => Number)
