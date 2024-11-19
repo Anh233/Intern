@@ -18,9 +18,10 @@ export class MessageService {
 
   async sendMessage(
     chatSessionId: number,
-    reqAccountId: number,
+    accountId: number,
     message: string,
     imageUrl?: string | undefined,
+    reqAccountId: number,
   ) {
     await this.chatSessionService.checkPermision(chatSessionId, reqAccountId);
     const newMessage = new MessageEntity();
@@ -36,9 +37,9 @@ export class MessageService {
 
   async getMessages(
     chatSessionId: number,
-    reqAccountId: number,
-    pagination: PaginationModel,
     q?: string,
+    pagination: PaginationModel,
+    reqAccountId: number,
   ) {
     await this.chatSessionService.checkPermision(chatSessionId, reqAccountId);
 

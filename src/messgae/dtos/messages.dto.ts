@@ -1,4 +1,4 @@
-import { PartialType, PickType } from '@nestjs/swagger';
+import { IntersectionType, PartialType, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsBase64, IsNumber, IsOptional, IsString } from 'class-validator';
 
@@ -34,12 +34,10 @@ export class MessagesDto {
   imageUrl?: string;
 }
 
-export class sendMessageBodyDto extends PickType(MessagesDto, [
-  'chatSessionId',
-  'accountId',
-  'message',
-  'imageUrl',
-]) {}
+export class sendMessageBodyDto extends IntersectionType(
+  PickType(MessagesDto, ['chatSessionId', 'accountId', 'message']),
+  PartialType(PickType(MessagesDto, ['imageUrl'])),
+) {}
 
 export class GetMessagesQueryDto extends PartialType(
   PickType(MessagesDto, ['q', 'limit', 'page']),
