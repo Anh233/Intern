@@ -36,10 +36,7 @@ export class MessageService {
     return this.messageRepository.save(newMessage);
   }
 
-  async getMessages(
-    q: string | undefined,
-    pagination: PaginationModel,
-  ) {
+  async getMessages(q: string | undefined, pagination: PaginationModel) {
     const query = this.messageRepository.createQueryBuilder('message');
 
     if (q) {

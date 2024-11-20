@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
 import {
-  GetMessagesParamsDto,
   GetMessagesQueryDto,
   GetSendMessagesParamsDto,
   sendMessageBodyDto,
