@@ -25,7 +25,6 @@ export class MessageService {
     imageUrl: string | undefined,
     reqAccountId: number,
   ) {
-    await this.chatSessionService.checkPermisions(chatSession.id, reqAccountId);
 
     const newMessage = new MessageEntity();
     newMessage.chatSessionId = chatSession.id;
@@ -44,7 +43,6 @@ export class MessageService {
     pagination: PaginationModel,
     reqAccountId: number,
   ) {
-    await this.chatSessionService.checkPermisions(chatSession.id, reqAccountId);
 
     const query = this.messageRepository.createQueryBuilder('message');
 

@@ -22,6 +22,7 @@ import { PaginationModel } from 'src/utils/models/pagination.model';
 import { ApiTags } from '@nestjs/swagger';
 import { CategoryService } from 'src/category/category.service';
 import { AccountService } from 'src/account/account.service';
+import { CheckPermissions } from 'src/decorators/check-permissions.decorator';
 
 @ApiTags('Chat Session')
 @Controller('api/v1/chat-session')
@@ -61,6 +62,7 @@ export class ChatSessionsController {
 
   @Roles(Role.CustomerService, Role.Admin)
   @Put(':chatSessionId/accept')
+  @CheckPermissions()
   async acceptChatSession(
     @Param() params: GetChatSessionIdParamDto,
     @Req() req: RequestModel,

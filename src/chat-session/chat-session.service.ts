@@ -107,17 +107,17 @@ export class ChatSessionService {
     return chatSession;
   }
 
-  async checkPermisions(chatSessionId: number, accountId: number) {
-    const chatSession = await this.getChatSessionById(chatSessionId);
+  // async checkPermisions(chatSessionId: number, accountId: number) {
+  //   const chatSession = await this.getChatSessionById(chatSessionId);
 
-    if (chatSession.assignedAccountId !== accountId) {
-      throw new HttpException(
-        'You do not have permission to access this chat session.',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-    return chatSession;
-  }
+  //   if (chatSession.assignedAccountId !== accountId) {
+  //     throw new HttpException(
+  //       'You do not have permission to access this chat session.',
+  //       HttpStatus.FORBIDDEN,
+  //     );
+  //   }
+  //   return chatSession;
+  // }
 
   async createChatSession(reqAccountId: number) {
     const chatSession = new ChatSessionEntity();
@@ -135,7 +135,6 @@ export class ChatSessionService {
     chatSession: ChatSessionEntity,
     reqAccountId: number,
   ): Promise<ChatSessionEntity> {
-    await this.checkPermisions(chatSession.id, reqAccountId);
     await this.checkChatSession(chatSession.id);
 
     await this.chatSessionRepository.update(

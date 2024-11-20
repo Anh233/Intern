@@ -13,6 +13,7 @@ import { ChatSessionService } from 'src/chat-session/chat-session.service';
 import { RequestModel } from 'src/auth/models/request.model';
 import { ApiTags } from '@nestjs/swagger';
 import { AccountService } from 'src/account/account.service';
+import { CheckPermissions } from 'src/decorators/check-permissions.decorator';
 
 @ApiTags('Message')
 @Controller('api/v1/message')
@@ -25,6 +26,7 @@ export class MessagesController {
 
   @Roles(Role.User, Role.Admin, Role.CustomerService)
   @Post('chatSession/:chatSessionId/send')
+  @CheckPermissions()
   async sendMessage(
     @Param() params: GetSendMessagesParamsDto,
     @Req() req: RequestModel,
@@ -46,6 +48,7 @@ export class MessagesController {
     );
   }
 
+  @Roles(Role.Admin, Role.Operator)
   @Get('chatSession/:chatSessionId/view')
   async getMessages(
     @Param() params: GetMessagesParamsDto,
