@@ -3,6 +3,7 @@ import * as AWS from 'aws-sdk';
 
 @Injectable()
 export class StorageS3Service {
+  private readonly bucketName = 'public';
   private readonly s3 = new AWS.S3();
   constructor() {
     this.s3 = new AWS.S3({
@@ -10,31 +11,26 @@ export class StorageS3Service {
       accessKeyId: 'uRsbne6cDNXWHGLk',
       secretAccessKey: 'trO8CyQGwLO6UOiHFRUe2kdCJl0UYlOm',
       s3ForcePathStyle: true,
-      signatureVersion: 'v4',
+      // signatureVersion: 'v4',
     });
   }
-  async uploadFile(
-    bucketName: string,
-    key: string,
-    body: Buffer,
-    contentType: string,
-  ) {
+  async uploadFile(fileName: string, buffer: Buffer, contentType: string) {
     const params = {
-      Bucket: bucketName,
-      Key: key,
-      Body: body,
+      Bucket: this.bucketName,
+      Key: fileName,
+      Body: buffer,
       ContentType: contentType,
     };
 
     await this.s3.upload(params).promise();
 
-    return `${this.s3.config.endpoint}/${bucketName}/${key}`;
+    return `${this.s3.config.endpoint}/${this.bucketName}/${fileName}`;
   }
 
-  async getPresignedUrl(bucketName: string, key: string) {
+  async getPresignedUrl(bucketName: string, fileName: string) {
     const params = {
       Bucket: bucketName,
-      Key: key,
+      Key: fileName,
       Expires: 60,
     };
     return this.s3.getSignedUrlPromise('getObject', params);
