@@ -49,23 +49,11 @@ export class MessagesController {
   }
 
   @Roles(Role.Admin, Role.Operator)
-  @Get('chatSession/:chatSessionId/view')
-  async getMessages(
-    @Param() params: GetMessagesParamsDto,
-    @Req() req: RequestModel,
-    @Query() query: GetMessagesQueryDto,
-  ) {
-    const chatSessionId = params.chatSessionId;
-    const accountId = req.user.accountId;
-
-    const chatSession =
-      await this.chatSessionService.getChatSessionById(chatSessionId);
-
+  @Get('chatSession/view')
+  async getMessages(@Query() query: GetMessagesQueryDto) {
     return this.messageService.getMessages(
-      chatSession,
       query.q,
       new PaginationModel(query.page, query.limit),
-      accountId,
     );
   }
 }

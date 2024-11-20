@@ -25,7 +25,6 @@ export class MessageService {
     imageUrl: string | undefined,
     reqAccountId: number,
   ) {
-
     const newMessage = new MessageEntity();
     newMessage.chatSessionId = chatSession.id;
     newMessage.accountId = account.id;
@@ -38,12 +37,9 @@ export class MessageService {
   }
 
   async getMessages(
-    chatSession: ChatSessionEntity,
     q: string | undefined,
     pagination: PaginationModel,
-    reqAccountId: number,
   ) {
-
     const query = this.messageRepository.createQueryBuilder('message');
 
     if (q) {
