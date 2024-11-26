@@ -16,7 +16,7 @@ socket.on('connect', () => {
   });
 
   socket.on('newMessage', (data) => {
-    console.log('Received message:', data);
+    console.log('New message:', data);
   });
 
   setTimeout(() => {
