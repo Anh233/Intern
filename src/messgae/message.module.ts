@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MessageEntity } from './entities/message.entity';
-import { MessagesController } from './message.controller';
 import { ChatSessionsModule } from 'src/chat-session/chat-session.module';
-import { MessageService } from './message.service';
 import { AccountModule } from 'src/account/account.module';
 import { MessageGateway } from './gateways/message.gateway';
+import { MessageService } from './message.service';
+import { MessageController } from './message.controller';
 
 @Module({
   imports: [
@@ -13,8 +13,8 @@ import { MessageGateway } from './gateways/message.gateway';
     ChatSessionsModule,
     AccountModule,
   ],
-  controllers: [MessagesController],
+  controllers: [MessageController],
   providers: [MessageService, MessageGateway],
   exports: [MessageService],
 })
-export class MessagesModule {}
+export class MessageModule {}

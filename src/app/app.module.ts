@@ -11,11 +11,12 @@ import app from 'src/config/app';
 import { AccountTokenModule } from 'src/account/modules/account-token/account-token.module';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { ChatSessionsModule } from 'src/chat-session/chat-session.module';
-import { MessagesModule } from 'src/messgae/message.module';
 import { AccountDetailModule } from 'src/account/modules/account-detail/account-detail.module';
 import { RoleModule } from 'src/role/role.module';
 import { CategoryModule } from 'src/category/category.module';
 import { StorageS3Module } from 'src/storage/storage-s3.module';
+import { MessageGateway } from 'src/messgae/gateways/message.gateway';
+import { MessageModule } from 'src/messgae/message.module';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -38,7 +39,7 @@ import { StorageS3Module } from 'src/storage/storage-s3.module';
       load: [app],
     }),
     ChatSessionsModule,
-    MessagesModule,
+    MessageModule,
     AccountDetailModule,
     RoleModule,
     CategoryModule,

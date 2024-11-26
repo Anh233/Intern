@@ -12,12 +12,11 @@ import { ChatSessionService } from 'src/chat-session/chat-session.service';
 import { RequestModel } from 'src/auth/models/request.model';
 import { ApiTags } from '@nestjs/swagger';
 import { AccountService } from 'src/account/account.service';
-import { CheckPermissions } from 'src/decorators/check-permissions.decorator';
 import { MessageGateway } from './gateways/message.gateway';
 
 @ApiTags('Message')
 @Controller('api/v1/message')
-export class MessagesController {
+export class MessageController {
   constructor(
     private readonly messageService: MessageService,
     private readonly chatSessionService: ChatSessionService,
@@ -48,8 +47,10 @@ export class MessagesController {
       reqAccountId,
     );
 
+    //console.log('Emitting newMessage event');
+
     this.messageGateway.server.to(chatSessionId.toString()).emit('newMessage', {
-      chatSessionId: chatSessionId,
+      chatSessionId,
       accountId: body.accountId,
       message: body.message,
       imageUrl: body.imageUrl,

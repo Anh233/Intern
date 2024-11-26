@@ -6,6 +6,7 @@ const socket = io('http://localhost:3000', {
 
 socket.on('connect', () => {
   console.log('Connected');
+  console.log('Connected', socket.id);
 
   socket.emit('joinChat', { chatSessionId: 6 });
   console.log('joinChat');
@@ -14,8 +15,11 @@ socket.on('connect', () => {
     console.log('Received message:', data);
   });
 
+  socket.on('newMessage', (data) => {
+    console.log('Received message:', data);
+  });
+
   setTimeout(() => {
     socket.disconnect();
-  }, 5000);
+  }, 500000);
 });
-

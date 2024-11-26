@@ -20,6 +20,7 @@ export class MessageGateway
   @WebSocketServer()
   server!: Server;
 
+  async onModuleInit() {}
   async handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
   }
