@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { StorageS3Service } from './storage-s3.service';
 import { ChatSessionsModule } from 'src/chat-session/chat-session.module';
-import { StorageS3Controller } from './storage-3.controller';
+import { StorageS3Controller } from './storage-s3.controller';
 import { MulterModule } from '@nestjs/platform-express';
 
 @Module({

@@ -13,6 +13,7 @@ import { RequestModel } from 'src/auth/models/request.model';
 import { ApiTags } from '@nestjs/swagger';
 import { AccountService } from 'src/account/account.service';
 import { CheckPermissions } from 'src/decorators/check-permissions.decorator';
+import { MessageGateway } from './gateways/message.gateway';
 
 @ApiTags('Message')
 @Controller('api/v1/message')
@@ -21,11 +22,12 @@ export class MessagesController {
     private readonly messageService: MessageService,
     private readonly chatSessionService: ChatSessionService,
     private readonly accountService: AccountService,
+    private readonly messageGateway: MessageGateway,
   ) {}
 
   @Roles(Role.User, Role.Admin, Role.CustomerService)
   @Post('chatSession/:chatSessionId/send')
-  @CheckPermissions()
+  //@CheckPermissions()
   async sendMessage(
     @Param() params: GetSendMessagesParamsDto,
     @Req() req: RequestModel,
@@ -38,13 +40,23 @@ export class MessagesController {
       await this.chatSessionService.getChatSessionById(chatSessionId);
     const account = await this.accountService.getAccount(body.accountId, true);
 
-    return this.messageService.sendMessage(
+    const message = await this.messageService.sendMessage(
       chatSession,
       account,
       body.message,
       body.imageUrl,
       reqAccountId,
     );
+
+    this.messageGateway.server.to(chatSessionId.toString()).emit('newMessage', {
+      chatSessionId: chatSessionId,
+      accountId: body.accountId,
+      message: body.message,
+      imageUrl: body.imageUrl,
+      timestamp: new Date(),
+    });
+
+    return message;
   }
 
   @Roles(Role.Admin, Role.Operator)

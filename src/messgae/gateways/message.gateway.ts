@@ -1,47 +1,69 @@
 import {
-  ConnectedSocket,
-  MessageBody,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  SubscribeMessage,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ChatSessionEntity } from 'src/chat-session/entities/chat-session.entity';
-import { AccountEntity } from 'src/account/entities/account.entity';
-import { MessageService } from '../message.service';
 
-@WebSocketGateway({ namespace: 'message' })
-export class MessageGateway {
-  @WebSocketServer() server!: Server;
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['content-type'],
+  },
+})
+export class MessageGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
+  @WebSocketServer()
+  server!: Server;
 
-  constructor(private readonly messageService: MessageService) {}
-
-  @SubscribeMessage('send_message')
-  async sendMessage(
-    chatSession: ChatSessionEntity,
-    account: AccountEntity,
-    message: string,
-    imageUrl: string | undefined,
-    reqAccountId: number,
-    // @ConnectedSocket() client: Socket,
-  ) {
-    const newMessage = await this.messageService.sendMessage(
-      chatSession,
-      account,
-      message,
-      imageUrl,
-      reqAccountId,
-    );
-    this.server
-      .to(`chat_session_${chatSession.id}`)
-      .emit('new_message', newMessage);
+  async handleConnection(client: Socket) {
+    console.log(`Client connected: ${client.id}`);
   }
 
-  @SubscribeMessage('join_chat_session')
-  sendJoinChatSession(
-    @MessageBody() chatSessionId: number,
-    @ConnectedSocket() client: Socket,
+  async handleDisconnect(client: Socket) {
+    console.log(`Client disconnected: ${client.id}`);
+  }
+
+  @SubscribeMessage('joinChat')
+  handleJoinChat(client: Socket, payload: { chatSessionId: number }) {
+    const chatSessionId = payload.chatSessionId;
+    if (!chatSessionId) {
+      console.error('chatSessionId is missing or invalid');
+      return;
+    }
+    client.join(chatSessionId.toString());
+    console.log(`Client ${client.id} joined chat session: ${chatSessionId}`);
+  }
+
+  @SubscribeMessage('sendMessage')
+  async handleMessage(
+    client: Socket,
+    payload: {
+      chatSessionId: number;
+      message: string;
+      accountId: number;
+      imageUrl?: string;
+    },
   ) {
-    client.join(`chat_session_${chatSessionId}`);
+    const chatSessionId = payload.chatSessionId;
+    console.log('Received payload:', payload.chatSessionId);
+    if (isNaN(chatSessionId)) {
+      console.error('chatSessionId không hợp lệ hoặc bị thiếu');
+      return;
+    }
+
+    this.server.to(chatSessionId.toString()).emit('newMessage', {
+      chatSessionId,
+      accountId: payload.accountId,
+      message: payload.message,
+      imageUrl: payload.imageUrl,
+      timestamp: new Date(),
+    });
+
+    console.log(`Message sent to chat session: ${chatSessionId}`);
   }
 }

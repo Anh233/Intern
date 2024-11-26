@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationModel } from 'src/utils/models/pagination.model';
-import { MessageEntity } from './entities/messages.entity';
+import { MessageEntity } from './entities/message.entity';
 import { MessageModel } from '../utils/models/message.model';
 import { ChatSessionService } from 'src/chat-session/chat-session.service';
 import { PageListModel } from 'src/utils/models/page-list.model';

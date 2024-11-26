@@ -7,12 +7,15 @@ const socket = io('http://localhost:3000', {
 socket.on('connect', () => {
   console.log('Connected');
 
-  socket.emit('message', { message: 'Hello, World!' });
-  socket.on('message', (data) => {
-    console.log('Nhận được tin nhắn từ server', data);
+  socket.emit('joinChat', { chatSessionId: 6 });
+  console.log('joinChat');
+
+  socket.on('sendMessage', (data) => {
+    console.log('Received message:', data);
   });
 
   setTimeout(() => {
     socket.disconnect();
   }, 5000);
 });
+
