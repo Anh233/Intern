@@ -17,7 +17,7 @@ export class StorageS3Controller {
   constructor(private readonly storageS3Service: StorageS3Service) {}
 
   @FileRules(5 * 1024 * 1024, ['image/jpeg', 'image/png', 'image/jpg'])
-  @Post('chatSession/:chatSession/upload')
+  @Post('upload')
   @UseInterceptors(FileInterceptor('file', multerOptions))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     const fileName = `${uuidv4()}-${file.originalname}`;
