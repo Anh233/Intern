@@ -7,28 +7,16 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('account')
-export class AccountEntity {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Column()
-  username!: string;
-
-  @Column()
-  password?: string;
-
-  @Column()
-  email?: string;
-
-  @Column({ name: 'phone_number' })
-  phoneNumber?: string;
-
-  @Column({ name: 'role_id' })
+@Entity('role')
+export class RoleEntity {
+  @PrimaryGeneratedColumn({ name: 'id' })
   roleId!: number;
 
-  @Column({ name: 'is_active' })
-  isActive!: number;
+  @Column()
+  name!: string;
+
+  @Column()
+  detail?: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;

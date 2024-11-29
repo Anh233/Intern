@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, IsNull, Repository } from 'typeorm';
 import { AccountEntity } from './entities/account.entity';
 import { hash } from 'bcrypt';
-import { AccountModel } from './models/account.model';
+import { AccountModel } from '../utils/models/account.model';
 import { PaginationModel } from 'src/utils/models/pagination.model';
 import { PageListModel } from 'src/utils/models/page-list.model';
 
@@ -14,7 +14,7 @@ export class AccountService {
     private readonly accountRepository: Repository<AccountEntity>,
   ) {}
 
-  async getAccount(accountId: number) {
+  async getAccount(accountId: number | undefined, isHiddenPassword: boolean) {
     const account = await this.accountRepository.findOne({
       where: {
         id: accountId,
@@ -24,6 +24,10 @@ export class AccountService {
 
     if (!account) {
       throw new HttpException('ACCOUNT_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    if (isHiddenPassword) {
+      account.password = undefined;
     }
 
     return account;
@@ -50,6 +54,7 @@ export class AccountService {
     email: string,
     phoneNumber: string,
     roleId: number,
+    reqAccountId: number,
   ): Promise<AccountEntity> {
     const hashedPassword = await hash(password, 10);
 
@@ -61,6 +66,7 @@ export class AccountService {
     newAccount.roleId = roleId;
     newAccount.isActive = 1;
     newAccount.createdAt = new Date();
+    newAccount.createdBy = reqAccountId;
 
     return await this.accountRepository.save(newAccount);
   }
@@ -89,7 +95,7 @@ export class AccountService {
       },
     );
 
-    return await this.getAccount(account.id);
+    return await this.getAccount(account.id, true);
   }
 
   async deleteAccount(
@@ -102,6 +108,7 @@ export class AccountService {
         deletedAt: IsNull(),
       },
       {
+        isActive: 0,
         deletedAt: new Date(),
         deletedBy: reqAccountId,
       },
@@ -120,7 +127,7 @@ export class AccountService {
 
     if (accountId) {
       query.andWhere('account.id = :accountId', {
-        accountId: accountId,
+        id: accountId,
       });
     }
     if (roleId !== undefined) {

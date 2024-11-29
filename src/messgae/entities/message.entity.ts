@@ -4,46 +4,36 @@ import {
   DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('account')
-export class AccountEntity {
+@Entity('message')
+export class MessageEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
-  username!: string;
+  @Column({ name: 'chat_session_id' })
+  chatSessionId!: number;
+
+  @Column({ name: 'account_id' })
+  accountId!: number;
 
   @Column()
-  password?: string;
+  message!: string;
 
-  @Column()
-  email?: string;
-
-  @Column({ name: 'phone_number' })
-  phoneNumber?: string;
-
-  @Column({ name: 'role_id' })
-  roleId!: number;
-
-  @Column({ name: 'is_active' })
-  isActive!: number;
+  @Column({ name: 'image_url' })
+  imageUrl?: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;
 
   @Column({ name: 'created_by' })
-  createdBy?: number;
+  createdBy!: number;
 
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamp',
-  })
-  updateAt?: Date;
+  @CreateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updateAt!: Date;
 
   @Column({ name: 'updated_by' })
-  updateBy?: number;
+  updateBy!: number;
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp' })
   deletedAt?: Date;

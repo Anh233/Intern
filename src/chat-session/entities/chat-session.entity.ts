@@ -7,28 +7,22 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('account')
-export class AccountEntity {
+@Entity('chat_session')
+export class ChatSessionEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
-  username!: string;
+  @Column({ name: 'user_account_id' })
+  userAccountId!: number;
+
+  @Column({ name: 'as_account_id' })
+  assignedAccountId?: number;
 
   @Column()
-  password?: string;
+  status!: string;
 
-  @Column()
-  email?: string;
-
-  @Column({ name: 'phone_number' })
-  phoneNumber?: string;
-
-  @Column({ name: 'role_id' })
-  roleId!: number;
-
-  @Column({ name: 'is_active' })
-  isActive!: number;
+  @Column({ name: 'category_id' })
+  categoryId?: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;
@@ -50,4 +44,10 @@ export class AccountEntity {
 
   @Column({ name: 'deleted_by' })
   deletedBy?: number;
+
+  @Column({ name: 'resolved_at', type: 'timestamp' })
+  resolvedAt?: Date;
+
+  @Column({ name: 'resolved_by' })
+  resolvedBy?: number;
 }

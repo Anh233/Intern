@@ -5,31 +5,39 @@ import {
   ForbiddenException,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Query,
   Req,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { Public } from 'src/decorators/public.decorator';
 import { RequestModel } from 'src/auth/models/request.model';
-import { CreateAccountBodyDto, GetAccountsQueryDto } from './dtos/account.dto';
+import {
+  CreateAccountBodyDto,
+  GetAccountIdParamDto,
+  GetAccountsQueryDto,
+} from './dtos/account.dto';
 import { UpdateAccountBodyDto } from './dtos/account.dto';
-import { AccountModel } from './models/account.model';
-import { Roles } from './decorators/roles.decorator';
-import { Role } from './enums/role.enum';
+import { Roles } from '../decorators/roles.decorator';
+import { Role } from '../enums/role.enum';
 import { PaginationModel } from 'src/utils/models/pagination.model';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Account')
 @Controller('api/v1/account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
+  @Get(':accountId/detail')
+  async getAccount(@Param() params: GetAccountIdParamDto) {
+    const accountId = params.accountId;
+    return await this.accountService.getAccount(accountId, true);
+  }
+
   @Get('all')
   @Roles(Role.Admin)
-  async getAccounts(
-    @Query() query: GetAccountsQueryDto,
-  ): Promise<{ data: AccountModel[]; total: number }> {
+  async getAccounts(@Query() query: GetAccountsQueryDto) {
     return await this.accountService.getAccounts(
       query.accountId,
       query.roleId,
@@ -40,24 +48,28 @@ export class AccountController {
 
   @Public()
   @Post('create')
-  async createAccount(@Body() body: CreateAccountBodyDto) {
+  async createAccount(
+    @Body() body: CreateAccountBodyDto,
+    @Req() request: RequestModel,
+  ) {
+    const accountId = request.user.accountId;
     return await this.accountService.createAccount(
       body.username,
       body.password,
       body.email,
       body.phoneNumber,
       body.roleId,
+      accountId,
     );
   }
 
   @Put('update/me')
-  @Roles(Role.Admin, Role.User)
   async updateAccount(
     @Req() request: RequestModel,
     @Body() body: UpdateAccountBodyDto,
   ) {
     const accountId = request.user.accountId;
-    const account = await this.accountService.getAccount(accountId);
+    const account = await this.accountService.getAccount(accountId, true);
     return await this.accountService.updateAccount(
       account,
       body.password,
@@ -69,10 +81,9 @@ export class AccountController {
   }
 
   @Delete(':accountId/delete')
-  @Roles(Role.Admin, Role.User)
   async deleteAccount(
     @Req() request: RequestModel,
-    @Param('accountId', ParseIntPipe) accountId: number,
+    @Param('accountId') accountId: number,
   ) {
     const reqAccountId = request.user.accountId;
     const userRole = request.user.roleId;
@@ -85,11 +96,15 @@ export class AccountController {
       if (reqAccountId !== accountId) {
         throw new ForbiddenException('User can only delete their own account');
       }
+    } else if (userRole == Role.CustomerService || userRole == Role.Operator) {
+      if (reqAccountId !== accountId) {
+        throw new ForbiddenException('You can not delete own account');
+      }
     } else {
       throw new ForbiddenException('Insufficient permissions');
     }
 
-    const account = await this.accountService.getAccount(accountId);
+    const account = await this.accountService.getAccount(accountId, true);
     return await this.accountService.deleteAccount(account, reqAccountId);
   }
 

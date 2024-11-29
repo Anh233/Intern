@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AccountService } from 'src/account/account.service';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuid4 } from 'uuid';
-import { AccountTokenService } from 'src/account-token/account-token.service';
+import { AccountTokenService } from 'src/account/modules/account-token/account-token.service';
 import { LoginModel } from './models/login.model';
 import { compare } from 'bcrypt';
 import { TokenPayloadModel } from './models/token-payload.model';
@@ -24,7 +24,9 @@ export class AuthService {
       throw new UnauthorizedException('Account is inactive');
     }
 
-    const isPasswordValid = await compare(password, account.password);
+    const isPasswordValid = account.password
+      ? await compare(password, account.password)
+      : false;
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }
